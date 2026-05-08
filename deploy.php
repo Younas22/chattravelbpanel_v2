@@ -37,7 +37,7 @@ if ($ref !== "refs/heads/{$branch}") {
     die('Ignored: Not target branch');
 }
 
-logMsg('Running git pull in: ' . __DIR__);
+logMsg('Running deploy in: ' . __DIR__);
 
 // Check if shell_exec is available
 if (!function_exists('shell_exec')) {
@@ -45,6 +45,9 @@ if (!function_exists('shell_exec')) {
     http_response_code(500);
     die('shell_exec disabled');
 }
+
+// Remove self so git can overwrite this untracked file
+@unlink(__FILE__);
 
 $cmd = 'cd ' . escapeshellarg(__DIR__)
     . ' && git fetch origin ' . escapeshellarg($branch)
