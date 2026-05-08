@@ -33,7 +33,7 @@ class Message extends Model
     public function getAttachmentUrlAttribute(): ?string
     {
         if (!$this->attachment_path) return null;
-        return asset('storage/' . $this->attachment_path);
+        return rtrim(config('app.url'), '/') . '/attachments/' . $this->attachment_path;
     }
 
     public function getFormattedSizeAttribute(): ?string

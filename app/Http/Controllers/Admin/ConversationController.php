@@ -73,7 +73,7 @@ class ConversationController extends Controller
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $path = $file->store('attachments/' . $conversation->id, 'public');
+            $path = $file->store((string) $conversation->id, 'public_direct');
             $data['attachment_path'] = $path;
             $data['attachment_name'] = $file->getClientOriginalName();
             $data['attachment_mime'] = $file->getMimeType();
@@ -150,7 +150,7 @@ class ConversationController extends Controller
     {
         // Delete attached files
         $conversation->messages()->whereNotNull('attachment_path')->each(function ($msg) {
-            Storage::disk('public')->delete($msg->attachment_path);
+            Storage::disk('public_direct')->delete($msg->attachment_path);
         });
         $conversation->delete();
         return response()->json(['deleted' => true]);

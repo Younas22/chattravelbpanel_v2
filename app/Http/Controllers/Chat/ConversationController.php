@@ -169,7 +169,7 @@ class ConversationController extends Controller
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $path = $file->store('attachments/' . $conversation->id, 'public');
+            $path = $file->store((string) $conversation->id, 'public_direct');
             $data['attachment_path'] = $path;
             $data['attachment_name'] = $file->getClientOriginalName();
             $data['attachment_mime'] = $file->getMimeType();

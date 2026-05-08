@@ -147,8 +147,20 @@
       #tbp-typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
       @keyframes tbp-bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
 
+      /* Emoji picker */
+      #tbp-emoji-btn { width: 36px; height: 36px; border-radius: 10px; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: ${dark ? '#334155' : '#f1f5f9'}; color: ${dark ? '#94a3b8' : '#6b7280'}; font-size: 18px; transition: all 0.15s; }
+      #tbp-emoji-btn:hover { background: ${dark ? '#475569' : '#e5e7eb'}; }
+      #tbp-emoji-panel { position: absolute; bottom: 60px; ${settings.position === 'bottom-right' ? 'right: 12px;' : 'left: 12px;'} background: ${dark ? '#1e293b' : '#fff'}; border: 1px solid ${dark ? '#334155' : '#e5e7eb'}; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); padding: 8px; width: 280px; z-index: 10; }
+      #tbp-emoji-panel.hidden { display: none; }
+      .tbp-emoji-cats { display: flex; gap: 4px; margin-bottom: 6px; border-bottom: 1px solid ${dark ? '#334155' : '#f1f5f9'}; padding-bottom: 6px; }
+      .tbp-emoji-cat-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px 6px; border-radius: 6px; opacity: 0.6; transition: all 0.15s; }
+      .tbp-emoji-cat-btn:hover, .tbp-emoji-cat-btn.active { opacity: 1; background: ${dark ? '#334155' : '#f1f5f9'}; }
+      .tbp-emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; max-height: 160px; overflow-y: auto; }
+      .tbp-emoji-item { background: none; border: none; cursor: pointer; font-size: 20px; padding: 4px; border-radius: 6px; text-align: center; transition: background 0.1s; line-height: 1; }
+      .tbp-emoji-item:hover { background: ${dark ? '#334155' : '#f1f5f9'}; }
+
       /* Input area */
-      #tbp-input-area { padding: 10px 12px; border-top: 1px solid ${dark ? '#334155' : '#f1f5f9'}; display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0; background: ${dark ? '#1e293b' : '#fff'}; }
+      #tbp-input-area { padding: 10px 12px; border-top: 1px solid ${dark ? '#334155' : '#f1f5f9'}; display: flex; align-items: flex-end; gap: 8px; flex-shrink: 0; background: ${dark ? '#1e293b' : '#fff'}; position: relative; }
       #tbp-file-preview { padding: 8px 12px; background: ${dark ? '#334155' : '#f8fafc'}; border-top: 1px solid ${dark ? '#475569' : '#e5e7eb'}; font-size: 12px; color: ${dark ? '#94a3b8' : '#6b7280'}; display: flex; align-items: center; justify-content: space-between; }
       #tbp-file-preview button { background: none; border: none; cursor: pointer; color: #ef4444; font-size: 16px; line-height: 1; padding: 0 2px; }
       #tbp-textarea { flex: 1; resize: none; border: 1px solid ${dark ? '#475569' : '#e5e7eb'}; border-radius: 12px; padding: 9px 12px; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; max-height: 100px; line-height: 1.4; color: ${dark ? '#f1f5f9' : '#111827'}; background: ${dark ? '#0f172a' : '#fff'}; transition: border-color 0.15s; }
@@ -264,8 +276,19 @@
       <div id="tbp-input-area">
         <textarea id="tbp-textarea" rows="1" placeholder="Type a message…"></textarea>
         <input type="file" id="tbp-file-input" style="display:none" accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.xml,.zip,.mp4,.txt">
+        <button id="tbp-emoji-btn" title="Emoji">😊</button>
         <button id="tbp-attach-btn">${iconAttach()}</button>
         <button id="tbp-send-btn">${iconSend()}</button>
+      </div>
+      <div id="tbp-emoji-panel" class="hidden">
+        <div class="tbp-emoji-cats">
+          <button class="tbp-emoji-cat-btn active" data-cat="smileys">😊</button>
+          <button class="tbp-emoji-cat-btn" data-cat="gestures">👍</button>
+          <button class="tbp-emoji-cat-btn" data-cat="travel">✈️</button>
+          <button class="tbp-emoji-cat-btn" data-cat="objects">💼</button>
+          <button class="tbp-emoji-cat-btn" data-cat="symbols">❤️</button>
+        </div>
+        <div class="tbp-emoji-grid" id="tbp-emoji-grid"></div>
       </div>
       ${settings.show_branding === 'true' ? '<div class="tbp-branding">Powered by <a href="https://travelbookingpanel.com" target="_blank">TravelBookingPanel</a></div>' : ''}
     </div>`;
@@ -328,6 +351,70 @@
     attachBtn?.addEventListener('click', () => fileInput?.click());
     fileInput?.addEventListener('change', handleFileSelect);
     $id('tbp-file-clear')?.addEventListener('click', clearFile);
+
+    // Emoji picker
+    const emojiBtn = $id('tbp-emoji-btn');
+    const emojiPanel = $id('tbp-emoji-panel');
+    if (emojiBtn && emojiPanel) {
+      emojiBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        emojiPanel.classList.toggle('hidden');
+        if (!emojiPanel.classList.contains('hidden')) {
+          renderEmojiGrid('smileys');
+          $all('.tbp-emoji-cat-btn').forEach(b => b.classList.remove('active'));
+          emojiPanel.querySelector('[data-cat="smileys"]')?.classList.add('active');
+        }
+      });
+
+      $all('.tbp-emoji-cat-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          $all('.tbp-emoji-cat-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          renderEmojiGrid(btn.dataset.cat);
+        });
+      });
+
+      shadow.addEventListener('click', (e) => {
+        if (emojiPanel && !emojiPanel.contains(e.target) && e.target !== emojiBtn) {
+          emojiPanel.classList.add('hidden');
+        }
+      });
+    }
+  }
+
+  const EMOJIS = {
+    smileys: ['😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚','😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🥸','🤩','🥳','😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖','😫','😩','🥺','😢','😭','😤','😠','😡'],
+    gestures: ['👍','👎','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👋','🤚','🖐️','✋','🖖','🤝','🙏','✍️','💪','🦵','🦶','👂','🦻','👃','🫀','🫁','🧠','🦷','🦴','👀','👁️','👅','👄'],
+    travel: ['✈️','🚀','🛸','🚁','🛶','⛵','🚢','🚂','🚃','🚄','🚅','🚆','🚇','🚈','🚉','🚊','🚝','🚞','🚋','🚌','🚍','🚎','🚐','🚑','🚒','🚓','🚔','🚕','🚖','🚗','🚘','🚙','🛻','🚚','🏖️','🏔️','🗺️','🧭','🏕️','🌍','🌎','🌏','🗼','🗽','🏰','🏯','🎡','🎢'],
+    objects: ['💼','💻','📱','⌨️','🖥️','🖨️','🖱️','📷','📸','📹','🎥','📽️','🎬','📞','☎️','📟','📠','📺','📻','🧭','⏱️','⏰','⌚','📡','🔋','🔌','💡','🔦','🕯️','📦','📫','📪','📬','📭','📮','🗳️','✏️','✒️','🖊️','🖋️','📝','📁','📂','🗂️','📅','📆','🗒️','🗓️'],
+    symbols: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉️','✡️','🔯','🕎','☯️','☦️','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','🉑','☢️','☣️','📴','📳'],
+  };
+
+  function renderEmojiGrid(cat) {
+    const grid = $id('tbp-emoji-grid');
+    if (!grid) return;
+    const emojis = EMOJIS[cat] || [];
+    grid.innerHTML = emojis.map(e =>
+      `<button class="tbp-emoji-item">${e}</button>`
+    ).join('');
+    grid.querySelectorAll('.tbp-emoji-item').forEach(btn => {
+      btn.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const textarea = $id('tbp-textarea');
+        if (textarea) {
+          const start = textarea.selectionStart;
+          const end = textarea.selectionEnd;
+          const val = textarea.value;
+          textarea.value = val.slice(0, start) + btn.textContent + val.slice(end);
+          textarea.selectionStart = textarea.selectionEnd = start + btn.textContent.length;
+          textarea.focus();
+          textarea.style.height = 'auto';
+          textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+        }
+        $id('tbp-emoji-panel')?.classList.add('hidden');
+      });
+    });
   }
 
   let selectedFile = null;
