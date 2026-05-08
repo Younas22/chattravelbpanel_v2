@@ -46,8 +46,12 @@ if (!function_exists('shell_exec')) {
     die('shell_exec disabled');
 }
 
-$output = shell_exec('cd ' . escapeshellarg(__DIR__) . ' && git pull origin ' . escapeshellarg($branch) . ' 2>&1');
-logMsg('git pull output: ' . $output);
+$cmd = 'cd ' . escapeshellarg(__DIR__)
+    . ' && git fetch origin ' . escapeshellarg($branch)
+    . ' && git reset --hard origin/' . escapeshellarg($branch)
+    . ' 2>&1';
+$output = shell_exec($cmd);
+logMsg('Deploy output: ' . $output);
 
 http_response_code(200);
 echo "<pre>$output</pre>";
