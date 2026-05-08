@@ -47,14 +47,21 @@
     pollInterval: null,
     heartbeatInterval: null,
     unread: 0,
-    screen: 'home', // home | chat | faq
+    screen: 'home',
     faqs: [],
     selectedFaq: null,
     soundEnabled: true,
-    view: 'home', // home | chat
+    view: 'home',
     inputFocused: false,
     isMobile: window.innerWidth < 640,
   };
+
+  // Shadow DOM root — set during init
+  let shadow = null;
+
+  // ─── Shadow DOM query helpers ─────────────────────────────────────────────
+  function $id(id) { return shadow ? shadow.getElementById(id) : null; }
+  function $all(sel) { return shadow ? shadow.querySelectorAll(sel) : []; }
 
   // ─── Load Font ────────────────────────────────────────────────────────────
   function loadFont() {
@@ -65,9 +72,17 @@
       link.href = FONT_URL;
       document.head.appendChild(link);
     }
+    // Also inject inside shadow so inherited font works reliably
+    if (shadow && !shadow.getElementById('tbp-font-shadow')) {
+      const link = document.createElement('link');
+      link.id = 'tbp-font-shadow';
+      link.rel = 'stylesheet';
+      link.href = FONT_URL;
+      shadow.appendChild(link);
+    }
   }
 
-  // ─── Inject CSS ───────────────────────────────────────────────────────────
+  // ─── Inject CSS into Shadow DOM ───────────────────────────────────────────
   function injectStyles() {
     const dark = settings.dark_mode === 'true';
     const r = settings.border_radius + 'px';
@@ -75,7 +90,9 @@
     const t = settings.text_color;
 
     const css = `
-      #tbp-widget * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+      /* Reset — safe inside shadow DOM, won't leak out */
+      * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+
       #tbp-widget { position: fixed; z-index: 999999; ${settings.position === 'bottom-right' ? 'bottom: 24px; right: 24px;' : 'bottom: 24px; left: 24px;'} }
       #tbp-btn { width: 56px; height: 56px; border-radius: 50%; background: ${p}; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px ${p}55; transition: transform 0.2s, box-shadow 0.2s; position: relative; }
       #tbp-btn:hover { transform: scale(1.08); box-shadow: 0 8px 28px ${p}66; }
@@ -155,18 +172,22 @@
       #tbp-messages::-webkit-scrollbar-thumb { background: ${dark ? '#475569' : '#e2e8f0'}; border-radius: 4px; }
     `;
 
-    let style = document.getElementById('tbp-styles');
-    if (!style) { style = document.createElement('style'); style.id = 'tbp-styles'; document.head.appendChild(style); }
+    let style = shadow.getElementById('tbp-styles');
+    if (!style) {
+      style = document.createElement('style');
+      style.id = 'tbp-styles';
+      shadow.appendChild(style);
+    }
     style.textContent = css;
   }
 
   // ─── Render Widget HTML ───────────────────────────────────────────────────
   function render() {
-    let widget = document.getElementById('tbp-widget');
+    let widget = shadow.getElementById('tbp-widget');
     if (!widget) {
       widget = document.createElement('div');
       widget.id = 'tbp-widget';
-      document.body.appendChild(widget);
+      shadow.appendChild(widget);
     }
 
     widget.innerHTML = `
@@ -251,7 +272,7 @@
   }
 
   function renderMessage(m) {
-    const side = m.sender_type === 'visitor' ? 'visitor' : (m.sender_type === 'bot' ? 'admin' : 'admin');
+    const side = m.sender_type === 'visitor' ? 'visitor' : 'admin';
     const cls = m.sender_type === 'visitor' ? 'visitor' : (m.sender_type === 'bot' ? 'bot' : 'admin');
     const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -273,13 +294,13 @@
 
   // ─── Events ───────────────────────────────────────────────────────────────
   function bindEvents() {
-    document.getElementById('tbp-btn')?.addEventListener('click', toggleWidget);
-    document.getElementById('tbp-close')?.addEventListener('click', closeWidget);
-    document.getElementById('tbp-start-chat')?.addEventListener('click', startChat);
-    document.getElementById('tbp-start-from-faq')?.addEventListener('click', startChat);
-    document.getElementById('tbp-back')?.addEventListener('click', () => { state.selectedFaq = null; render(); });
+    $id('tbp-btn')?.addEventListener('click', toggleWidget);
+    $id('tbp-close')?.addEventListener('click', closeWidget);
+    $id('tbp-start-chat')?.addEventListener('click', startChat);
+    $id('tbp-start-from-faq')?.addEventListener('click', startChat);
+    $id('tbp-back')?.addEventListener('click', () => { state.selectedFaq = null; render(); });
 
-    document.querySelectorAll('[data-faq-id]').forEach(btn => {
+    $all('[data-faq-id]').forEach(btn => {
       btn.addEventListener('click', () => {
         const id = parseInt(btn.dataset.faqId);
         state.selectedFaq = state.faqs.find(f => f.id === id);
@@ -287,10 +308,10 @@
       });
     });
 
-    const textarea = document.getElementById('tbp-textarea');
-    const sendBtn = document.getElementById('tbp-send-btn');
-    const attachBtn = document.getElementById('tbp-attach-btn');
-    const fileInput = document.getElementById('tbp-file-input');
+    const textarea = $id('tbp-textarea');
+    const sendBtn = $id('tbp-send-btn');
+    const attachBtn = $id('tbp-attach-btn');
+    const fileInput = $id('tbp-file-input');
 
     if (textarea) {
       textarea.addEventListener('keydown', e => {
@@ -306,7 +327,7 @@
     sendBtn?.addEventListener('click', sendMessage);
     attachBtn?.addEventListener('click', () => fileInput?.click());
     fileInput?.addEventListener('change', handleFileSelect);
-    document.getElementById('tbp-file-clear')?.addEventListener('click', clearFile);
+    $id('tbp-file-clear')?.addEventListener('click', clearFile);
   }
 
   let selectedFile = null;
@@ -315,16 +336,17 @@
     const file = e.target.files[0];
     if (!file) return;
     selectedFile = file;
-    const preview = document.getElementById('tbp-file-preview');
-    const name = document.getElementById('tbp-file-name');
+    const preview = $id('tbp-file-preview');
+    const name = $id('tbp-file-name');
     if (preview) preview.style.display = 'flex';
     if (name) name.textContent = file.name;
   }
 
   function clearFile() {
     selectedFile = null;
-    document.getElementById('tbp-file-input').value = '';
-    const preview = document.getElementById('tbp-file-preview');
+    const fileInput = $id('tbp-file-input');
+    if (fileInput) fileInput.value = '';
+    const preview = $id('tbp-file-preview');
     if (preview) preview.style.display = 'none';
   }
 
@@ -369,7 +391,6 @@
       state.conversationId = res.conversation_id;
       state.view = 'chat';
       render();
-      // Auto welcome message
       state.messages.push({
         id: 'welcome',
         sender_type: 'bot',
@@ -427,7 +448,7 @@
   }
 
   async function sendMessage() {
-    const textarea = document.getElementById('tbp-textarea');
+    const textarea = $id('tbp-textarea');
     const body = textarea?.value?.trim();
     if (!body && !selectedFile) return;
 
@@ -441,7 +462,6 @@
     if (body) formData.append('body', body);
     if (selectedFile) formData.append('attachment', selectedFile);
 
-    // Optimistic message
     const optimistic = {
       id: 'opt-' + Date.now(),
       sender_type: 'visitor',
@@ -459,7 +479,6 @@
 
     const res = await apiFetchForm(`/conversation/${state.conversationId}/send`, formData).catch(() => null);
     if (res?.id) {
-      // Replace optimistic with real
       const idx = state.messages.findIndex(m => m.id === optimistic.id);
       if (idx !== -1) {
         state.messages[idx] = { ...optimistic, id: res.id, created_at: res.created_at };
@@ -536,7 +555,7 @@
   }
 
   function scrollBottom() {
-    const msgs = document.getElementById('tbp-messages');
+    const msgs = $id('tbp-messages');
     if (msgs) msgs.scrollTop = msgs.scrollHeight;
   }
 
@@ -563,42 +582,41 @@
 
   // ─── Init ─────────────────────────────────────────────────────────────────
   async function init() {
+    // Create shadow host and attach Shadow DOM for full CSS isolation
+    const host = document.createElement('div');
+    host.id = 'tbp-widget-host';
+    host.style.cssText = 'all: initial; position: static;';
+    document.body.appendChild(host);
+    shadow = host.attachShadow({ mode: 'open' });
+
     loadFont();
 
-    // Load settings from server
     const s = await apiFetch('/settings').catch(() => null);
     if (s) Object.assign(settings, s);
 
-    // Load FAQs
     const faqRes = await apiFetch('/faqs').catch(() => null);
     if (faqRes) state.faqs = faqRes;
 
     injectStyles();
 
-    // Identify visitor
     await identifyVisitor();
 
-    // Start heartbeat
     state.heartbeatInterval = setInterval(heartbeat, 30000);
 
-    // Mark offline on page unload
     window.addEventListener('beforeunload', () => {
       if (state.sessionId) {
         navigator.sendBeacon(API + '/visitor/offline', JSON.stringify({ session_id: state.sessionId }));
       }
     });
 
-    // Auto popup
     if (settings.auto_popup === 'true') {
       const delay = parseInt(settings.popup_delay) || 5;
       setTimeout(() => { if (!state.isOpen) openWidget(); }, delay * 1000);
     }
 
-    // Render widget
     render();
   }
 
-  // Wait for DOM
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else {
