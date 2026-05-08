@@ -1,0 +1,12 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Static assets directly from public/
+    RewriteCond %{REQUEST_URI} ^/chattravelbpanel_v2/(.+\.(css|js|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|map))$
+    RewriteRule ^chattravelbpanel_v2/(.*)$ chattravelbpanel_v2/public/$1 [L]
+
+    # Everything else to index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>
