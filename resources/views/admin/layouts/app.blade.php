@@ -134,10 +134,15 @@
                 <span id="live-visitors-count">—</span> online
             </div>
 
-            {{-- Notifications placeholder --}}
-            <button class="p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors relative">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            {{-- Bell notification button --}}
+            <button id="admin-bell-btn" onclick="window.location='{{ route('admin.conversations.index') }}'"
+                class="p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors relative">
+                <svg id="admin-bell-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                <span id="admin-bell-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-content-center leading-none" style="display:none!important;align-items:center;justify-content:center;"></span>
             </button>
+
+            {{-- Toast container --}}
+            <div id="admin-toast-container" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;"></div>
         </header>
 
         {{-- Page Content --}}
@@ -164,18 +169,75 @@
 
 @stack('scripts')
 <script>
-// Poll dashboard stats every 10 seconds
-function updateStats() {
-    fetch('{{ route('admin.stats') }}')
-        .then(r => r.json())
-        .then(data => {
-            const el = document.getElementById('live-visitors-count');
-            if (el) el.textContent = data.active_visitors;
-        })
-        .catch(() => {});
-}
-updateStats();
-setInterval(updateStats, 10000);
+(function () {
+    let prevVisitors = null;
+    let prevUnread = null;
+
+    function playBell(file) {
+        try {
+            const a = new Audio('/voice/' + file);
+            a.volume = 0.7;
+            a.play().catch(() => {});
+        } catch (e) {}
+    }
+
+    function showToast(msg, icon) {
+        const c = document.getElementById('admin-toast-container');
+        if (!c) return;
+        const t = document.createElement('div');
+        t.style.cssText = 'background:#1e293b;color:#f1f5f9;padding:10px 14px;border-radius:12px;font-size:13px;font-family:Inter,sans-serif;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,0.25);pointer-events:auto;min-width:220px;animation:tbpSlideIn 0.3s ease;';
+        t.innerHTML = '<span style="font-size:18px">' + icon + '</span><span>' + msg + '</span>';
+        c.appendChild(t);
+        setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.4s'; setTimeout(() => t.remove(), 400); }, 4000);
+    }
+
+    function updateBellBadge(count) {
+        const badge = document.getElementById('admin-bell-badge');
+        const icon = document.getElementById('admin-bell-icon');
+        if (!badge) return;
+        if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : count;
+            badge.style.display = 'flex';
+            icon && icon.setAttribute('stroke', '#ef4444');
+        } else {
+            badge.style.display = 'none';
+            icon && icon.setAttribute('stroke', 'currentColor');
+        }
+    }
+
+    function updateStats() {
+        fetch('{{ route('admin.stats') }}')
+            .then(r => r.json())
+            .then(data => {
+                const el = document.getElementById('live-visitors-count');
+                if (el) el.textContent = data.active_visitors;
+
+                // New visitor landed
+                if (prevVisitors !== null && data.active_visitors > prevVisitors) {
+                    playBell('newvisitor.wav');
+                    showToast('New visitor on the site', '👋');
+                }
+                prevVisitors = data.active_visitors;
+
+                // New unread message
+                const unread = data.unread_messages || 0;
+                if (prevUnread !== null && unread > prevUnread) {
+                    // Only play chat sound if we're NOT already on a conversation show page
+                    // (show page has its own sound trigger)
+                    if (!document.getElementById('messages-container')) {
+                        playBell('chat.wav');
+                        showToast('New message received', '💬');
+                    }
+                }
+                prevUnread = unread;
+                updateBellBadge(unread);
+            })
+            .catch(() => {});
+    }
+
+    updateStats();
+    setInterval(updateStats, 10000);
+})();
 </script>
 </body>
 </html>

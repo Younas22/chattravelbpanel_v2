@@ -115,7 +115,7 @@
         </div>
 
         {{-- Typing bar --}}
-        <div class="border-t border-slate-100 p-4">
+        <div class="border-t border-slate-100 px-4 pt-3 pb-4 relative">
 
             {{-- Canned replies search --}}
             <div x-show="showCanned" x-cloak class="mb-3 border border-slate-200 rounded-xl overflow-hidden shadow-lg max-h-48 overflow-y-auto">
@@ -133,66 +133,70 @@
             </div>
 
             {{-- File preview --}}
-            <div x-show="filePreview" x-cloak class="mb-2 flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl">
-                <svg class="w-5 h-5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-                <span class="text-sm text-slate-700 truncate flex-1" x-text="filePreview"></span>
+            <div x-show="filePreview" x-cloak class="mb-2 flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                <span class="text-xs text-slate-700 truncate flex-1" x-text="filePreview"></span>
                 <button @click="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
-            {{-- Emoji Panel --}}
+            {{-- Emoji Panel (absolute, floats above input bar) --}}
             <div x-show="showEmoji" x-cloak @click.outside="showEmoji=false"
-                class="mb-3 border border-slate-200 rounded-xl overflow-hidden shadow-lg bg-white">
+                class="absolute bottom-full left-4 right-4 mb-2 border border-slate-200 rounded-xl shadow-xl bg-white z-50"
+                style="max-width: 360px;">
                 <div class="flex gap-1 p-2 border-b border-slate-100">
                     <template x-for="cat in emojiCats" :key="cat.key">
                         <button @click="emojiCategory=cat.key" type="button"
-                            :class="emojiCategory===cat.key ? 'bg-blue-100' : 'hover:bg-slate-100'"
-                            class="px-2 py-1 rounded-lg text-lg transition-colors" x-text="cat.icon"></button>
+                            :class="emojiCategory===cat.key ? 'bg-blue-100 text-blue-700' : 'hover:bg-slate-100 text-slate-500'"
+                            class="px-2 py-1 rounded-lg text-base transition-colors" x-text="cat.icon"></button>
                     </template>
                 </div>
-                <div class="gap-0.5 p-2 max-h-36 overflow-y-auto" style="display:grid;grid-template-columns:repeat(10,minmax(0,1fr));">
+                <div class="p-2 overflow-y-auto" style="display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:2px;max-height:140px;">
                     <template x-for="e in emojiList()" :key="e">
                         <button @click="insertEmoji(e)" type="button"
-                            class="text-xl p-1 rounded hover:bg-slate-100 transition-colors leading-none" x-text="e"></button>
+                            class="text-lg p-1 rounded hover:bg-slate-100 transition-colors leading-none" x-text="e"></button>
                     </template>
                 </div>
             </div>
 
-            <div class="flex items-end gap-2">
-                <div class="flex-1 relative">
-                    <textarea x-model="message" x-ref="msgInput"
-                        @keydown.enter.prevent="if(!$event.shiftKey) send()"
-                        @input="handleTyping()" @keyup.slash="showCannedMenu()"
-                        rows="1" placeholder="Type a message… (/ for canned replies)"
-                        class="w-full resize-none rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
-                        style="max-height: 120px;"
-                        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+            {{-- Input row --}}
+            <div class="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
+                <textarea x-model="message" x-ref="msgInput"
+                    @keydown.enter.prevent="if(!$event.shiftKey) send()"
+                    @input="handleTyping()" @keyup.slash="showCannedMenu()"
+                    rows="1" placeholder="Type a message… (/ for canned replies)"
+                    class="flex-1 resize-none bg-transparent text-sm focus:outline-none text-slate-800 placeholder-slate-400"
+                    style="max-height:120px;min-height:24px;"
+                    oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+
+                <div class="flex items-center gap-0.5 shrink-0 pb-0.5">
+                    <input type="file" id="file-input" class="hidden" @change="handleFile($event)"
+                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.xml,.zip,.mp4,.txt">
+
+                    {{-- Emoji button --}}
+                    <button @click="showEmoji=!showEmoji" type="button"
+                        :class="showEmoji ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'"
+                        class="p-1.5 rounded-lg transition-colors text-lg leading-none">
+                        😊
+                    </button>
+
+                    <button @click="document.getElementById('file-input').click()" type="button"
+                        class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                    </button>
+
+                    <button @click="toggleCanned()" type="button"
+                        :class="showCanned ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'"
+                        class="p-1.5 rounded-lg transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h7"/></svg>
+                    </button>
+
+                    <button @click="send()" :disabled="sending" type="button"
+                        class="ml-1 p-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    </button>
                 </div>
-
-                <input type="file" id="file-input" class="hidden" @change="handleFile($event)"
-                    accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.xml,.zip,.mp4,.txt">
-
-                {{-- Emoji button --}}
-                <button @click="showEmoji=!showEmoji" type="button"
-                    class="p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors shrink-0 text-xl leading-none">
-                    😊
-                </button>
-
-                <button @click="document.getElementById('file-input').click()"
-                    class="p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-                </button>
-
-                <button @click="toggleCanned()"
-                    class="p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h7"/></svg>
-                </button>
-
-                <button @click="send()" :disabled="sending"
-                    class="p-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white transition-colors shrink-0 disabled:opacity-50">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-                </button>
             </div>
         </div>
     </div>
@@ -468,16 +472,9 @@ function adminChat(conversationId) {
 
         playSound() {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const o = ctx.createOscillator();
-                const g = ctx.createGain();
-                o.connect(g);
-                g.connect(ctx.destination);
-                o.frequency.value = 880;
-                g.gain.setValueAtTime(0.3, ctx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
-                o.start(ctx.currentTime);
-                o.stop(ctx.currentTime + 0.3);
+                const audio = new Audio('/voice/chat.wav');
+                audio.volume = 0.7;
+                audio.play().catch(() => {});
             } catch(e) {}
         }
     }

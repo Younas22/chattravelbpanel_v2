@@ -117,7 +117,7 @@
             <h2 class="font-semibold text-slate-900 mb-3">Embed Code</h2>
             <p class="text-sm text-slate-500 mb-3">Add this script to your website's <code class="bg-slate-100 px-1 rounded">&lt;/body&gt;</code> tag:</p>
             <div class="relative">
-                <pre class="bg-slate-900 text-green-400 text-xs p-4 rounded-xl overflow-x-auto leading-relaxed"><code>&lt;script src="{{ url('/widget.js') }}"&gt;&lt;/script&gt;</code></pre>
+                <pre class="bg-slate-900 text-green-400 text-xs p-4 rounded-xl leading-relaxed" style="white-space:pre-wrap;word-break:break-all;overflow-wrap:break-word;"><code>&lt;script src="{{ url('/widget.js') }}"&gt;&lt;/script&gt;</code></pre>
                 <button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent.trim()); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',2000)"
                     class="absolute top-3 right-3 text-xs bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-lg transition-colors">Copy</button>
             </div>

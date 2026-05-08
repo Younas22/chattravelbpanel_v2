@@ -4,6 +4,12 @@
     # Serve build assets from public/build/
     RewriteRule ^build/(.*)$ public/build/$1 [L]
 
+    # Serve uploaded attachments from public/attachments/
+    RewriteRule ^attachments/(.*)$ public/attachments/$1 [L]
+
+    # Serve voice files from public/voice/
+    RewriteRule ^voice/(.*)$ public/voice/$1 [L]
+
     # Serve other public static files
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
