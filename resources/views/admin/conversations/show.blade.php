@@ -2,7 +2,7 @@
 @section('title', 'Chat — ' . $conversation->visitor->display_name)
 
 @section('content')
-<div class="flex gap-6 h-[calc(100vh-8rem)]" x-data="adminChat({{ $conversation->id }})">
+<div class="flex gap-6 h-[calc(100vh-8rem)] relative" x-data="adminChat({{ $conversation->id }})">
 
     {{-- Chat Panel --}}
     <div class="flex flex-col flex-1 card !p-0 overflow-hidden">
@@ -141,25 +141,6 @@
                 </button>
             </div>
 
-            {{-- Emoji Panel (absolute, floats above input bar) --}}
-            <div x-show="showEmoji" x-cloak @click.outside="showEmoji=false"
-                class="absolute bottom-full left-4 right-4 mb-2 border border-slate-200 rounded-xl shadow-xl bg-white z-50"
-                style="max-width: 360px;">
-                <div class="flex gap-1 p-2 border-b border-slate-100">
-                    <template x-for="cat in emojiCats" :key="cat.key">
-                        <button @click="emojiCategory=cat.key" type="button"
-                            :class="emojiCategory===cat.key ? 'bg-blue-100 text-blue-700' : 'hover:bg-slate-100 text-slate-500'"
-                            class="px-2 py-1 rounded-lg text-base transition-colors" x-text="cat.icon"></button>
-                    </template>
-                </div>
-                <div class="p-2 overflow-y-auto" style="display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:2px;max-height:140px;">
-                    <template x-for="e in emojiList()" :key="e">
-                        <button @click="insertEmoji(e)" type="button"
-                            class="text-lg p-1 rounded hover:bg-slate-100 transition-colors leading-none" x-text="e"></button>
-                    </template>
-                </div>
-            </div>
-
             {{-- Input row --}}
             <div class="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
                 <textarea x-model="message" x-ref="msgInput"
@@ -271,6 +252,25 @@
         </div>
         @endif
     </div>
+
+    {{-- Emoji Panel — outside overflow-hidden card so it's not clipped --}}
+    <div x-show="showEmoji" x-cloak @click.outside="showEmoji=false"
+        class="absolute z-50 border border-slate-200 rounded-xl shadow-xl bg-white"
+        style="bottom:76px;left:16px;width:300px;">
+        <div class="flex gap-1 p-2 border-b border-slate-100">
+            <template x-for="cat in emojiCats" :key="cat.key">
+                <button @click="emojiCategory=cat.key" type="button"
+                    :class="emojiCategory===cat.key ? 'bg-blue-100 text-blue-700' : 'hover:bg-slate-100 text-slate-500'"
+                    class="px-2 py-1 rounded-lg text-base transition-colors" x-text="cat.icon"></button>
+            </template>
+        </div>
+        <div class="p-2 overflow-y-auto" style="display:grid;grid-template-columns:repeat(9,1fr);gap:2px;max-height:150px;">
+            <template x-for="e in emojiList()" :key="e">
+                <button @click="insertEmoji(e)" type="button"
+                    class="text-lg p-1 rounded hover:bg-slate-100 transition-colors leading-none" x-text="e"></button>
+            </template>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -306,7 +306,7 @@ function adminChat(conversationId) {
         },
 
         init() {
-            this.scrollToBottom();
+            this.$nextTick(() => this.scrollToBottom());
             this.startPolling();
             this.loadCannedReplies();
         },

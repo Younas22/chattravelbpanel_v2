@@ -155,8 +155,8 @@
       .tbp-emoji-cats { display: flex; gap: 4px; margin-bottom: 6px; border-bottom: 1px solid ${dark ? '#334155' : '#f1f5f9'}; padding-bottom: 6px; }
       .tbp-emoji-cat-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px 6px; border-radius: 6px; opacity: 0.6; transition: all 0.15s; }
       .tbp-emoji-cat-btn:hover, .tbp-emoji-cat-btn.active { opacity: 1; background: ${dark ? '#334155' : '#f1f5f9'}; }
-      .tbp-emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; max-height: 160px; overflow-y: auto; }
-      .tbp-emoji-item { background: none; border: none; cursor: pointer; font-size: 20px; padding: 4px; border-radius: 6px; text-align: center; transition: background 0.1s; line-height: 1; }
+      .tbp-emoji-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; max-height: 140px; overflow-y: auto; overflow-x: hidden; }
+      .tbp-emoji-item { background: none; border: none; cursor: pointer; font-size: 17px; padding: 3px; border-radius: 5px; text-align: center; transition: background 0.1s; line-height: 1; }
       .tbp-emoji-item:hover { background: ${dark ? '#334155' : '#f1f5f9'}; }
 
       /* Input area */
@@ -231,7 +231,7 @@
     bindEvents();
 
     if (state.view === 'chat' && state.isOpen) {
-      scrollBottom();
+      requestAnimationFrame(() => scrollBottom());
     }
   }
 
@@ -524,13 +524,14 @@
         if (!state.messages.find(e => e.id === m.id)) {
           state.messages.push(m);
           if (m.sender_type === 'admin') {
-            if (!state.isOpen) { state.unread++; playSound(); }
+            if (!state.isOpen) state.unread++;
+            playSound();
           }
           state.lastMessageId = Math.max(state.lastMessageId, m.id);
         }
       });
       render();
-      scrollBottom();
+      requestAnimationFrame(() => scrollBottom());
     }
   }
 
@@ -562,7 +563,7 @@
     if (textarea) { textarea.value = ''; textarea.style.height = 'auto'; }
     clearFile();
     render();
-    scrollBottom();
+    requestAnimationFrame(() => scrollBottom());
 
     const res = await apiFetchForm(`/conversation/${state.conversationId}/send`, formData).catch(() => null);
     if (res?.id) {
@@ -577,6 +578,7 @@
         state.lastMessageId = Math.max(state.lastMessageId, res.id);
       }
       render();
+      requestAnimationFrame(() => scrollBottom());
     }
   }
 
@@ -654,14 +656,9 @@
   function playSound() {
     if (settings.sound_enabled !== 'true' || !state.soundEnabled) return;
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.connect(g); g.connect(ctx.destination);
-      o.frequency.value = 880;
-      g.gain.setValueAtTime(0.2, ctx.currentTime);
-      g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
-      o.start(); o.stop(ctx.currentTime + 0.25);
+      const audio = new Audio(BASE_URL + '/voice/chat.wav');
+      audio.volume = 0.6;
+      audio.play().catch(() => {});
     } catch (e) {}
   }
 
