@@ -128,10 +128,10 @@
 
       /* Chat screen */
       #tbp-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
-      .tbp-msg { max-width: 80%; display: flex; flex-direction: column; }
+      .tbp-msg { max-width: 68%; display: flex; flex-direction: column; }
       .tbp-msg.admin { align-self: flex-start; }
       .tbp-msg.visitor { align-self: flex-end; }
-      .tbp-bubble { padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.5; word-break: break-word; }
+      .tbp-bubble { padding: 8px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.45; word-break: break-word; }
       .tbp-bubble.admin { background: ${dark ? '#334155' : '#f1f5f9'}; color: ${dark ? '#e2e8f0' : '#374151'}; border-bottom-left-radius: 4px; }
       .tbp-bubble.visitor { background: ${p}; color: ${t}; border-bottom-right-radius: 4px; }
       .tbp-bubble.bot { background: ${dark ? '#1e293b' : '#fefce8'}; color: ${dark ? '#fde68a' : '#854d0e'}; border: 1px solid ${dark ? '#334155' : '#fef08a'}; border-bottom-left-radius: 4px; }

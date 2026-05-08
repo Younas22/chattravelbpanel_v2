@@ -132,9 +132,28 @@
                 </button>
             </div>
 
+            {{-- Emoji Panel --}}
+            <div x-show="showEmoji" x-cloak @click.outside="showEmoji=false"
+                class="mb-3 border border-slate-200 rounded-xl overflow-hidden shadow-lg bg-white">
+                <div class="flex gap-1 p-2 border-b border-slate-100">
+                    <template x-for="cat in emojiCats" :key="cat.key">
+                        <button @click="emojiCategory=cat.key" type="button"
+                            :class="emojiCategory===cat.key ? 'bg-blue-100' : 'hover:bg-slate-100'"
+                            class="px-2 py-1 rounded-lg text-lg transition-colors" x-text="cat.icon"></button>
+                    </template>
+                </div>
+                <div class="grid grid-cols-10 gap-0.5 p-2 max-h-36 overflow-y-auto">
+                    <template x-for="e in emojiList()" :key="e">
+                        <button @click="insertEmoji(e)" type="button"
+                            class="text-xl p-1 rounded hover:bg-slate-100 transition-colors leading-none" x-text="e"></button>
+                    </template>
+                </div>
+            </div>
+
             <div class="flex items-end gap-2">
                 <div class="flex-1 relative">
-                    <textarea x-model="message" @keydown.enter.prevent="if(!$event.shiftKey) send()"
+                    <textarea x-model="message" x-ref="msgInput"
+                        @keydown.enter.prevent="if(!$event.shiftKey) send()"
                         @input="handleTyping()" @keyup.slash="showCannedMenu()"
                         rows="1" placeholder="Type a message… (/ for canned replies)"
                         class="w-full resize-none rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10"
@@ -145,7 +164,13 @@
                 <input type="file" id="file-input" class="hidden" @change="handleFile($event)"
                     accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.xml,.zip,.mp4,.txt">
 
-                <button @click="$el.previousElementSibling.click()"
+                {{-- Emoji button --}}
+                <button @click="showEmoji=!showEmoji" type="button"
+                    class="p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors shrink-0 text-xl leading-none">
+                    😊
+                </button>
+
+                <button @click="document.getElementById('file-input').click()"
                     class="p-2.5 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors shrink-0">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                 </button>
@@ -253,6 +278,19 @@ function adminChat(conversationId) {
         fileInput: null,
         selectedFile: null,
         filePreview: '',
+        showEmoji: false,
+        emojiCategory: 'smileys',
+        emojiCats: [
+            {key:'smileys', icon:'😊'}, {key:'gestures', icon:'👍'},
+            {key:'travel', icon:'✈️'}, {key:'objects', icon:'💼'}, {key:'symbols', icon:'❤️'}
+        ],
+        emojiData: {
+            smileys:  ['😀','😃','😄','😁','😆','😅','😂','🤣','😊','😇','🙂','🙃','😉','😌','😍','🥰','😘','😗','😙','😚','😋','😛','😝','😜','🤪','🤨','🧐','🤓','😎','🥸','🤩','🥳','😏','😒','😞','😔','😟','😕','🙁','☹️','😣','😖','😫','😩','🥺','😢','😭','😤','😠','😡'],
+            gestures: ['👍','👎','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️','👋','🤚','🖐️','✋','🖖','🤝','🙏','✍️','💪','👀','👅','👄','🫶','🤲','👐'],
+            travel:   ['✈️','🚀','🛸','🚁','🛶','⛵','🚢','🚂','🚄','🚗','🚕','🚌','🚎','🏖️','🏔️','🗺️','🧭','🏕️','🌍','🌎','🌏','🗼','🗽','🏰','🏯','🎡','🎢','🎠','⛽','🚦'],
+            objects:  ['💼','💻','📱','⌨️','🖥️','📷','📹','🎥','📞','☎️','📺','📻','⏱️','⌚','📦','📫','✏️','📝','📁','📂','📅','💡','🔦','🔋','🔌','🛠️','🔧','🔨','🗝️','🔐'],
+            symbols:  ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','💔','❣️','💕','💞','💓','💗','💖','💘','💝','☮️','✝️','☪️','✡️','☯️','⭐','🌟','💫','✨','🔥','💥','🎉','🎊'],
+        },
 
         init() {
             this.scrollToBottom();
@@ -378,6 +416,22 @@ function adminChat(conversationId) {
         useCanned(reply) {
             this.message = reply.body;
             this.showCanned = false;
+        },
+
+        emojiList() {
+            return this.emojiData[this.emojiCategory] || [];
+        },
+
+        insertEmoji(emoji) {
+            const ta = this.$refs.msgInput;
+            const start = ta.selectionStart;
+            const end = ta.selectionEnd;
+            this.message = this.message.slice(0, start) + emoji + this.message.slice(end);
+            this.$nextTick(() => {
+                ta.selectionStart = ta.selectionEnd = start + emoji.length;
+                ta.focus();
+            });
+            this.showEmoji = false;
         },
 
         handleFile(event) {

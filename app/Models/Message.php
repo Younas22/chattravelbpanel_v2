@@ -33,7 +33,13 @@ class Message extends Model
     public function getAttachmentUrlAttribute(): ?string
     {
         if (!$this->attachment_path) return null;
-        return rtrim(config('app.url'), '/') . '/attachments/' . $this->attachment_path;
+        $base = rtrim(config('app.url'), '/');
+        // Old files were stored via 'public' disk: path starts with 'attachments/'
+        if (str_starts_with($this->attachment_path, 'attachments/')) {
+            return $base . '/storage/' . $this->attachment_path;
+        }
+        // New files stored via 'public_direct' disk: path is '{conv_id}/filename'
+        return $base . '/attachments/' . $this->attachment_path;
     }
 
     public function getFormattedSizeAttribute(): ?string
