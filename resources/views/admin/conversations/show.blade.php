@@ -264,7 +264,7 @@
                     class="px-2 py-1 rounded-lg text-base transition-colors" x-text="cat.icon"></button>
             </template>
         </div>
-        <div class="p-2 overflow-y-auto" style="display:grid;grid-template-columns:repeat(9,1fr);gap:2px;max-height:150px;">
+        <div class="p-2 overflow-y-auto emoji-grid-scroll" style="display:grid;grid-template-columns:repeat(9,1fr);gap:2px;max-height:150px;">
             <template x-for="e in emojiList()" :key="e">
                 <button @click="insertEmoji(e)" type="button"
                     class="text-lg p-1 rounded hover:bg-slate-100 transition-colors leading-none" x-text="e"></button>
@@ -273,6 +273,16 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+/* Thin scrollbar for emoji picker grid */
+.emoji-grid-scroll::-webkit-scrollbar { width: 3px; height: 3px; }
+.emoji-grid-scroll::-webkit-scrollbar-track { background: transparent; }
+.emoji-grid-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+.emoji-grid-scroll { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+</style>
+@endpush
 
 @push('scripts')
 <script>

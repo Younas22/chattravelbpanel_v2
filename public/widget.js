@@ -155,7 +155,10 @@
       .tbp-emoji-cats { display: flex; gap: 4px; margin-bottom: 6px; border-bottom: 1px solid ${dark ? '#334155' : '#f1f5f9'}; padding-bottom: 6px; }
       .tbp-emoji-cat-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 4px 6px; border-radius: 6px; opacity: 0.6; transition: all 0.15s; }
       .tbp-emoji-cat-btn:hover, .tbp-emoji-cat-btn.active { opacity: 1; background: ${dark ? '#334155' : '#f1f5f9'}; }
-      .tbp-emoji-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; max-height: 140px; overflow-y: auto; overflow-x: hidden; }
+      .tbp-emoji-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; max-height: 140px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: ${dark ? '#475569' : '#cbd5e1'} transparent; }
+      .tbp-emoji-grid::-webkit-scrollbar { width: 3px; }
+      .tbp-emoji-grid::-webkit-scrollbar-track { background: transparent; }
+      .tbp-emoji-grid::-webkit-scrollbar-thumb { background: ${dark ? '#475569' : '#cbd5e1'}; border-radius: 4px; }
       .tbp-emoji-item { background: none; border: none; cursor: pointer; font-size: 17px; padding: 3px; border-radius: 5px; text-align: center; transition: background 0.1s; line-height: 1; }
       .tbp-emoji-item:hover { background: ${dark ? '#334155' : '#f1f5f9'}; }
 
@@ -231,7 +234,7 @@
     bindEvents();
 
     if (state.view === 'chat' && state.isOpen) {
-      requestAnimationFrame(() => scrollBottom());
+      scrollBottomDeferred();
     }
   }
 
@@ -497,7 +500,7 @@
       state.messages = res.messages;
       if (res.messages.length) state.lastMessageId = Math.max(...res.messages.map(m => typeof m.id === 'number' ? m.id : 0));
       render();
-      scrollBottom();
+      scrollBottomDeferred();
     }
   }
 
@@ -531,7 +534,7 @@
         }
       });
       render();
-      requestAnimationFrame(() => scrollBottom());
+      scrollBottomDeferred();
     }
   }
 
@@ -563,7 +566,7 @@
     if (textarea) { textarea.value = ''; textarea.style.height = 'auto'; }
     clearFile();
     render();
-    requestAnimationFrame(() => scrollBottom());
+    scrollBottomDeferred();
 
     const res = await apiFetchForm(`/conversation/${state.conversationId}/send`, formData).catch(() => null);
     if (res?.id) {
@@ -578,7 +581,7 @@
         state.lastMessageId = Math.max(state.lastMessageId, res.id);
       }
       render();
-      requestAnimationFrame(() => scrollBottom());
+      scrollBottomDeferred();
     }
   }
 
@@ -650,7 +653,12 @@
 
   function scrollBottom() {
     const msgs = $id('tbp-messages');
-    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    if (!msgs) return;
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+
+  function scrollBottomDeferred() {
+    requestAnimationFrame(() => requestAnimationFrame(scrollBottom));
   }
 
   function playSound() {
