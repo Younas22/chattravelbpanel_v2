@@ -131,7 +131,7 @@
       .tbp-msg { max-width: 68%; display: flex; flex-direction: column; }
       .tbp-msg.admin { align-self: flex-start; }
       .tbp-msg.visitor { align-self: flex-end; }
-      .tbp-bubble { padding: 8px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.45; word-break: break-word; }
+      .tbp-bubble { padding: 8px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.45; word-break: break-word; overflow-wrap: break-word; }
       .tbp-bubble.admin { background: ${dark ? '#334155' : '#f1f5f9'}; color: ${dark ? '#e2e8f0' : '#374151'}; border-bottom-left-radius: 4px; }
       .tbp-bubble.visitor { background: ${p}; color: ${t}; border-bottom-right-radius: 4px; }
       .tbp-bubble.bot { background: ${dark ? '#1e293b' : '#fefce8'}; color: ${dark ? '#fde68a' : '#854d0e'}; border: 1px solid ${dark ? '#334155' : '#fef08a'}; border-bottom-left-radius: 4px; }
@@ -568,7 +568,12 @@
     if (res?.id) {
       const idx = state.messages.findIndex(m => m.id === optimistic.id);
       if (idx !== -1) {
-        state.messages[idx] = { ...optimistic, id: res.id, created_at: res.created_at };
+        state.messages[idx] = {
+          ...optimistic,
+          id: res.id,
+          created_at: res.created_at,
+          attachment_url: res.attachment_url || optimistic.attachment_url,
+        };
         state.lastMessageId = Math.max(state.lastMessageId, res.id);
       }
       render();

@@ -47,7 +47,7 @@
             <div class="flex {{ $msg->sender_type === 'admin' ? 'justify-end' : 'justify-start' }}">
                 <div class="max-w-[70%]">
                     @if($msg->body)
-                        <div class="px-4 py-2.5 rounded-2xl text-sm {{ $msg->sender_type === 'admin' ? 'bg-blue-600 text-white rounded-br-sm' : ($msg->sender_type === 'bot' ? 'bg-slate-100 text-slate-700 rounded-bl-sm border border-slate-200' : 'bg-slate-100 text-slate-900 rounded-bl-sm') }}">
+                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_type === 'admin' ? 'bg-blue-600 text-white rounded-br-sm' : ($msg->sender_type === 'bot' ? 'bg-slate-100 text-slate-700 rounded-bl-sm border border-slate-200' : 'bg-slate-100 text-slate-900 rounded-bl-sm') }}" style="overflow-wrap:break-word;word-break:break-word;">
                             {!! nl2br(e($msg->body)) !!}
                         </div>
                     @endif
@@ -95,9 +95,18 @@
                     <div class="max-w-[70%]">
                         <div x-show="msg.body"
                             :class="msg.sender_type === 'admin' ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm'"
+                            style="overflow-wrap:break-word;word-break:break-word;"
                             x-text="msg.body"></div>
                         <div x-show="msg.attachment_url && msg.attachment_type === 'image'" class="mt-1.5">
-                            <img :src="msg.attachment_url" class="max-w-full rounded-xl max-h-60 object-cover" />
+                            <img :src="msg.attachment_url" class="max-w-full rounded-xl max-h-60 object-cover cursor-pointer"
+                                @click="window.open(msg.attachment_url, '_blank')" />
+                        </div>
+                        <div x-show="msg.attachment_url && msg.attachment_type !== 'image'" class="mt-1.5">
+                            <a :href="msg.attachment_url" target="_blank"
+                                class="flex items-center gap-2 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+                                <svg class="w-5 h-5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                <span class="truncate text-slate-700" x-text="msg.attachment_name || 'Attachment'"></span>
+                            </a>
                         </div>
                         <p class="text-[10px] text-slate-400 mt-1" :class="msg.sender_type === 'admin' ? 'text-right' : ''" x-text="formatTime(msg.created_at)"></p>
                     </div>
@@ -142,7 +151,7 @@
                             class="px-2 py-1 rounded-lg text-lg transition-colors" x-text="cat.icon"></button>
                     </template>
                 </div>
-                <div class="grid grid-cols-10 gap-0.5 p-2 max-h-36 overflow-y-auto">
+                <div class="gap-0.5 p-2 max-h-36 overflow-y-auto" style="display:grid;grid-template-columns:repeat(10,minmax(0,1fr));">
                     <template x-for="e in emojiList()" :key="e">
                         <button @click="insertEmoji(e)" type="button"
                             class="text-xl p-1 rounded hover:bg-slate-100 transition-colors leading-none" x-text="e"></button>
