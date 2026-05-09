@@ -156,11 +156,30 @@
                         accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.xml,.zip,.mp4,.txt">
 
                     {{-- Emoji button --}}
-                    <button @click="showEmoji=!showEmoji" type="button"
-                        :class="showEmoji ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'"
-                        class="p-1.5 rounded-lg transition-colors text-lg leading-none">
-                        😊
-                    </button>
+                    <div class="relative">
+                        <button @click="showEmoji=!showEmoji" type="button"
+                            :class="showEmoji ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'"
+                            class="p-1.5 rounded-lg transition-colors text-lg leading-none">
+                            😊
+                        </button>
+                        <div x-show="showEmoji" x-cloak @click.outside="showEmoji=false"
+                            class="absolute z-50 border border-slate-200 rounded-xl shadow-xl bg-white"
+                            style="bottom:calc(100% + 6px);right:0;width:300px;">
+                            <div class="flex gap-1 p-2 border-b border-slate-100">
+                                <template x-for="cat in emojiCats" :key="cat.key">
+                                    <button @click="emojiCategory=cat.key" type="button"
+                                        :class="emojiCategory===cat.key ? 'bg-blue-100 text-blue-700' : 'hover:bg-slate-100 text-slate-500'"
+                                        class="px-2 py-1 rounded-lg text-base transition-colors" x-text="cat.icon"></button>
+                                </template>
+                            </div>
+                            <div class="p-2 overflow-y-auto emoji-grid-scroll" style="display:grid;grid-template-columns:repeat(9,1fr);gap:2px;max-height:150px;">
+                                <template x-for="e in emojiList()" :key="e">
+                                    <button @click="insertEmoji(e)" type="button"
+                                        class="text-lg p-1 rounded hover:bg-slate-100 transition-colors leading-none" x-text="e"></button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
 
                     <button @click="document.getElementById('file-input').click()" type="button"
                         class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
@@ -253,24 +272,7 @@
         @endif
     </div>
 
-    {{-- Emoji Panel — outside overflow-hidden card so it's not clipped --}}
-    <div x-show="showEmoji" x-cloak @click.outside="showEmoji=false"
-        class="absolute z-50 border border-slate-200 rounded-xl shadow-xl bg-white"
-        style="bottom:76px;right:16px;width:300px;">
-        <div class="flex gap-1 p-2 border-b border-slate-100">
-            <template x-for="cat in emojiCats" :key="cat.key">
-                <button @click="emojiCategory=cat.key" type="button"
-                    :class="emojiCategory===cat.key ? 'bg-blue-100 text-blue-700' : 'hover:bg-slate-100 text-slate-500'"
-                    class="px-2 py-1 rounded-lg text-base transition-colors" x-text="cat.icon"></button>
-            </template>
-        </div>
-        <div class="p-2 overflow-y-auto emoji-grid-scroll" style="display:grid;grid-template-columns:repeat(9,1fr);gap:2px;max-height:150px;">
-            <template x-for="e in emojiList()" :key="e">
-                <button @click="insertEmoji(e)" type="button"
-                    class="text-lg p-1 rounded hover:bg-slate-100 transition-colors leading-none" x-text="e"></button>
-            </template>
-        </div>
-    </div>
+
 </div>
 @endsection
 
