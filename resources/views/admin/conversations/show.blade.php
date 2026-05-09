@@ -256,7 +256,7 @@
     {{-- Emoji Panel — outside overflow-hidden card so it's not clipped --}}
     <div x-show="showEmoji" x-cloak @click.outside="showEmoji=false"
         class="absolute z-50 border border-slate-200 rounded-xl shadow-xl bg-white"
-        style="bottom:76px;left:16px;width:300px;">
+        style="bottom:76px;right:16px;width:300px;">
         <div class="flex gap-1 p-2 border-b border-slate-100">
             <template x-for="cat in emojiCats" :key="cat.key">
                 <button @click="emojiCategory=cat.key" type="button"
