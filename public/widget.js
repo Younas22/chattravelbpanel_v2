@@ -185,6 +185,9 @@
       #tbp-messages::-webkit-scrollbar { width: 4px; }
       #tbp-messages::-webkit-scrollbar-track { background: transparent; }
       #tbp-messages::-webkit-scrollbar-thumb { background: ${dark ? '#475569' : '#e2e8f0'}; border-radius: 4px; }
+
+      /* Mobile: hide floating button when chat is open (it overlaps send button) */
+      ${state.isMobile ? '#tbp-window:not(.hidden) ~ #tbp-btn { display: none !important; }' : ''}
     `;
 
     let style = shadow.getElementById('tbp-styles');
