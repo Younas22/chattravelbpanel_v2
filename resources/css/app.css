@@ -8,4 +8,15 @@
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
 }
-/* d */
+
+@layer components {
+    .sidebar-link { @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200; }
+    .sidebar-link.active { @apply bg-blue-600 text-white shadow-sm; }
+    .sidebar-link:not(.active) { @apply text-slate-600 hover:bg-slate-100 hover:text-slate-900; }
+    .card { @apply bg-white rounded-2xl shadow-sm border border-slate-100 p-6; }
+    .btn-primary { @apply inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-all duration-200 shadow-sm; }
+    .btn-secondary { @apply inline-flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-xl transition-all duration-200; }
+    .btn-danger { @apply inline-flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium rounded-xl transition-all duration-200; }
+    .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium; }
+    .input { @apply block w-full rounded-xl border-slate-200 bg-white shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-colors; }
+}
