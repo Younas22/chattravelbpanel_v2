@@ -40,6 +40,11 @@ class User extends Authenticatable
     public function getAvatarUrlAttribute(): string
     {
         if ($this->avatar) {
+            // New path: public/uploads/avatars/...
+            if (str_starts_with($this->avatar, 'public/')) {
+                return asset(str_replace('public/', '', $this->avatar));
+            }
+            // Legacy path: storage/...
             return asset('storage/' . $this->avatar);
         }
         return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=2563eb&color=fff';

@@ -49,6 +49,9 @@ class WidgetSetting extends Model
             'agent_name'          => 'Support Team',
             'agent_avatar'        => '',
             'show_branding'       => 'true',
+            'system_name'         => 'TBP Chat',
+            'system_logo'         => '',
+            'company_image'       => '',
         ];
     }
 }

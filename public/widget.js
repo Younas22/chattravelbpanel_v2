@@ -27,6 +27,7 @@
     show_online_status: 'true',
     agent_name: 'Support Team',
     show_branding: 'true',
+    company_image: '',
   };
 
   let state = {
@@ -98,7 +99,7 @@
       #tbp-window.hidden { transform: scale(0.8); opacity: 0; pointer-events: none; }
       #tbp-header { background: ${p}; padding: 14px 16px 12px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
       #tbp-header-info { display: flex; align-items: center; gap: 10px; }
-      #tbp-avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: 700; color: ${t}; font-size: 15px; flex-shrink: 0; }
+      #tbp-avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: 700; color: ${t}; font-size: 15px; flex-shrink: 0; overflow: hidden; }
       #tbp-header h3 { color: ${t}; font-size: 14px; font-weight: 600; }
       #tbp-header p { color: ${t}; font-size: 11px; opacity: 0.8; margin-top: 1px; }
       #tbp-close { background: rgba(255,255,255,0.2); border: none; border-radius: 8px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: ${t}; transition: background 0.2s; flex-shrink: 0; }
@@ -208,7 +209,7 @@
       <div id="tbp-window" class="${state.isOpen ? '' : 'hidden'}">
         <div id="tbp-header">
           <div id="tbp-header-info">
-            <div id="tbp-avatar">${settings.agent_name.charAt(0)}</div>
+            <div id="tbp-avatar">${settings.company_image ? '<img src="' + settings.company_image + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : settings.agent_name.charAt(0)}</div>
             <div>
               <h3>${settings.widget_title}</h3>
               <p>

@@ -3,7 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login — TravelBookingPanel Chat</title>
+    @php
+        $systemName = \App\Models\WidgetSetting::get('system_name', 'TBP Chat');
+        $systemLogo = \App\Models\WidgetSetting::get('system_logo', '');
+    @endphp
+    <title>Admin Login — {{ $systemName }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css'])
@@ -14,10 +18,16 @@
 
         {{-- Logo --}}
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-xl mb-4">
-                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-            </div>
-            <h1 class="text-2xl font-bold text-white">TBP Chat</h1>
+            @if($systemLogo)
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl shadow-xl mb-4 overflow-hidden bg-white">
+                    <img src="{{ url($systemLogo) }}" alt="{{ $systemName }}" class="w-full h-full object-cover">
+                </div>
+            @else
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-xl mb-4">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                </div>
+            @endif
+            <h1 class="text-2xl font-bold text-white">{{ $systemName }}</h1>
             <p class="text-slate-400 text-sm mt-1">Sign in to your dashboard</p>
         </div>
 
@@ -36,7 +46,7 @@
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
                     <input type="email" name="email" value="{{ old('email') }}" required autofocus
                         class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
-                        placeholder="admin@travelbookingpanel.com">
+                        placeholder="admin@example.com">
                 </div>
 
                 <div>
@@ -54,13 +64,13 @@
                 </div>
 
                 <button type="submit"
-                    class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 text-sm shadow-sm shadow-blue-200 mt-2">
+                    class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 text-sm shadow-sm shadow-blue-200 mt-2 cursor-pointer">
                     Sign in to Dashboard
                 </button>
             </form>
         </div>
 
-        <p class="text-center text-slate-500 text-xs mt-6">TravelBookingPanel Chat System</p>
+        <p class="text-center text-slate-500 text-xs mt-6">{{ $systemName }} &mdash; Support System</p>
     </div>
 </body>
 </html>

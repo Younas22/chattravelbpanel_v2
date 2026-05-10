@@ -7,7 +7,6 @@ use App\Models\WidgetSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
-
 class SettingsController extends Controller
 {
     public function widget()
@@ -36,11 +35,41 @@ class SettingsController extends Controller
             'show_online_status' => 'nullable',
             'agent_name'         => 'required|string|max:100',
             'show_branding'      => 'nullable',
+            'system_name'        => 'required|string|max:100',
+            'system_logo'        => 'nullable|image|max:2048',
+            'company_image'      => 'nullable|image|max:2048',
         ]);
 
         // Convert checkboxes
         foreach (['dark_mode', 'auto_popup', 'sound_enabled', 'show_online_status', 'show_branding'] as $key) {
             $data[$key] = $request->has($key) ? 'true' : 'false';
+        }
+
+        $uploadDir = public_path('uploads/branding');
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+        // Handle system logo upload — stored in public/uploads/branding/
+        if ($request->hasFile('system_logo')) {
+            $old = WidgetSetting::get('system_logo');
+            if ($old && file_exists(base_path($old))) @unlink(base_path($old));
+            $file = $request->file('system_logo');
+            $filename = 'system_logo_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move($uploadDir, $filename);
+            $data['system_logo'] = 'public/uploads/branding/' . $filename;
+        } else {
+            unset($data['system_logo']);
+        }
+
+        // Handle company/widget image upload — stored in public/uploads/branding/
+        if ($request->hasFile('company_image')) {
+            $old = WidgetSetting::get('company_image');
+            if ($old && file_exists(base_path($old))) @unlink(base_path($old));
+            $file = $request->file('company_image');
+            $filename = 'company_image_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move($uploadDir, $filename);
+            $data['company_image'] = 'public/uploads/branding/' . $filename;
+        } else {
+            unset($data['company_image']);
         }
 
         foreach ($data as $key => $value) {
@@ -110,6 +139,37 @@ class SettingsController extends Controller
         Artisan::call('config:clear');
 
         return back()->with('success', 'Pusher settings updated.');
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $request->validate([
+            'name'   => 'required|string|max:100',
+            'avatar' => 'nullable|image|max:2048',
+        ]);
+
+        $user = auth()->user();
+        $user->name = $request->name;
+
+        if ($request->hasFile('avatar')) {
+            $uploadDir = public_path('uploads/avatars');
+            if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+            // Delete old avatar if it's in our uploads folder
+            if ($user->avatar && str_starts_with($user->avatar, 'public/uploads/')) {
+                $oldPath = base_path($user->avatar);
+                if (file_exists($oldPath)) @unlink($oldPath);
+            }
+
+            $file     = $request->file('avatar');
+            $filename = 'avatar_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move($uploadDir, $filename);
+            $user->avatar = 'public/uploads/avatars/' . $filename;
+        }
+
+        $user->save();
+
+        return back()->with('success', 'Profile updated successfully.');
     }
 
     private function updateEnv(array $data): void

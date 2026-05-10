@@ -45,6 +45,7 @@ class ConversationController extends Controller
             'show_online_status' => $settings['show_online_status'],
             'agent_name'         => $settings['agent_name'],
             'show_branding'      => $settings['show_branding'],
+            'company_image'      => $settings['company_image'] ? url($settings['company_image']) : '',
         ]);
     }
 
