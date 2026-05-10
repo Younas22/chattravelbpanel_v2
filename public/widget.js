@@ -5,11 +5,7 @@
 (function () {
   'use strict';
 
-  const BASE_URL = (function () {
-    const scripts = document.getElementsByTagName('script');
-    const src = scripts[scripts.length - 1].src;
-    return src.replace('/widget.js', '');
-  })();
+  const BASE_URL = 'https://chat.travelbookingpanel.com';
 
   const API = BASE_URL + '/api/chat';
   const STORAGE_KEY = 'tbp_chat_session';
