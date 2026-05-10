@@ -43,6 +43,7 @@
     conversationId: null,
     isOpen: false,
     isMinimized: false,
+    isExpanded: false,
     messages: [],
     lastMessageId: 0,
     typing: false,
@@ -102,16 +103,17 @@
       #tbp-btn:hover { transform: scale(1.08); box-shadow: 0 8px 28px ${p}66; }
       #tbp-btn svg { width: 24px; height: 24px; color: ${t}; transition: transform 0.3s; }
       #tbp-unread { position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
-      #tbp-window { position: absolute; ${settings.position === 'bottom-right' ? 'bottom: 68px; right: 0;' : 'bottom: 68px; left: 0;'} width: ${state.isMobile ? '100vw' : '380px'}; ${state.isMobile ? 'position: fixed; bottom: 0; right: 0; left: 0; height: 100dvh; border-radius: 0;' : 'max-height: 600px; border-radius: ' + r + ';'} background: ${dark ? '#1e293b' : '#fff'}; box-shadow: 0 20px 60px rgba(0,0,0,0.18); display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); transform-origin: bottom right; }
+      #tbp-window { position: absolute; ${settings.position === 'bottom-right' ? 'bottom: 68px; right: 0;' : 'bottom: 68px; left: 0;'} width: ${state.isMobile ? '100vw' : (state.isExpanded ? '620px' : '380px')}; ${state.isMobile ? 'position: fixed; bottom: 0; right: 0; left: 0; height: 100dvh; border-radius: 0;' : 'height: ' + (state.isExpanded ? '720px' : '560px') + '; border-radius: ' + r + ';'} background: ${dark ? '#1e293b' : '#fff'}; box-shadow: 0 20px 60px rgba(0,0,0,0.18); display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); transform-origin: bottom right; }
       #tbp-window.hidden { transform: scale(0.8); opacity: 0; pointer-events: none; }
       #tbp-header { background: ${p}; padding: 14px 16px 12px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
       #tbp-header-info { display: flex; align-items: center; gap: 10px; }
       #tbp-avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: 700; color: ${t}; font-size: 15px; flex-shrink: 0; overflow: hidden; }
       #tbp-header h3 { color: ${t}; font-size: 14px; font-weight: 600; }
       #tbp-header p { color: ${t}; font-size: 11px; opacity: 0.8; margin-top: 1px; }
-      #tbp-close { background: rgba(255,255,255,0.2); border: none; border-radius: 8px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: ${t}; transition: background 0.2s; flex-shrink: 0; }
-      #tbp-close:hover { background: rgba(255,255,255,0.3); }
-      #tbp-body { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+      #tbp-close, #tbp-expand { background: rgba(255,255,255,0.2); border: none; border-radius: 8px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: ${t}; transition: background 0.2s; flex-shrink: 0; }
+      #tbp-close:hover, #tbp-expand:hover { background: rgba(255,255,255,0.3); }
+      #tbp-header-actions { display: flex; align-items: center; gap: 6px; }
+      #tbp-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
       .tbp-screen { flex: 1; display: flex; flex-direction: column; }
 
       /* Home screen */
@@ -131,7 +133,7 @@
       .tbp-faq-a { font-size: 13px; color: ${dark ? '#94a3b8' : '#6b7280'}; line-height: 1.6; white-space: pre-wrap; }
 
       /* Chat screen */
-      #tbp-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+      #tbp-messages { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; -ms-overflow-style: none; }
       .tbp-msg { max-width: 68%; display: flex; flex-direction: column; }
       .tbp-msg.admin { align-self: flex-start; }
       .tbp-msg.visitor { align-self: flex-end; }
@@ -185,10 +187,8 @@
       .tbp-branding a { color: inherit; text-decoration: none; }
       .tbp-branding a:hover { color: ${p}; }
 
-      /* Scrollbar */
-      #tbp-messages::-webkit-scrollbar { width: 4px; }
-      #tbp-messages::-webkit-scrollbar-track { background: transparent; }
-      #tbp-messages::-webkit-scrollbar-thumb { background: ${dark ? '#475569' : '#e2e8f0'}; border-radius: 4px; }
+      /* Hide scrollbar but keep scroll */
+      #tbp-messages::-webkit-scrollbar { display: none; }
 
       /* Mobile: hide floating button when chat is open (it overlaps send button) */
       ${state.isMobile ? '#tbp-window:not(.hidden) ~ #tbp-btn { display: none !important; }' : ''}
@@ -224,7 +224,10 @@
               </p>
             </div>
           </div>
-          <button id="tbp-close">${iconX()}</button>
+          <div id="tbp-header-actions">
+            ${!state.isMobile ? `<button id="tbp-expand" title="${state.isExpanded ? 'Minimize' : 'Expand'}">${state.isExpanded ? iconMinimize() : iconExpand()}</button>` : ''}
+            <button id="tbp-close">${iconX()}</button>
+          </div>
         </div>
 
         <div id="tbp-body">
@@ -329,6 +332,7 @@
   function bindEvents() {
     $id('tbp-btn')?.addEventListener('click', toggleWidget);
     $id('tbp-close')?.addEventListener('click', closeWidget);
+    $id('tbp-expand')?.addEventListener('click', () => { state.isExpanded = !state.isExpanded; injectStyles(); render(); });
     $id('tbp-start-chat')?.addEventListener('click', startChat);
     $id('tbp-start-from-faq')?.addEventListener('click', startChat);
     $id('tbp-back')?.addEventListener('click', () => { state.selectedFaq = null; render(); });
@@ -680,6 +684,8 @@
 
   // ─── Icons ────────────────────────────────────────────────────────────────
   function iconChat() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>`; }
+  function iconExpand() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>`; }
+  function iconMinimize() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4H4m5 5L4 4m11 5h5V4m-5 5l5-5M9 15v5H4m5-5l-5 5m11-5h5v5m-5-5l5 5"/></svg>`; }
   function iconX() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`; }
   function iconSend() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>`; }
   function iconAttach() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>`; }
