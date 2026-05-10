@@ -670,7 +670,7 @@ function convList(activeId) {
                         if (hasNew) {
                             this.newChatAlert = true;
                             if ({{ \App\Models\WidgetSetting::get('sound_enabled', 'true') === 'true' ? 'true' : 'false' }}) {
-                                try { new Audio('/voice/newvisitor.wav').play().catch(()=>{}); } catch(e) {}
+                                try { new Audio('/voice/newvisitor.mp3').play().catch(()=>{}); } catch(e) {}
                             }
                             setTimeout(() => { this.newChatAlert = false; }, 6000);
                         }

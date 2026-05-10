@@ -304,7 +304,7 @@
                 if (el) el.textContent = data.active_visitors;
 
                 if (prevVisitors !== null && data.active_visitors > prevVisitors) {
-                    playBell('newvisitor.wav');
+                    playBell('newvisitor.mp3');
                     showToast('New visitor on the site', '👋');
                 }
                 prevVisitors = data.active_visitors;
