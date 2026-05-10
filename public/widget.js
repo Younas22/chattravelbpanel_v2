@@ -156,6 +156,7 @@
       .tbp-msg.admin .tbp-time { text-align: right; }
       .tbp-msg.visitor .tbp-time { text-align: left; }
       .tbp-img-attach { max-width: 220px; border-radius: 12px; cursor: pointer; object-fit: cover; }
+      .tbp-video-attach { max-width: 240px; border-radius: 12px; background: #000; display: block; }
       .tbp-file-attach { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: ${dark ? '#1e293b' : '#f8fafc'}; border: 1px solid ${dark ? '#334155' : '#e5e7eb'}; border-radius: 12px; text-decoration: none; color: ${dark ? '#e2e8f0' : '#374151'}; font-size: 12px; }
       #tbp-reply-bar { padding: 8px 12px; background: ${dark ? '#1e293b' : '#eff6ff'}; border-top: 1px solid ${dark ? '#334155' : '#bfdbfe'}; display: flex; align-items: center; gap: 8px; border-left: 3px solid ${p}; }
       #tbp-reply-bar-text { flex: 1; min-width: 0; font-size: 11.5px; color: ${dark ? '#93c5fd' : '#2563eb'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -354,6 +355,8 @@
     if (m.attachment_url) {
       if (m.attachment_type === 'image') {
         content += `<img src="${m.attachment_url}" class="tbp-img-attach" onclick="window.open('${m.attachment_url}','_blank')">`;
+      } else if (m.attachment_type === 'video') {
+        content += `<video src="${m.attachment_url}" controls class="tbp-video-attach"></video>`;
       } else {
         content += `<a href="${m.attachment_url}" target="_blank" class="tbp-file-attach">${iconFile()} ${esc(m.attachment_name || 'Attachment')}</a>`;
       }
@@ -627,7 +630,7 @@
       body: body,
       attachment_url: selectedFile ? URL.createObjectURL(selectedFile) : null,
       attachment_name: selectedFile?.name,
-      attachment_type: selectedFile ? (selectedFile.type.startsWith('image/') ? 'image' : 'document') : null,
+      attachment_type: selectedFile ? (selectedFile.type.startsWith('image/') ? 'image' : selectedFile.type.startsWith('video/') ? 'video' : 'document') : null,
       created_at: new Date().toISOString(),
       reply_to: capturedReplyTo,
     };
