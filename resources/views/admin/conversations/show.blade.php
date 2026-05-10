@@ -44,10 +44,10 @@
         {{-- Messages --}}
         <div class="flex-1 overflow-y-auto p-5 space-y-4" id="messages-container">
             @foreach($conversation->messages as $msg)
-            <div class="flex {{ $msg->sender_type === 'admin' ? 'justify-end' : 'justify-start' }}">
+            <div class="flex {{ $msg->sender_type === 'admin' ? 'justify-start' : 'justify-end' }}">
                 <div class="max-w-[70%]">
                     @if($msg->body)
-                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_type === 'admin' ? 'bg-blue-600 text-white rounded-br-sm' : ($msg->sender_type === 'bot' ? 'bg-slate-100 text-slate-700 rounded-bl-sm border border-slate-200' : 'bg-slate-100 text-slate-900 rounded-bl-sm') }}" style="overflow-wrap:break-word;word-break:break-word;">
+                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_type === 'admin' ? 'bg-blue-600 text-white rounded-bl-sm' : ($msg->sender_type === 'bot' ? 'bg-slate-100 text-slate-700 rounded-bl-sm border border-slate-200' : 'bg-slate-100 text-slate-900 rounded-br-sm') }}" style="overflow-wrap:break-word;word-break:break-word;">
                             {!! nl2br(e($msg->body)) !!}
                         </div>
                     @endif
@@ -68,7 +68,7 @@
                         </div>
                     @endif
 
-                    <div class="flex items-center gap-1 mt-1 {{ $msg->sender_type === 'admin' ? 'justify-end' : 'justify-start' }}">
+                    <div class="flex items-center gap-1 mt-1 {{ $msg->sender_type === 'admin' ? 'justify-start' : 'justify-end' }}">
                         <span class="text-[10px] text-slate-400">{{ $msg->created_at->format('H:i') }}</span>
                         @if($msg->sender_type === 'admin' && $msg->is_read)
                             <svg class="w-3 h-3 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.707 14.293l-3-3a1 1 0 00-1.414 1.414l3.5 3.5a1 1 0 001.414 0l7-7a1 1 0 00-1.414-1.414L9.707 14.293z"/></svg>
@@ -91,10 +91,10 @@
 
             {{-- New messages from polling --}}
             <template x-for="msg in newMessages" :key="msg.id">
-                <div :class="msg.sender_type === 'admin' ? 'flex justify-end' : 'flex justify-start'">
+                <div :class="msg.sender_type === 'admin' ? 'flex justify-start' : 'flex justify-end'">
                     <div class="max-w-[70%]">
                         <div x-show="msg.body"
-                            :class="msg.sender_type === 'admin' ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm'"
+                            :class="msg.sender_type === 'admin' ? 'bg-blue-600 text-white rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-br-sm px-4 py-2.5 text-sm'"
                             style="overflow-wrap:break-word;word-break:break-word;"
                             x-text="msg.body"></div>
                         <div x-show="msg.attachment_url && msg.attachment_type === 'image'" class="mt-1.5">
@@ -108,7 +108,7 @@
                                 <span class="truncate text-slate-700" x-text="msg.attachment_name || 'Attachment'"></span>
                             </a>
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-1" :class="msg.sender_type === 'admin' ? 'text-right' : ''" x-text="formatTime(msg.created_at)"></p>
+                        <p class="text-[10px] text-slate-400 mt-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="formatTime(msg.created_at)"></p>
                     </div>
                 </div>
             </template>

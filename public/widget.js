@@ -135,15 +135,15 @@
       /* Chat screen */
       #tbp-messages { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; -ms-overflow-style: none; }
       .tbp-msg { max-width: 72%; display: flex; flex-direction: column; }
-      .tbp-msg.admin { align-self: flex-start; align-items: flex-start; }
-      .tbp-msg.visitor { align-self: flex-end; align-items: flex-end; }
+      .tbp-msg.admin { align-self: flex-end; align-items: flex-end; }
+      .tbp-msg.visitor { align-self: flex-start; align-items: flex-start; }
       .tbp-bubble { padding: 8px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.45; word-break: break-word; overflow-wrap: break-word; }
-      .tbp-bubble.admin { background: ${dark ? '#334155' : '#f1f5f9'}; color: ${dark ? '#e2e8f0' : '#374151'}; border-top-left-radius: 4px; }
-      .tbp-bubble.visitor { background: ${p}; color: ${t}; border-top-right-radius: 4px; }
+      .tbp-bubble.admin { background: ${dark ? '#334155' : '#f1f5f9'}; color: ${dark ? '#e2e8f0' : '#374151'}; border-top-right-radius: 4px; }
+      .tbp-bubble.visitor { background: ${p}; color: ${t}; border-top-left-radius: 4px; }
       .tbp-bubble.bot { background: ${dark ? '#1e293b' : '#fefce8'}; color: ${dark ? '#fde68a' : '#854d0e'}; border: 1px solid ${dark ? '#334155' : '#fef08a'}; border-top-left-radius: 4px; }
       .tbp-time { font-size: 10px; color: ${dark ? '#64748b' : '#9ca3af'}; margin-top: 3px; }
-      .tbp-msg.admin .tbp-time { text-align: left; }
-      .tbp-msg.visitor .tbp-time { text-align: right; }
+      .tbp-msg.admin .tbp-time { text-align: right; }
+      .tbp-msg.visitor .tbp-time { text-align: left; }
       .tbp-img-attach { max-width: 220px; border-radius: 12px; cursor: pointer; object-fit: cover; }
       .tbp-file-attach { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: ${dark ? '#1e293b' : '#f8fafc'}; border: 1px solid ${dark ? '#334155' : '#e5e7eb'}; border-radius: 12px; text-decoration: none; color: ${dark ? '#e2e8f0' : '#374151'}; font-size: 12px; }
 
