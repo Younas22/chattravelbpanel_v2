@@ -8,8 +8,14 @@
         $systemName    = \App\Models\WidgetSetting::get('system_name', 'TBP Chat');
         $systemLogo    = \App\Models\WidgetSetting::get('system_logo', '');
         $widgetAvatar  = \App\Models\WidgetSetting::get('company_image', '');
+        $faviconPath   = \App\Models\WidgetSetting::get('favicon', '');
     @endphp
     <title>@yield('title', 'Dashboard') — {{ $systemName }}</title>
+    @if($faviconPath)
+        <link rel="icon" href="{{ url($faviconPath) }}">
+    @else
+        <link rel="icon" href="{{ asset('favicon.ico') }}">
+    @endif
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])

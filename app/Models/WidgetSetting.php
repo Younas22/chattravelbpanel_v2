@@ -52,6 +52,7 @@ class WidgetSetting extends Model
             'system_name'         => 'TBP Chat',
             'system_logo'         => '',
             'company_image'       => '',
+            'favicon'             => '',
         ];
     }
 }

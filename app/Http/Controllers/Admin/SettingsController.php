@@ -38,6 +38,7 @@ class SettingsController extends Controller
             'system_name'        => 'required|string|max:100',
             'system_logo'        => 'nullable|image|max:2048',
             'company_image'      => 'nullable|image|max:2048',
+            'favicon'            => 'nullable|mimes:ico,png,jpg,jpeg,svg,gif|max:512',
         ]);
 
         // Convert checkboxes
@@ -70,6 +71,18 @@ class SettingsController extends Controller
             $data['company_image'] = 'public/uploads/branding/' . $filename;
         } else {
             unset($data['company_image']);
+        }
+
+        // Handle favicon upload — stored in public/uploads/branding/
+        if ($request->hasFile('favicon')) {
+            $old = WidgetSetting::get('favicon');
+            if ($old && file_exists(base_path($old))) @unlink(base_path($old));
+            $file = $request->file('favicon');
+            $filename = 'favicon_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move($uploadDir, $filename);
+            $data['favicon'] = 'public/uploads/branding/' . $filename;
+        } else {
+            unset($data['favicon']);
         }
 
         foreach ($data as $key => $value) {

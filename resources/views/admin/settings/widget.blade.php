@@ -61,6 +61,27 @@
                             </label>
                         </div>
                     </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Favicon</label>
+                        <p class="text-xs text-slate-400 mb-2">Browser tab icon. Supports PNG, ICO, SVG (max 512 KB).</p>
+                        <div class="flex items-center gap-3">
+                            @if($settings['favicon'])
+                                <img src="{{ url($settings['favicon']) }}" class="w-10 h-10 rounded-lg object-contain border border-slate-200 p-1 bg-slate-50" id="favicon_preview">
+                                <div class="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0 hidden" id="favicon_placeholder">
+                                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                </div>
+                            @else
+                                <div class="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center shrink-0" id="favicon_placeholder">
+                                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                </div>
+                                <img src="" class="w-10 h-10 rounded-lg object-contain border border-slate-200 p-1 bg-slate-50 hidden" id="favicon_preview">
+                            @endif
+                            <label class="cursor-pointer flex-1 px-3 py-2 rounded-xl border border-dashed border-slate-300 text-xs text-slate-500 hover:bg-slate-50 text-center transition-colors">
+                                <span>Click to upload</span>
+                                <input type="file" name="favicon" accept=".ico,.png,.jpg,.jpeg,.svg,.gif" class="hidden" id="favicon_input">
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -344,6 +365,7 @@
 
     setupImagePreview('system_logo_input',   'system_logo_preview',   'system_logo_placeholder');
     setupImagePreview('company_image_input', 'company_image_preview', 'company_image_placeholder');
+    setupImagePreview('favicon_input',       'favicon_preview',       'favicon_placeholder');
 
     // Profile avatar live preview
     const profileInput = $('profile_avatar_input');
