@@ -103,7 +103,7 @@
       #tbp-btn:hover { transform: scale(1.08); box-shadow: 0 8px 28px ${p}66; }
       #tbp-btn svg { width: 24px; height: 24px; color: ${t}; transition: transform 0.3s; }
       #tbp-unread { position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
-      #tbp-window { position: absolute; ${settings.position === 'bottom-right' ? 'bottom: 68px; right: 0;' : 'bottom: 68px; left: 0;'} width: ${state.isMobile ? '100vw' : (state.isExpanded ? '620px' : '380px')}; ${state.isMobile ? 'position: fixed; bottom: 0; right: 0; left: 0; height: 100dvh; border-radius: 0;' : 'height: ' + (state.isExpanded ? '720px' : '560px') + '; border-radius: ' + r + ';'} background: ${dark ? '#1e293b' : '#fff'}; box-shadow: 0 20px 60px rgba(0,0,0,0.18); display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); transform-origin: bottom right; }
+      #tbp-window { position: absolute; ${settings.position === 'bottom-right' ? 'bottom: 68px; right: 0;' : 'bottom: 68px; left: 0;'} width: ${state.isMobile ? '100vw' : (state.isExpanded ? '620px' : '380px')}; ${state.isMobile ? 'position: fixed; bottom: 0; right: 0; left: 0; height: 100dvh; border-radius: 0;' : 'height: ' + (state.isExpanded ? 'min(720px, calc(100dvh - 95px))' : 'min(560px, calc(100dvh - 95px))') + '; border-radius: ' + r + ';'} background: ${dark ? '#1e293b' : '#fff'}; box-shadow: 0 20px 60px rgba(0,0,0,0.18); display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); transform-origin: bottom right; }
       #tbp-window.hidden { transform: scale(0.8); opacity: 0; pointer-events: none; }
       #tbp-header { background: ${p}; padding: 14px 16px 12px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
       #tbp-header-info { display: flex; align-items: center; gap: 10px; }
@@ -134,14 +134,15 @@
 
       /* Chat screen */
       #tbp-messages { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; -ms-overflow-style: none; }
-      .tbp-msg { max-width: 68%; display: flex; flex-direction: column; }
-      .tbp-msg.admin { align-self: flex-start; }
-      .tbp-msg.visitor { align-self: flex-end; }
+      .tbp-msg { max-width: 72%; display: flex; flex-direction: column; }
+      .tbp-msg.admin { align-self: flex-start; align-items: flex-start; }
+      .tbp-msg.visitor { align-self: flex-end; align-items: flex-end; }
       .tbp-bubble { padding: 8px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.45; word-break: break-word; overflow-wrap: break-word; }
-      .tbp-bubble.admin { background: ${dark ? '#334155' : '#f1f5f9'}; color: ${dark ? '#e2e8f0' : '#374151'}; border-bottom-left-radius: 4px; }
-      .tbp-bubble.visitor { background: ${p}; color: ${t}; border-bottom-right-radius: 4px; }
-      .tbp-bubble.bot { background: ${dark ? '#1e293b' : '#fefce8'}; color: ${dark ? '#fde68a' : '#854d0e'}; border: 1px solid ${dark ? '#334155' : '#fef08a'}; border-bottom-left-radius: 4px; }
+      .tbp-bubble.admin { background: ${dark ? '#334155' : '#f1f5f9'}; color: ${dark ? '#e2e8f0' : '#374151'}; border-top-left-radius: 4px; }
+      .tbp-bubble.visitor { background: ${p}; color: ${t}; border-top-right-radius: 4px; }
+      .tbp-bubble.bot { background: ${dark ? '#1e293b' : '#fefce8'}; color: ${dark ? '#fde68a' : '#854d0e'}; border: 1px solid ${dark ? '#334155' : '#fef08a'}; border-top-left-radius: 4px; }
       .tbp-time { font-size: 10px; color: ${dark ? '#64748b' : '#9ca3af'}; margin-top: 3px; }
+      .tbp-msg.admin .tbp-time { text-align: left; }
       .tbp-msg.visitor .tbp-time { text-align: right; }
       .tbp-img-attach { max-width: 220px; border-radius: 12px; cursor: pointer; object-fit: cover; }
       .tbp-file-attach { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: ${dark ? '#1e293b' : '#f8fafc'}; border: 1px solid ${dark ? '#334155' : '#e5e7eb'}; border-radius: 12px; text-decoration: none; color: ${dark ? '#e2e8f0' : '#374151'}; font-size: 12px; }
