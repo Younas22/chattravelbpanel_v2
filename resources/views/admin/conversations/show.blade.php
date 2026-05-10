@@ -635,6 +635,7 @@ function adminChat(conversationId) {
         },
 
         playSound() {
+            if (!{{ \App\Models\WidgetSetting::get('sound_enabled', 'true') === 'true' ? 'true' : 'false' }}) return;
             try {
                 const audio = new Audio('/voice/chat.wav');
                 audio.volume = 0.7;
@@ -668,7 +669,9 @@ function convList(activeId) {
                         const hasNew = list.some(c => !prevSet.has(c.id));
                         if (hasNew) {
                             this.newChatAlert = true;
-                            try { new Audio('/voice/newvisitor.wav').play().catch(()=>{}); } catch(e) {}
+                            if ({{ \App\Models\WidgetSetting::get('sound_enabled', 'true') === 'true' ? 'true' : 'false' }}) {
+                                try { new Audio('/voice/newvisitor.wav').play().catch(()=>{}); } catch(e) {}
+                            }
                             setTimeout(() => { this.newChatAlert = false; }, 6000);
                         }
                     }

@@ -9,6 +9,7 @@
         $systemLogo    = \App\Models\WidgetSetting::get('system_logo', '');
         $widgetAvatar  = \App\Models\WidgetSetting::get('company_image', '');
         $faviconPath   = \App\Models\WidgetSetting::get('favicon', '');
+        $soundEnabled  = \App\Models\WidgetSetting::get('sound_enabled', 'true');
     @endphp
     <title>@yield('title', 'Dashboard') — {{ $systemName }}</title>
     @if($faviconPath)
@@ -260,8 +261,10 @@
 (function () {
     let prevVisitors = null;
     let prevUnread = null;
+    const soundEnabled = {{ $soundEnabled === 'true' ? 'true' : 'false' }};
 
     function playBell(file) {
+        if (!soundEnabled) return;
         try {
             const a = new Audio('/voice/' + file);
             a.volume = 0.7;
