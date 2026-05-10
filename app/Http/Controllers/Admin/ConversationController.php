@@ -59,7 +59,7 @@ class ConversationController extends Controller
 
     public function show(Conversation $conversation)
     {
-        $conversation->load(['visitor.logs', 'messages', 'assignedAgent']);
+        $conversation->load(['visitor.logs', 'messages.replyTo', 'assignedAgent']);
 
         // Mark all visitor messages as read
         $conversation->messages()
@@ -90,6 +90,7 @@ class ConversationController extends Controller
             'sender_type'     => 'admin',
             'sender_id'       => auth()->id(),
             'body'            => $request->body,
+            'reply_to_id'     => $request->integer('reply_to_id') ?: null,
         ];
 
         if ($request->hasFile('attachment')) {
@@ -124,6 +125,7 @@ class ConversationController extends Controller
         $afterId = $request->integer('after_id', 0);
 
         $messages = $conversation->messages()
+            ->with('replyTo')
             ->when($afterId, fn($q) => $q->where('id', '>', $afterId))
             ->get()
             ->map(fn($m) => [
@@ -135,6 +137,12 @@ class ConversationController extends Controller
                 'attachment_type' => $m->attachment_type,
                 'is_read'         => $m->is_read,
                 'created_at'      => $m->created_at->toISOString(),
+                'reply_to'        => $m->replyTo ? [
+                    'id'          => $m->replyTo->id,
+                    'body'        => $m->replyTo->body,
+                    'sender_type' => $m->replyTo->sender_type,
+                    'attachment_name' => $m->replyTo->attachment_name,
+                ] : null,
             ]);
 
         // Mark visitor messages as read

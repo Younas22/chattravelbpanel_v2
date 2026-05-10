@@ -58,6 +58,8 @@
     soundEnabled: true,
     view: 'home',
     inputFocused: false,
+    replyTo: null,
+    uploadProgress: 0,
     isMobile: window.innerWidth < 640,
   };
 
@@ -133,10 +135,19 @@
       .tbp-faq-a { font-size: 13px; color: ${dark ? '#94a3b8' : '#6b7280'}; line-height: 1.6; white-space: pre-wrap; }
 
       /* Chat screen */
-      #tbp-messages { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px; display: flex; flex-direction: column; gap: 10px; scrollbar-width: none; -ms-overflow-style: none; }
+      #tbp-messages { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 16px; display: flex; flex-direction: column; gap: 6px; scrollbar-width: none; -ms-overflow-style: none; }
+      .tbp-msg-row { display: flex; align-items: flex-end; gap: 4px; }
+      .tbp-msg-row.admin { justify-content: flex-end; }
+      .tbp-msg-row.visitor { justify-content: flex-start; }
       .tbp-msg { max-width: 72%; display: flex; flex-direction: column; }
       .tbp-msg.admin { align-self: flex-end; align-items: flex-end; }
       .tbp-msg.visitor { align-self: flex-start; align-items: flex-start; }
+      .tbp-reply-btn { background: ${dark ? '#334155' : '#f1f5f9'}; border: none; cursor: pointer; padding: 4px; border-radius: 50%; opacity: 0; transition: opacity 0.15s; color: ${dark ? '#94a3b8' : '#6b7280'}; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+      .tbp-msg-row:hover .tbp-reply-btn { opacity: 1; }
+      .tbp-reply-btn:hover { background: ${dark ? '#475569' : '#e5e7eb'} !important; }
+      .tbp-reply-quote { border-radius: 10px; padding: 4px 10px; font-size: 11px; margin-bottom: 4px; border-left: 3px solid; max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+      .tbp-reply-quote.admin-q { background: ${dark ? 'rgba(51,65,85,0.4)' : 'rgba(241,245,249,0.9)'}; border-color: #94a3b8; color: ${dark ? '#94a3b8' : '#64748b'}; }
+      .tbp-reply-quote.visitor-q { background: ${dark ? 'rgba(37,99,235,0.15)' : 'rgba(37,99,235,0.08)'}; border-color: ${p}; color: ${dark ? '#93c5fd' : '#2563eb'}; }
       .tbp-bubble { padding: 8px 12px; border-radius: 14px; font-size: 12.5px; line-height: 1.45; word-break: break-word; overflow-wrap: break-word; }
       .tbp-bubble.admin { background: ${dark ? '#334155' : '#f1f5f9'}; color: ${dark ? '#e2e8f0' : '#374151'}; border-top-right-radius: 4px; }
       .tbp-bubble.visitor { background: ${p}; color: ${t}; border-top-left-radius: 4px; }
@@ -146,6 +157,12 @@
       .tbp-msg.visitor .tbp-time { text-align: left; }
       .tbp-img-attach { max-width: 220px; border-radius: 12px; cursor: pointer; object-fit: cover; }
       .tbp-file-attach { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: ${dark ? '#1e293b' : '#f8fafc'}; border: 1px solid ${dark ? '#334155' : '#e5e7eb'}; border-radius: 12px; text-decoration: none; color: ${dark ? '#e2e8f0' : '#374151'}; font-size: 12px; }
+      #tbp-reply-bar { padding: 8px 12px; background: ${dark ? '#1e293b' : '#eff6ff'}; border-top: 1px solid ${dark ? '#334155' : '#bfdbfe'}; display: flex; align-items: center; gap: 8px; border-left: 3px solid ${p}; }
+      #tbp-reply-bar-text { flex: 1; min-width: 0; font-size: 11.5px; color: ${dark ? '#93c5fd' : '#2563eb'}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      #tbp-reply-clear { background: none; border: none; cursor: pointer; color: ${dark ? '#64748b' : '#9ca3af'}; font-size: 16px; line-height: 1; padding: 0; flex-shrink: 0; }
+      #tbp-reply-clear:hover { color: #ef4444; }
+      #tbp-upload-progress-wrap { height: 4px; background: ${dark ? '#334155' : '#e5e7eb'}; border-radius: 2px; margin: 4px 12px; overflow: hidden; }
+      #tbp-upload-progress-bar { height: 100%; background: ${p}; border-radius: 2px; transition: width 0.2s; width: 0%; }
 
       /* Typing indicator */
       #tbp-typing-indicator { display: flex; align-items: center; gap: 4px; padding: 10px 14px; background: ${dark ? '#334155' : '#f1f5f9'}; border-radius: 16px; border-bottom-left-radius: 4px; width: fit-content; align-self: flex-start; }
@@ -285,7 +302,13 @@
       </div>
       <div id="tbp-file-preview" style="display:none">
         <span id="tbp-file-name"></span>
+        <span id="tbp-upload-pct" style="font-size:11px;color:${p};font-weight:600;display:none"></span>
         <button id="tbp-file-clear">×</button>
+      </div>
+      <div id="tbp-upload-progress-wrap" style="display:none"><div id="tbp-upload-progress-bar"></div></div>
+      <div id="tbp-reply-bar" style="display:none">
+        <span id="tbp-reply-bar-text"></span>
+        <button id="tbp-reply-clear">×</button>
       </div>
       <div id="tbp-input-area">
         <textarea id="tbp-textarea" rows="1" placeholder="Type a message…"></textarea>
@@ -308,12 +331,25 @@
     </div>`;
   }
 
-  function renderMessage(m) {
-    const side = m.sender_type === 'visitor' ? 'visitor' : 'admin';
-    const cls = m.sender_type === 'visitor' ? 'visitor' : (m.sender_type === 'bot' ? 'bot' : 'admin');
-    const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  function iconReply() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>`; }
 
-    let content = '';
+  function renderMessage(m) {
+    const isVisitor = m.sender_type === 'visitor';
+    const side = isVisitor ? 'visitor' : 'admin';
+    const cls = isVisitor ? 'visitor' : (m.sender_type === 'bot' ? 'bot' : 'admin');
+    const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const msgId = String(m.id).replace(/[^a-z0-9_-]/gi, '');
+
+    const replyBtn = `<button class="tbp-reply-btn" data-reply-id="${esc(String(m.id))}" data-reply-body="${esc(m.body || m.attachment_name || '')}" data-reply-type="${esc(m.sender_type)}" title="Reply">${iconReply()}</button>`;
+
+    let quoteHtml = '';
+    if (m.reply_to) {
+      const qLabel = m.reply_to.sender_type === 'visitor' ? 'Visitor' : 'Support';
+      const qText = m.reply_to.body ? m.reply_to.body.slice(0, 60) : (m.reply_to.attachment_name || '📎 Attachment');
+      quoteHtml = `<div class="tbp-reply-quote ${isVisitor ? 'visitor-q' : 'admin-q'}"><strong>${esc(qLabel)}:</strong> ${esc(qText)}</div>`;
+    }
+
+    let content = quoteHtml;
     if (m.body) content += `<div class="tbp-bubble ${cls}">${esc(m.body).replace(/\n/g, '<br>')}</div>`;
     if (m.attachment_url) {
       if (m.attachment_type === 'image') {
@@ -323,10 +359,13 @@
       }
     }
 
-    return `<div class="tbp-msg ${side}">
-      ${content}
-      <span class="tbp-time">${time}</span>
-    </div>`;
+    const msgEl = `<div class="tbp-msg ${side}">${content}<span class="tbp-time">${time}</span></div>`;
+
+    if (isVisitor) {
+      return `<div class="tbp-msg-row visitor">${replyBtn}${msgEl}</div>`;
+    } else {
+      return `<div class="tbp-msg-row admin">${msgEl}${replyBtn}</div>`;
+    }
   }
 
   // ─── Events ───────────────────────────────────────────────────────────────
@@ -396,6 +435,20 @@
         }
       });
     }
+
+    // Reply button delegation
+    const msgs = $id('tbp-messages');
+    if (msgs) {
+      msgs.addEventListener('click', e => {
+        const btn = e.target.closest('.tbp-reply-btn');
+        if (btn) {
+          setReply(btn.dataset.replyId, btn.dataset.replyBody, btn.dataset.replyType);
+        }
+      });
+    }
+
+    // Reply clear
+    $id('tbp-reply-clear')?.addEventListener('click', clearReply);
   }
 
   const EMOJIS = {
@@ -565,7 +618,9 @@
     formData.append('session_id', state.sessionId);
     if (body) formData.append('body', body);
     if (selectedFile) formData.append('attachment', selectedFile);
+    if (state.replyTo) formData.append('reply_to_id', state.replyTo.id);
 
+    const capturedReplyTo = state.replyTo ? { ...state.replyTo } : null;
     const optimistic = {
       id: 'opt-' + Date.now(),
       sender_type: 'visitor',
@@ -574,28 +629,83 @@
       attachment_name: selectedFile?.name,
       attachment_type: selectedFile ? (selectedFile.type.startsWith('image/') ? 'image' : 'document') : null,
       created_at: new Date().toISOString(),
+      reply_to: capturedReplyTo,
     };
     state.messages.push(optimistic);
     if (textarea) { textarea.value = ''; textarea.style.height = 'auto'; }
     clearFile();
+    clearReply();
     render();
     scrollBottomDeferred();
 
-    const res = await apiFetchForm(`/conversation/${state.conversationId}/send`, formData).catch(() => null);
-    if (res?.id) {
-      const idx = state.messages.findIndex(m => m.id === optimistic.id);
-      if (idx !== -1) {
-        state.messages[idx] = {
-          ...optimistic,
-          id: res.id,
-          created_at: res.created_at,
-          attachment_url: res.attachment_url || optimistic.attachment_url,
-        };
-        state.lastMessageId = Math.max(state.lastMessageId, res.id);
-      }
-      render();
-      scrollBottomDeferred();
+    // XHR for upload progress
+    await new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', API + `/conversation/${state.conversationId}/send`);
+      xhr.setRequestHeader('X-Visitor-Session', state.sessionId || '');
+
+      xhr.upload.addEventListener('progress', e => {
+        if (e.lengthComputable) {
+          const pct = Math.round((e.loaded / e.total) * 100);
+          state.uploadProgress = pct;
+          const bar = $id('tbp-upload-progress-bar');
+          const wrap = $id('tbp-upload-progress-wrap');
+          const pctEl = $id('tbp-upload-pct');
+          if (bar) bar.style.width = pct + '%';
+          if (wrap) wrap.style.display = pct < 100 ? 'block' : 'none';
+          if (pctEl) { pctEl.textContent = pct + '%'; pctEl.style.display = pct < 100 ? 'inline' : 'none'; }
+        }
+      });
+
+      xhr.onload = function () {
+        state.uploadProgress = 0;
+        const bar = $id('tbp-upload-progress-bar');
+        const wrap = $id('tbp-upload-progress-wrap');
+        const pctEl = $id('tbp-upload-pct');
+        if (bar) bar.style.width = '0%';
+        if (wrap) wrap.style.display = 'none';
+        if (pctEl) pctEl.style.display = 'none';
+        try {
+          const res = JSON.parse(xhr.responseText);
+          if (res?.id) {
+            const idx = state.messages.findIndex(m => m.id === optimistic.id);
+            if (idx !== -1) {
+              state.messages[idx] = {
+                ...optimistic,
+                id: res.id,
+                created_at: res.created_at,
+                attachment_url: res.attachment_url || optimistic.attachment_url,
+                reply_to: res.reply_to || capturedReplyTo,
+              };
+              state.lastMessageId = Math.max(state.lastMessageId, res.id);
+            }
+            render();
+            scrollBottomDeferred();
+          }
+        } catch(e) {}
+        resolve();
+      };
+      xhr.onerror = () => { resolve(); };
+      xhr.send(formData);
+    });
+  }
+
+  function clearReply() {
+    state.replyTo = null;
+    const bar = $id('tbp-reply-bar');
+    if (bar) bar.style.display = 'none';
+  }
+
+  function setReply(id, body, senderType) {
+    state.replyTo = { id, body, sender_type: senderType };
+    const bar = $id('tbp-reply-bar');
+    const txt = $id('tbp-reply-bar-text');
+    if (bar) bar.style.display = 'flex';
+    if (txt) {
+      const label = senderType === 'visitor' ? 'Visitor' : 'Support';
+      txt.textContent = label + ': ' + (body ? body.slice(0, 60) : '📎 Attachment');
     }
+    $id('tbp-textarea')?.focus();
   }
 
   // ─── Typing ───────────────────────────────────────────────────────────────

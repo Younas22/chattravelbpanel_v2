@@ -89,10 +89,31 @@
         </div>
 
         {{-- Messages --}}
-        <div class="flex-1 overflow-y-auto p-5 space-y-4" id="messages-container">
+        <div class="flex-1 overflow-y-auto p-5 space-y-1" id="messages-container">
             @foreach($conversation->messages as $msg)
-            <div class="flex {{ $msg->sender_type === 'admin' ? 'justify-start' : 'justify-end' }}">
+            <div class="group flex {{ $msg->sender_type === 'admin' ? 'justify-start' : 'justify-end' }} items-end gap-1">
+
+                {{-- Reply button (shown on hover, admin side = right of bubble, visitor = left) --}}
+                @if($msg->sender_type !== 'admin')
+                <button onclick="adminSetReply({{ $msg->id }}, {{ json_encode($msg->body ?: ($msg->attachment_name ?? '')) }}, '{{ $msg->sender_type }}')"
+                    class="opacity-0 group-hover:opacity-100 transition-opacity mb-1 p-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 cursor-pointer shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                </button>
+                @endif
+
                 <div class="max-w-[70%]">
+                    {{-- Reply quote --}}
+                    @if($msg->replyTo)
+                    <div class="mb-1 px-3 py-1.5 rounded-xl border-l-4 {{ $msg->sender_type === 'admin' ? 'border-white/50 bg-blue-500/30' : 'border-blue-400 bg-slate-100' }} text-xs text-slate-500 truncate">
+                        <span class="font-semibold {{ $msg->sender_type === 'admin' ? 'text-white/80' : 'text-blue-600' }}">
+                            {{ $msg->replyTo->sender_type === 'admin' ? 'You' : 'Visitor' }}
+                        </span>
+                        <span class="{{ $msg->sender_type === 'admin' ? 'text-white/70' : 'text-slate-500' }}">
+                            {{ $msg->replyTo->body ? Str::limit($msg->replyTo->body, 60) : ($msg->replyTo->attachment_name ?? '📎 Attachment') }}
+                        </span>
+                    </div>
+                    @endif
+
                     @if($msg->body)
                         <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_type === 'admin' ? 'bg-blue-600 text-white rounded-bl-sm' : ($msg->sender_type === 'bot' ? 'bg-slate-100 text-slate-700 rounded-bl-sm border border-slate-200' : 'bg-slate-100 text-slate-900 rounded-br-sm') }}" style="overflow-wrap:break-word;word-break:break-word;">
                             {!! nl2br(e($msg->body)) !!}
@@ -122,11 +143,18 @@
                         @endif
                     </div>
                 </div>
+
+                @if($msg->sender_type === 'admin')
+                <button onclick="adminSetReply({{ $msg->id }}, {{ json_encode($msg->body ?: ($msg->attachment_name ?? '')) }}, '{{ $msg->sender_type }}')"
+                    class="opacity-0 group-hover:opacity-100 transition-opacity mb-1 p-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 cursor-pointer shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                </button>
+                @endif
             </div>
             @endforeach
 
             {{-- Typing indicator --}}
-            <div x-show="visitorTyping" x-transition class="flex justify-start">
+            <div x-show="visitorTyping" x-transition class="flex justify-start pt-2">
                 <div class="bg-slate-100 rounded-2xl rounded-bl-sm px-4 py-3">
                     <div class="flex gap-1">
                         <span class="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style="animation-delay:0ms"></span>
@@ -138,8 +166,23 @@
 
             {{-- New messages from polling --}}
             <template x-for="msg in newMessages" :key="msg.id">
-                <div :class="msg.sender_type === 'admin' ? 'flex justify-start' : 'flex justify-end'">
+                <div class="group flex items-end gap-1 pt-2"
+                     :class="msg.sender_type === 'admin' ? 'justify-start' : 'justify-end'">
+
+                    <button x-show="msg.sender_type !== 'admin'"
+                        @click="setReply(msg)"
+                        class="opacity-0 group-hover:opacity-100 transition-opacity mb-1 p-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 cursor-pointer shrink-0">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                    </button>
+
                     <div class="max-w-[70%]">
+                        {{-- Reply quote for new msgs --}}
+                        <div x-show="msg.reply_to" class="mb-1 px-3 py-1.5 rounded-xl border-l-4 text-xs truncate"
+                             :class="msg.sender_type === 'admin' ? 'border-white/50 bg-blue-500/30 text-white/70' : 'border-blue-400 bg-slate-100 text-slate-500'">
+                            <span class="font-semibold" x-text="msg.reply_to?.sender_type === 'admin' ? 'You' : 'Visitor'"></span>
+                            <span x-text="msg.reply_to?.body ? msg.reply_to.body.slice(0,60) : (msg.reply_to?.attachment_name || '📎 Attachment')"></span>
+                        </div>
+
                         <div x-show="msg.body"
                             :class="msg.sender_type === 'admin' ? 'bg-blue-600 text-white rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-br-sm px-4 py-2.5 text-sm'"
                             style="overflow-wrap:break-word;word-break:break-word;"
@@ -157,6 +200,12 @@
                         </div>
                         <p class="text-[10px] text-slate-400 mt-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="formatTime(msg.created_at)"></p>
                     </div>
+
+                    <button x-show="msg.sender_type === 'admin'"
+                        @click="setReply(msg)"
+                        class="opacity-0 group-hover:opacity-100 transition-opacity mb-1 p-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 cursor-pointer shrink-0">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                    </button>
                 </div>
             </template>
         </div>
@@ -179,13 +228,30 @@
                 <div x-show="cannedResults.length === 0" class="px-4 py-3 text-sm text-slate-400 text-center">No replies found</div>
             </div>
 
-            {{-- File preview --}}
-            <div x-show="filePreview" x-cloak class="mb-2 flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
-                <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
-                <span class="text-xs text-slate-700 truncate flex-1" x-text="filePreview"></span>
-                <button @click="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors cursor-pointer">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            {{-- Reply-to preview --}}
+            <div x-show="replyTo" x-cloak class="mb-2 flex items-center gap-2 pl-3 pr-2 py-2 bg-blue-50 border-l-4 border-blue-500 rounded-xl">
+                <div class="flex-1 min-w-0">
+                    <p class="text-[11px] font-semibold text-blue-600" x-text="replyTo?.sender_type === 'admin' ? 'Replying to yourself' : 'Replying to Visitor'"></p>
+                    <p class="text-xs text-slate-600 truncate" x-text="replyTo?.body ? replyTo.body.slice(0,80) : (replyTo?.attachment_name || '📎 Attachment')"></p>
+                </div>
+                <button @click="clearReply()" class="text-slate-400 hover:text-red-500 transition-colors cursor-pointer shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
+            </div>
+
+            {{-- File preview + upload progress --}}
+            <div x-show="filePreview" x-cloak class="mb-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                    <span class="text-xs text-slate-700 truncate flex-1" x-text="filePreview"></span>
+                    <span x-show="uploadProgress > 0 && uploadProgress < 100" class="text-xs font-semibold text-blue-600 shrink-0" x-text="uploadProgress + '%'"></span>
+                    <button @click="clearFile()" x-show="uploadProgress === 0" class="text-slate-400 hover:text-red-500 transition-colors cursor-pointer shrink-0">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <div x-show="uploadProgress > 0 && uploadProgress < 100" class="mt-1.5 h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                    <div class="h-full bg-blue-500 rounded-full transition-all duration-200" :style="`width:${uploadProgress}%`"></div>
+                </div>
             </div>
 
             {{-- Input row --}}
@@ -335,10 +401,17 @@
 
 @push('scripts')
 <script>
+// Bridge so static Blade buttons can call Alpine's setReply
+function adminSetReply(id, body, senderType) {
+    const el = document.querySelector('[x-data].__x');
+    if (window._adminChatInstance) window._adminChatInstance.setReply({ id, body, sender_type: senderType });
+}
+
 function adminChat(conversationId) {
     return {
         message: '',
         sending: false,
+        uploadProgress: 0,
         newMessages: [],
         lastMessageId: {{ $conversation->messages->last()?->id ?? 0 }},
         visitorTyping: false,
@@ -350,6 +423,7 @@ function adminChat(conversationId) {
         fileInput: null,
         selectedFile: null,
         filePreview: '',
+        replyTo: null,
         showEmoji: false,
         emojiCategory: 'smileys',
         emojiCats: [
@@ -365,6 +439,7 @@ function adminChat(conversationId) {
         },
 
         init() {
+            window._adminChatInstance = this;
             this.$nextTick(() => this.scrollToBottom());
             this.startPolling();
             this.loadCannedReplies();
@@ -400,33 +475,56 @@ function adminChat(conversationId) {
             if ((!this.message.trim() && !this.selectedFile) || this.sending) return;
 
             this.sending = true;
+            this.uploadProgress = 0;
             const formData = new FormData();
             if (this.message.trim()) formData.append('body', this.message.trim());
             if (this.selectedFile) formData.append('attachment', this.selectedFile);
+            if (this.replyTo) formData.append('reply_to_id', this.replyTo.id);
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
-            fetch(`/admin/conversations/${conversationId}/message`, {
-                method: 'POST',
-                body: formData,
-            })
-            .then(r => r.json())
-            .then(data => {
-                if (data.message) {
-                    this.newMessages.push({
-                        id: data.message.id,
-                        sender_type: 'admin',
-                        body: data.message.body,
-                        attachment_url: data.attachment_url,
-                        attachment_type: data.message.attachment_type,
-                        created_at: data.message.created_at,
-                    });
-                    this.lastMessageId = Math.max(this.lastMessageId, data.message.id);
-                    this.$nextTick(() => this.scrollToBottom());
-                }
-                this.message = '';
-                this.clearFile();
-            })
-            .finally(() => { this.sending = false; });
+            const self = this;
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', `/admin/conversations/${conversationId}/message`);
+
+            xhr.upload.addEventListener('progress', e => {
+                if (e.lengthComputable) self.uploadProgress = Math.round((e.loaded / e.total) * 100);
+            });
+
+            xhr.onload = function () {
+                self.uploadProgress = 0;
+                self.sending = false;
+                try {
+                    const data = JSON.parse(xhr.responseText);
+                    if (data.message) {
+                        self.newMessages.push({
+                            id: data.message.id,
+                            sender_type: 'admin',
+                            body: data.message.body,
+                            attachment_url: data.attachment_url,
+                            attachment_name: data.message.attachment_name,
+                            attachment_type: data.message.attachment_type,
+                            created_at: data.message.created_at,
+                            reply_to: self.replyTo ? { id: self.replyTo.id, body: self.replyTo.body, sender_type: self.replyTo.sender_type } : null,
+                        });
+                        self.lastMessageId = Math.max(self.lastMessageId, data.message.id);
+                        self.$nextTick(() => self.scrollToBottom());
+                    }
+                } catch(e) {}
+                self.message = '';
+                self.clearFile();
+                self.clearReply();
+            };
+            xhr.onerror = () => { self.sending = false; self.uploadProgress = 0; };
+            xhr.send(formData);
+        },
+
+        setReply(msg) {
+            this.replyTo = { id: msg.id, body: msg.body, sender_type: msg.sender_type, attachment_name: msg.attachment_name };
+            this.$nextTick(() => this.$refs.msgInput?.focus());
+        },
+
+        clearReply() {
+            this.replyTo = null;
         },
 
         handleTyping() {

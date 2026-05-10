@@ -9,6 +9,7 @@ class Message extends Model
 {
     protected $fillable = [
         'conversation_id', 'sender_type', 'sender_id', 'body',
+        'reply_to_id',
         'attachment_path', 'attachment_name', 'attachment_mime',
         'attachment_size', 'attachment_type', 'is_read', 'read_at',
     ];
@@ -28,6 +29,11 @@ class Message extends Model
     public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');
+    }
+
+    public function replyTo(): BelongsTo
+    {
+        return $this->belongsTo(Message::class, 'reply_to_id');
     }
 
     public function getAttachmentUrlAttribute(): ?string

@@ -110,6 +110,7 @@ class ConversationController extends Controller
         $afterId = $request->integer('after_id', 0);
 
         $messages = $conversation->messages()
+            ->with('replyTo')
             ->when($afterId, fn($q) => $q->where('id', '>', $afterId))
             ->get()
             ->map(fn($m) => [
@@ -121,6 +122,12 @@ class ConversationController extends Controller
                 'attachment_type' => $m->attachment_type,
                 'is_read'         => $m->is_read,
                 'created_at'      => $m->created_at->toISOString(),
+                'reply_to'        => $m->replyTo ? [
+                    'id'          => $m->replyTo->id,
+                    'body'        => $m->replyTo->body,
+                    'sender_type' => $m->replyTo->sender_type,
+                    'attachment_name' => $m->replyTo->attachment_name,
+                ] : null,
             ]);
 
         // Mark admin messages as read
@@ -166,6 +173,7 @@ class ConversationController extends Controller
             'conversation_id' => $conversation->id,
             'sender_type'     => 'visitor',
             'body'            => $request->body,
+            'reply_to_id'     => $request->integer('reply_to_id') ?: null,
         ];
 
         if ($request->hasFile('attachment')) {
@@ -190,11 +198,19 @@ class ConversationController extends Controller
 
         broadcast(new MessageSent($message))->toOthers();
 
+        $replyTo = $message->reply_to_id ? $message->replyTo : null;
+
         return response()->json([
             'id'             => $message->id,
             'body'           => $message->body,
             'attachment_url' => $message->attachment_url,
             'created_at'     => $message->created_at->toISOString(),
+            'reply_to'       => $replyTo ? [
+                'id'          => $replyTo->id,
+                'body'        => $replyTo->body,
+                'sender_type' => $replyTo->sender_type,
+                'attachment_name' => $replyTo->attachment_name,
+            ] : null,
         ]);
     }
 
