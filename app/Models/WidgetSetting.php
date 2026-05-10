@@ -30,6 +30,7 @@ class WidgetSetting extends Model
         });
     }
 
+    // Default settings for the widget
     public static function defaults(): array
     {
         return [
