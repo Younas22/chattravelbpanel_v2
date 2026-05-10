@@ -5,8 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @php
-        $systemName = \App\Models\WidgetSetting::get('system_name', 'TBP Chat');
-        $systemLogo = \App\Models\WidgetSetting::get('system_logo', '');
+        $systemName    = \App\Models\WidgetSetting::get('system_name', 'TBP Chat');
+        $systemLogo    = \App\Models\WidgetSetting::get('system_logo', '');
+        $widgetAvatar  = \App\Models\WidgetSetting::get('company_image', '');
     @endphp
     <title>@yield('title', 'Dashboard') — {{ $systemName }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,10 +46,6 @@
         }
         .sidebar-link { position: relative; }
         .sidebar-link:hover .sidebar-tooltip { opacity: 1; }
-        /* Allow tooltips to escape sidebar when collapsed on desktop */
-        @media (min-width: 1024px) {
-            aside { overflow: visible !important; }
-        }
     </style>
     @stack('styles')
 </head>
@@ -59,7 +56,8 @@
     {{-- Sidebar --}}
     <aside
         class="fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-100 shadow-sm transition-all duration-300"
-        :class="sidebarOpen ? 'w-64' : 'w-0 lg:w-16 overflow-hidden'"
+        :class="sidebarOpen ? 'w-64' : 'w-0 lg:w-16'"
+        :style="(!sidebarOpen && window.innerWidth >= 1024) ? 'overflow:visible' : 'overflow:hidden'"
         x-cloak
     >
         {{-- Logo / System Branding --}}
@@ -150,18 +148,20 @@
             @endphp
             {{-- Expanded view --}}
             <div x-show="sidebarOpen" class="flex items-center gap-3">
-                @if($authUser->avatar)
-                    <img src="{{ $authUser->avatar_url }}" alt="{{ $authUser->name }}"
-                         class="w-9 h-9 rounded-full shrink-0 ring-2 ring-blue-100 object-cover"
-                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                    <div class="w-9 h-9 bg-blue-600 rounded-full shrink-0 ring-2 ring-blue-100 items-center justify-center hidden">
-                        <span class="text-white text-sm font-bold">{{ $userInitial }}</span>
-                    </div>
-                @else
-                    <div class="w-9 h-9 bg-blue-600 rounded-full shrink-0 ring-2 ring-blue-100 flex items-center justify-center">
-                        <span class="text-white text-sm font-bold">{{ $userInitial }}</span>
-                    </div>
-                @endif
+                <div class="relative shrink-0">
+                    @if($widgetAvatar)
+                        <img src="{{ url($widgetAvatar) }}" alt="{{ $authUser->name }}"
+                             class="w-9 h-9 rounded-full ring-2 ring-blue-100 object-cover"
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                        <div class="w-9 h-9 bg-blue-600 rounded-full ring-2 ring-blue-100 items-center justify-center" style="display:none">
+                            <span class="text-white text-sm font-bold">{{ $userInitial }}</span>
+                        </div>
+                    @else
+                        <div class="w-9 h-9 bg-blue-600 rounded-full ring-2 ring-blue-100 flex items-center justify-center">
+                            <span class="text-white text-sm font-bold">{{ $userInitial }}</span>
+                        </div>
+                    @endif
+                </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-semibold text-slate-900 truncate">{{ $authUser->name }}</p>
                     <p class="text-xs text-slate-500 truncate">Administrator</p>
@@ -178,18 +178,20 @@
             </div>
             {{-- Collapsed view --}}
             <div x-show="!sidebarOpen" class="sidebar-link flex justify-center">
-                @if($authUser->avatar)
-                    <img src="{{ $authUser->avatar_url }}" alt="{{ $authUser->name }}"
-                         class="w-8 h-8 rounded-full ring-2 ring-blue-100 object-cover cursor-pointer"
-                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                    <div class="w-8 h-8 bg-blue-600 rounded-full ring-2 ring-blue-100 items-center justify-center hidden cursor-pointer">
-                        <span class="text-white text-xs font-bold">{{ $userInitial }}</span>
-                    </div>
-                @else
-                    <div class="w-8 h-8 bg-blue-600 rounded-full ring-2 ring-blue-100 flex items-center justify-center cursor-pointer">
-                        <span class="text-white text-xs font-bold">{{ $userInitial }}</span>
-                    </div>
-                @endif
+                <div class="relative">
+                    @if($widgetAvatar)
+                        <img src="{{ url($widgetAvatar) }}" alt="{{ $authUser->name }}"
+                             class="w-8 h-8 rounded-full ring-2 ring-blue-100 object-cover cursor-pointer"
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full ring-2 ring-blue-100 items-center justify-center cursor-pointer" style="display:none">
+                            <span class="text-white text-xs font-bold">{{ $userInitial }}</span>
+                        </div>
+                    @else
+                        <div class="w-8 h-8 bg-blue-600 rounded-full ring-2 ring-blue-100 flex items-center justify-center cursor-pointer">
+                            <span class="text-white text-xs font-bold">{{ $userInitial }}</span>
+                        </div>
+                    @endif
+                </div>
                 <span class="sidebar-tooltip">{{ $authUser->name }}</span>
             </div>
         </div>
