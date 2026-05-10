@@ -302,7 +302,7 @@
       </div>
       <div id="tbp-file-preview" style="display:none">
         <span id="tbp-file-name"></span>
-        <span id="tbp-upload-pct" style="font-size:11px;color:${p};font-weight:600;display:none"></span>
+        <span id="tbp-upload-pct" style="font-size:11px;color:${settings.primary_color};font-weight:600;display:none"></span>
         <button id="tbp-file-clear">×</button>
       </div>
       <div id="tbp-upload-progress-wrap" style="display:none"><div id="tbp-upload-progress-bar"></div></div>
