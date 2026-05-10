@@ -88,7 +88,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Position</label>
-                        <select name="position" id="position" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <select name="position" id="position" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
                             <option value="bottom-right" {{ $settings['position'] === 'bottom-right' ? 'selected' : '' }}>Bottom Right</option>
                             <option value="bottom-left" {{ $settings['position'] === 'bottom-left' ? 'selected' : '' }}>Bottom Left</option>
                         </select>
@@ -165,35 +165,7 @@
             </div>
 
             <div class="flex justify-end">
-                <button type="submit" class="btn-primary">Save Widget Settings</button>
-            </div>
-        </form>
-
-        {{-- Profile --}}
-        <form method="POST" action="{{ route('admin.settings.profile.update') }}" enctype="multipart/form-data">
-            @csrf
-            <div class="card">
-                <h2 class="font-semibold text-slate-900 mb-4">My Profile</h2>
-                <p class="text-xs text-slate-500 mb-4">Your name and photo shown in the sidebar.</p>
-                <div class="flex items-center gap-4 mb-4">
-                    {{-- Current avatar --}}
-                    <div class="relative shrink-0">
-                        <img src="{{ auth()->user()->avatar_url }}" id="profile_avatar_preview"
-                            class="w-16 h-16 rounded-full object-cover ring-4 ring-blue-100">
-                        <label class="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-colors" title="Change photo">
-                            <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                            <input type="file" name="avatar" accept="image/*" class="hidden" id="profile_avatar_input">
-                        </label>
-                    </div>
-                    <div class="flex-1">
-                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Display Name</label>
-                        <input type="text" name="name" value="{{ auth()->user()->name }}"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                <div class="flex justify-end">
-                    <button type="submit" class="btn-primary">Update Profile</button>
-                </div>
+                <button type="submit" class="btn-primary cursor-pointer">Save Widget Settings</button>
             </div>
         </form>
 
@@ -204,7 +176,7 @@
             <div class="relative">
                 <pre class="bg-slate-900 text-green-400 text-xs p-4 rounded-xl leading-relaxed" style="white-space:pre-wrap;word-break:break-all;overflow-wrap:break-word;"><code>&lt;script src="{{ url('/widget.js') }}"&gt;&lt;/script&gt;</code></pre>
                 <button onclick="navigator.clipboard.writeText(this.previousElementSibling.textContent.trim()); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',2000)"
-                    class="absolute top-3 right-3 text-xs bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-lg transition-colors">Copy</button>
+                    class="absolute top-3 right-3 text-xs bg-slate-700 hover:bg-slate-600 text-white px-2.5 py-1 rounded-lg transition-colors cursor-pointer">Copy</button>
             </div>
         </div>
     </div>
@@ -261,8 +233,8 @@
 </div>
 
 <div class="flex items-center gap-4 mt-4">
-    <a href="{{ route('admin.settings.general') }}" class="btn-secondary">SMTP Settings</a>
-    <a href="{{ route('admin.settings.pusher') }}" class="btn-secondary">Pusher Settings</a>
+    <a href="{{ route('admin.settings.general') }}" class="btn-secondary cursor-pointer">SMTP Settings</a>
+    <a href="{{ route('admin.settings.pusher') }}" class="btn-secondary cursor-pointer">Pusher Settings</a>
 </div>
 @endsection
 

@@ -124,7 +124,7 @@
                         class="w-full text-sm px-3 py-1.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
                 <template x-for="reply in cannedResults" :key="reply.id">
-                    <button @click="useCanned(reply)" class="w-full text-left px-4 py-2.5 hover:bg-blue-50 transition-colors border-b border-slate-50 last:border-0">
+                    <button @click="useCanned(reply)" class="w-full text-left px-4 py-2.5 hover:bg-blue-50 transition-colors border-b border-slate-50 last:border-0 cursor-pointer">
                         <p class="text-sm font-medium text-slate-800" x-text="reply.title"></p>
                         <p class="text-xs text-slate-500 truncate" x-text="reply.body"></p>
                     </button>
@@ -136,7 +136,7 @@
             <div x-show="filePreview" x-cloak class="mb-2 flex items-center gap-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200">
                 <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                 <span class="text-xs text-slate-700 truncate flex-1" x-text="filePreview"></span>
-                <button @click="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors">
+                <button @click="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors cursor-pointer">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
@@ -159,7 +159,7 @@
                     <div class="relative">
                         <button @click="showEmoji=!showEmoji" type="button"
                             :class="showEmoji ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'"
-                            class="p-1.5 rounded-lg transition-colors text-lg leading-none">
+                            class="p-1.5 rounded-lg transition-colors text-lg leading-none cursor-pointer">
                             😊
                         </button>
                         <div x-show="showEmoji" x-cloak @click.outside="showEmoji=false"
@@ -169,31 +169,31 @@
                                 <template x-for="cat in emojiCats" :key="cat.key">
                                     <button @click="emojiCategory=cat.key" type="button"
                                         :class="emojiCategory===cat.key ? 'bg-blue-100 text-blue-700' : 'hover:bg-slate-100 text-slate-500'"
-                                        class="px-2 py-1 rounded-lg text-base transition-colors" x-text="cat.icon"></button>
+                                        class="px-2 py-1 rounded-lg text-base transition-colors cursor-pointer" x-text="cat.icon"></button>
                                 </template>
                             </div>
                             <div class="p-2 overflow-y-auto emoji-grid-scroll" style="display:grid;grid-template-columns:repeat(9,1fr);gap:2px;max-height:150px;">
                                 <template x-for="e in emojiList()" :key="e">
                                     <button @click="insertEmoji(e)" type="button"
-                                        class="text-lg p-1 rounded hover:bg-slate-100 transition-colors leading-none" x-text="e"></button>
+                                        class="text-lg p-1 rounded hover:bg-slate-100 transition-colors leading-none cursor-pointer" x-text="e"></button>
                                 </template>
                             </div>
                         </div>
                     </div>
 
                     <button @click="document.getElementById('file-input').click()" type="button"
-                        class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
+                        class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                     </button>
 
                     <button @click="toggleCanned()" type="button"
                         :class="showCanned ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'"
-                        class="p-1.5 rounded-lg transition-colors">
+                        class="p-1.5 rounded-lg transition-colors cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h7"/></svg>
                     </button>
 
                     <button @click="send()" :disabled="sending" type="button"
-                        class="ml-1 p-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50">
+                        class="ml-1 p-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                     </button>
                 </div>

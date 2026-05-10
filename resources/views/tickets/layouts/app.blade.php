@@ -23,7 +23,7 @@
                     <a href="{{ route('tickets.create') }}" class="text-sm text-blue-600 hover:underline font-medium">New Ticket</a>
                     <form method="POST" action="{{ route('tickets.logout') }}" class="inline">
                         @csrf
-                        <button type="submit" class="text-sm text-slate-500 hover:text-slate-700">Logout</button>
+                        <button type="submit" class="text-sm text-slate-500 hover:text-slate-700 cursor-pointer">Logout</button>
                     </form>
                 @else
                     <a href="{{ route('tickets.login') }}" class="text-sm text-slate-600 hover:text-slate-900">Login</a>

@@ -6,7 +6,7 @@
 
     <div class="flex items-center justify-between">
         <p class="text-sm text-slate-500">Manage the quick questions shown in the chat widget before starting a conversation.</p>
-        <button @click="openCreate()" class="btn-primary">
+        <button @click="openCreate()" class="btn-primary cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Add FAQ
         </button>
@@ -35,8 +35,8 @@
                         <p class="text-sm text-slate-500 line-clamp-2">{{ $faq->answer }}</p>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
-                        <button @click="openEdit({{ $faq->toJson() }})" class="btn-secondary !py-1.5 !text-xs">Edit</button>
-                        <button @click="deleteFaq({{ $faq->id }})" class="btn-danger !py-1.5 !text-xs">Delete</button>
+                        <button @click="openEdit({{ $faq->toJson() }})" class="btn-secondary !py-1.5 !text-xs cursor-pointer">Edit</button>
+                        <button @click="deleteFaq({{ $faq->id }})" class="btn-danger !py-1.5 !text-xs cursor-pointer">Delete</button>
                     </div>
                 </div>
                 @endforeach
@@ -72,8 +72,8 @@
             </div>
 
             <div class="flex justify-end gap-3 mt-6">
-                <button @click="showModal = false" class="btn-secondary">Cancel</button>
-                <button @click="save()" class="btn-primary">Save FAQ</button>
+                <button @click="showModal = false" class="btn-secondary cursor-pointer">Cancel</button>
+                <button @click="save()" class="btn-primary cursor-pointer">Save FAQ</button>
             </div>
         </div>
     </div>

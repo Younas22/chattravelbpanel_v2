@@ -9,14 +9,14 @@
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search tickets, users…"
                 class="flex-1 min-w-[200px] px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
 
-            <select name="status" onchange="this.form.submit()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select name="status" onchange="this.form.submit()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
                 <option value="all">All Status</option>
                 <option value="open" {{ request('status') === 'open' ? 'selected' : '' }}>Open</option>
                 <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
                 <option value="closed" {{ request('status') === 'closed' ? 'selected' : '' }}>Closed</option>
             </select>
 
-            <select name="priority" onchange="this.form.submit()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select name="priority" onchange="this.form.submit()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
                 <option value="all">All Priority</option>
                 <option value="urgent" {{ request('priority') === 'urgent' ? 'selected' : '' }}>Urgent</option>
                 <option value="high" {{ request('priority') === 'high' ? 'selected' : '' }}>High</option>
@@ -24,7 +24,7 @@
                 <option value="low" {{ request('priority') === 'low' ? 'selected' : '' }}>Low</option>
             </select>
 
-            <button type="submit" class="btn-primary">Search</button>
+            <button type="submit" class="btn-primary cursor-pointer">Search</button>
         </form>
     </div>
 

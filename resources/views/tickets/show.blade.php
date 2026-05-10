@@ -58,7 +58,7 @@
                 class="w-full resize-none px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('body') }}</textarea>
             <div class="flex items-center justify-between">
                 <input type="file" name="attachment" class="text-sm text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-100 file:text-slate-600 file:text-xs hover:file:bg-slate-200 transition-colors">
-                <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors text-sm">Send Reply</button>
+                <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors text-sm cursor-pointer">Send Reply</button>
             </div>
         </form>
     </div>

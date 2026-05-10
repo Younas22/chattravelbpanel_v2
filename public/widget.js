@@ -5,7 +5,14 @@
 (function () {
   'use strict';
 
-  const BASE_URL = 'https://chat.travelbookingpanel.com';
+  // Detect base URL from the script tag so it works on any host (localhost or production)
+  const _currentScript = document.currentScript || (function () {
+    const scripts = document.getElementsByTagName('script');
+    return scripts[scripts.length - 1];
+  })();
+  const BASE_URL = _currentScript
+    ? new URL(_currentScript.src).origin + new URL(_currentScript.src).pathname.replace(/\/widget\.js(\?.*)?$/, '')
+    : 'https://chat.travelbookingpanel.com';
 
   const API = BASE_URL + '/api/chat';
   const STORAGE_KEY = 'tbp_chat_session';
@@ -445,10 +452,11 @@
     if (state.isOpen) { closeWidget(); } else { openWidget(); }
   }
 
-  function openWidget() {
+  function openWidget(withSound = false) {
     state.isOpen = true;
     state.unread = 0;
     render();
+    if (withSound) playSound();
     if (state.view === 'chat' && state.conversationId) { startPolling(); }
   }
 
@@ -706,10 +714,11 @@
       }
     });
 
-    if (settings.auto_popup === 'true') {
-      const delay = parseInt(settings.popup_delay) || 5;
-      setTimeout(() => { if (!state.isOpen) openWidget(); }, delay * 1000);
-    }
+    // Always auto-open on page load; use popup_delay if set, otherwise open immediately
+    const delay = (settings.auto_popup === 'true' && parseInt(settings.popup_delay) > 0)
+      ? parseInt(settings.popup_delay) * 1000
+      : 500;
+    setTimeout(() => { if (!state.isOpen) openWidget(true); }, delay);
 
     render();
   }

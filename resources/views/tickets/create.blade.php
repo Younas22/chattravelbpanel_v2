@@ -50,7 +50,7 @@
 
             <div class="flex items-center justify-between pt-2">
                 <a href="{{ route('tickets.index') }}" class="text-sm text-slate-500 hover:text-slate-700">← Back</a>
-                <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors text-sm">Submit Ticket</button>
+                <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors text-sm cursor-pointer">Submit Ticket</button>
             </div>
         </form>
     </div>

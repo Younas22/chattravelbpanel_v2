@@ -23,7 +23,7 @@
                 <input type="password" name="password" required
                     class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
-            <button type="submit" class="w-full py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors text-sm">Sign in</button>
+            <button type="submit" class="w-full py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors text-sm cursor-pointer">Sign in</button>
         </form>
 
         <p class="text-center text-sm text-slate-500 mt-4">

@@ -18,7 +18,7 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <select onchange="updateStatus(this.value)" class="text-sm px-3 py-1.5 rounded-xl border border-slate-200 bg-white focus:outline-none">
+                <select onchange="updateStatus(this.value)" class="text-sm px-3 py-1.5 rounded-xl border border-slate-200 bg-white focus:outline-none cursor-pointer">
                     @foreach(['open', 'pending', 'closed'] as $s)
                         <option value="{{ $s }}" {{ $ticket->status === $s ? 'selected' : '' }}>{{ ucfirst($s) }}</option>
                     @endforeach

@@ -6,7 +6,7 @@
 
     <div class="flex items-center justify-between">
         <p class="text-sm text-slate-500">Pre-written responses to common questions. Type <kbd class="px-1.5 py-0.5 text-xs bg-slate-100 rounded-lg border border-slate-200">/</kbd> in chat to search.</p>
-        <button @click="openCreate()" class="btn-primary">
+        <button @click="openCreate()" class="btn-primary cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Add Reply
         </button>
@@ -32,8 +32,8 @@
                         <p class="text-sm text-slate-500 line-clamp-2">{{ $reply->body }}</p>
                     </div>
                     <div class="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button @click="openEdit({{ $reply->toJson() }})" class="btn-secondary !py-1.5 !text-xs">Edit</button>
-                        <button @click="deleteReply({{ $reply->id }})" class="btn-danger !py-1.5 !text-xs">Delete</button>
+                        <button @click="openEdit({{ $reply->toJson() }})" class="btn-secondary !py-1.5 !text-xs cursor-pointer">Edit</button>
+                        <button @click="deleteReply({{ $reply->id }})" class="btn-danger !py-1.5 !text-xs cursor-pointer">Delete</button>
                     </div>
                 </div>
                 @endforeach
@@ -66,8 +66,8 @@
             </div>
 
             <div class="flex justify-end gap-3 mt-6">
-                <button @click="showModal = false" class="btn-secondary">Cancel</button>
-                <button @click="save()" class="btn-primary">Save</button>
+                <button @click="showModal = false" class="btn-secondary cursor-pointer">Cancel</button>
+                <button @click="save()" class="btn-primary cursor-pointer">Save</button>
             </div>
         </div>
     </div>
