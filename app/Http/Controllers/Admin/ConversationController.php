@@ -36,6 +36,27 @@ class ConversationController extends Controller
         return view('admin.conversations.index', compact('conversations', 'cannedReplies'));
     }
 
+    public function listJson()
+    {
+        $conversations = Conversation::with(['visitor', 'latestMessage'])
+            ->orderByDesc('updated_at')
+            ->limit(50)
+            ->get()
+            ->map(fn($c) => [
+                'id'           => $c->id,
+                'url'          => route('admin.conversations.show', $c),
+                'name'         => $c->visitor->display_name,
+                'initial'      => strtoupper(substr($c->visitor->display_name, 0, 1)),
+                'is_online'    => $c->visitor->is_online,
+                'last_message' => $c->latestMessage?->body ?: '',
+                'status'       => $c->status,
+                'unread'       => $c->unread_admin,
+                'updated_at'   => $c->updated_at->toISOString(),
+            ]);
+
+        return response()->json(['conversations' => $conversations]);
+    }
+
     public function show(Conversation $conversation)
     {
         $conversation->load(['visitor.logs', 'messages', 'assignedAgent']);

@@ -2,7 +2,54 @@
 @section('title', 'Chat — ' . $conversation->visitor->display_name)
 
 @section('content')
-<div class="flex gap-6 h-[calc(100vh-8rem)] relative" x-data="adminChat({{ $conversation->id }})">
+<div class="flex h-[calc(100vh-8rem)] relative gap-0">
+
+    {{-- Left: Conversations List --}}
+    <div class="w-72 shrink-0 flex flex-col bg-white border border-slate-100 rounded-2xl overflow-hidden mr-4"
+         x-data="convList({{ $conversation->id }})">
+
+        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 shrink-0">
+            <span class="font-semibold text-slate-900 text-sm">Live Chats</span>
+            <span class="text-[10px] font-bold bg-blue-600 text-white rounded-full px-2 py-0.5" x-show="totalUnread > 0" x-text="totalUnread > 9 ? '9+' : totalUnread"></span>
+        </div>
+
+        {{-- New chat toast --}}
+        <div x-show="newChatAlert" x-transition x-cloak
+             class="mx-3 mt-2 flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2 text-xs text-green-700 shrink-0">
+            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse shrink-0"></span>
+            <span>New conversation!</span>
+            <button @click="newChatAlert=false" class="ml-auto text-green-500 hover:text-green-700 cursor-pointer">✕</button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto divide-y divide-slate-50">
+            <template x-for="conv in conversations" :key="conv.id">
+                <a :href="conv.url"
+                   class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer"
+                   :class="conv.id === activeId ? 'bg-blue-50 border-l-2 border-blue-500' : (conv.unread > 0 ? 'bg-blue-50/50' : '')">
+                    <div class="relative shrink-0">
+                        <div class="w-9 h-9 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-sm"
+                             x-text="conv.initial"></div>
+                        <span x-show="conv.is_online" class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white"></span>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-1">
+                            <span class="text-sm font-semibold text-slate-900 truncate" x-text="conv.name"></span>
+                            <span x-show="conv.unread > 0"
+                                  class="shrink-0 w-4 h-4 bg-blue-600 text-white text-[9px] rounded-full flex items-center justify-center font-bold"
+                                  x-text="conv.unread > 9 ? '9+' : conv.unread"></span>
+                        </div>
+                        <p class="text-xs text-slate-500 truncate" x-text="conv.last_message || '…'"></p>
+                        <span class="text-[10px]"
+                              :class="conv.status === 'active' ? 'text-green-600' : (conv.status === 'pending' ? 'text-yellow-600' : 'text-slate-400')"
+                              x-text="conv.status"></span>
+                    </div>
+                </a>
+            </template>
+            <div x-show="conversations.length === 0" class="py-10 text-center text-slate-400 text-sm">No conversations</div>
+        </div>
+    </div>
+
+<div class="flex flex-1 gap-4 min-w-0" x-data="adminChat({{ $conversation->id }})">
 
     {{-- Chat Panel --}}
     <div class="flex flex-col flex-1 card !p-0 overflow-hidden">
@@ -272,8 +319,8 @@
         @endif
     </div>
 
-
-</div>
+</div>{{-- /adminChat --}}
+</div>{{-- /outer flex --}}
 @endsection
 
 @push('styles')
@@ -488,6 +535,44 @@ function adminChat(conversationId) {
                 audio.volume = 0.7;
                 audio.play().catch(() => {});
             } catch(e) {}
+        }
+    }
+}
+
+function convList(activeId) {
+    return {
+        activeId,
+        conversations: [],
+        totalUnread: 0,
+        newChatAlert: false,
+        prevIds: null,
+
+        init() {
+            this.load();
+            setInterval(() => this.load(), 5000);
+        },
+
+        load() {
+            fetch('/admin/conversations/list', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(r => r.json())
+                .then(data => {
+                    const list = data.conversations || [];
+
+                    if (this.prevIds !== null) {
+                        const prevSet = new Set(this.prevIds);
+                        const hasNew = list.some(c => !prevSet.has(c.id));
+                        if (hasNew) {
+                            this.newChatAlert = true;
+                            try { new Audio('/voice/newvisitor.wav').play().catch(()=>{}); } catch(e) {}
+                            setTimeout(() => { this.newChatAlert = false; }, 6000);
+                        }
+                    }
+
+                    this.prevIds = list.map(c => c.id);
+                    this.conversations = list;
+                    this.totalUnread = list.reduce((s, c) => s + (c.unread || 0), 0);
+                })
+                .catch(() => {});
         }
     }
 }

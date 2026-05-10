@@ -36,6 +36,7 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     Route::get('/stats', [DashboardController::class, 'stats'])->name('stats');
 
     // Conversations
+    Route::get('/conversations/list', [ConversationController::class, 'listJson'])->name('conversations.list');
     Route::get('/conversations', [ConversationController::class, 'index'])->name('conversations.index');
     Route::get('/conversations/{conversation}', [ConversationController::class, 'show'])->name('conversations.show');
     Route::get('/conversations/{conversation}/messages', [ConversationController::class, 'pollMessages'])->name('conversations.poll');
