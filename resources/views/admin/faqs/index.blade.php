@@ -89,6 +89,14 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
+function showOrderToast(ok) {
+    var t = document.createElement('div');
+    t.textContent = ok ? 'Order saved' : 'Save failed';
+    t.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;color:#fff;background:' + (ok ? '#16a34a' : '#dc2626') + ';box-shadow:0 4px 12px rgba(0,0,0,.15);transition:opacity .4s';
+    document.body.appendChild(t);
+    setTimeout(function () { t.style.opacity = '0'; setTimeout(function () { t.remove(); }, 400); }, 2000);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     var el = document.getElementById('faq-sortable');
     if (!el) return;
@@ -102,9 +110,12 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             fetch('/admin/faqs/order', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '' },
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({ order: order })
-            });
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (d) { showOrderToast(!!d.success); })
+            .catch(function () { showOrderToast(false); });
         }
     });
 });
