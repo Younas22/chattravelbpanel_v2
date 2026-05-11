@@ -90,21 +90,21 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
 });
 
 // =========================
-// Public Ticket System
+// Public Ticket System (clean URLs)
 // =========================
-Route::prefix('support')->name('tickets.')->group(function () {
-    Route::get('/login', [TicketController::class, 'loginForm'])->name('login');
-    Route::post('/login', [TicketController::class, 'login'])->name('login.post');
+Route::name('tickets.')->group(function () {
+    Route::get('/login',    [TicketController::class, 'loginForm'])->name('login');
+    Route::post('/login',   [TicketController::class, 'login'])->name('login.post');
     Route::get('/register', [TicketController::class, 'registerForm'])->name('register');
-    Route::post('/register', [TicketController::class, 'register'])->name('register.post');
-    Route::post('/logout', [TicketController::class, 'logout'])->name('logout');
+    Route::post('/register',[TicketController::class, 'register'])->name('register.post');
+    Route::post('/logout',  [TicketController::class, 'logout'])->name('logout');
 
-    Route::get('/', [TicketController::class, 'index'])->name('index');
-    Route::get('/create', [TicketController::class, 'create'])->name('create');
-    Route::post('/create', [TicketController::class, 'store'])->name('store');
-    Route::get('/profile', [TicketController::class, 'profileForm'])->name('profile');
-    Route::post('/profile', [TicketController::class, 'updateProfile'])->name('profile.update');
-    Route::post('/profile/image', [TicketController::class, 'updateProfileImage'])->name('profile.image');
-    Route::get('/{ticket}', [TicketController::class, 'show'])->name('show');
-    Route::post('/{ticket}/reply', [TicketController::class, 'reply'])->name('reply');
+    Route::get('/tickets',         [TicketController::class, 'index'])->name('index');
+    Route::get('/tickets/create',  [TicketController::class, 'create'])->name('create');
+    Route::post('/tickets/create', [TicketController::class, 'store'])->name('store');
+    Route::get('/profile',         [TicketController::class, 'profileForm'])->name('profile');
+    Route::post('/profile',        [TicketController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/image',  [TicketController::class, 'updateProfileImage'])->name('profile.image');
+    Route::get('/tickets/{ticket}',       [TicketController::class, 'show'])->name('show');
+    Route::post('/tickets/{ticket}/reply',[TicketController::class, 'reply'])->name('reply');
 });

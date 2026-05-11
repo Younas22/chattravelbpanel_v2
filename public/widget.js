@@ -16,7 +16,6 @@
 
   const API = BASE_URL + '/api/chat';
   const STORAGE_KEY = 'tbp_chat_session';
-  const TICKET_USER_KEY = 'tbp_ticket_user';
   const FONT_URL = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
 
   let settings = {
@@ -62,10 +61,6 @@
     replyTo: null,
     uploadProgress: 0,
     isMobile: window.innerWidth < 640,
-    ticketUser: JSON.parse(localStorage.getItem(TICKET_USER_KEY) || 'null'),
-    ticketView: null,
-    ticketError: null,
-    ticketSuccess: null,
   };
 
   // Shadow DOM root — set during init
@@ -214,40 +209,12 @@
       /* Hide scrollbar but keep scroll */
       #tbp-messages::-webkit-scrollbar { display: none; }
 
-      /* Ticket screens */
-      #tbp-ticket-screen { display: flex; flex-direction: column; height: 100%; overflow-y: auto; padding: 16px; gap: 12px; }
-      #tbp-ticket-screen::-webkit-scrollbar { display: none; }
-      .tbp-ticket-title { font-size: 15px; font-weight: 700; color: ${dark ? '#f1f5f9' : '#1e293b'}; margin-bottom: 2px; }
-      .tbp-ticket-sub { font-size: 12px; color: ${dark ? '#94a3b8' : '#64748b'}; margin-bottom: 8px; }
-      .tbp-ticket-btn { width: 100%; padding: 11px; border-radius: 12px; border: none; cursor: pointer; font-size: 13px; font-weight: 600; font-family: 'Inter', sans-serif; transition: all 0.15s; }
-      .tbp-ticket-btn-primary { background: ${p}; color: ${t}; }
-      .tbp-ticket-btn-primary:hover { opacity: 0.88; }
-      .tbp-ticket-btn-outline { background: ${dark ? '#1e293b' : '#f8fafc'}; color: ${dark ? '#e2e8f0' : '#374151'}; border: 1.5px solid ${dark ? '#334155' : '#e2e8f0'}; }
-      .tbp-ticket-btn-outline:hover { background: ${dark ? '#334155' : '#f1f5f9'}; }
-      .tbp-ticket-input { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid ${dark ? '#334155' : '#e2e8f0'}; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: ${dark ? '#0f172a' : '#fff'}; color: ${dark ? '#f1f5f9' : '#111827'}; box-sizing: border-box; transition: border-color 0.15s; }
-      .tbp-ticket-input:focus { border-color: ${p}; }
-      .tbp-ticket-input::placeholder { color: ${dark ? '#475569' : '#9ca3af'}; }
-      .tbp-ticket-select { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid ${dark ? '#334155' : '#e2e8f0'}; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: ${dark ? '#0f172a' : '#fff'}; color: ${dark ? '#f1f5f9' : '#111827'}; box-sizing: border-box; cursor: pointer; }
-      .tbp-ticket-select:focus { border-color: ${p}; }
-      .tbp-ticket-textarea { width: 100%; padding: 9px 12px; border-radius: 10px; border: 1.5px solid ${dark ? '#334155' : '#e2e8f0'}; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; background: ${dark ? '#0f172a' : '#fff'}; color: ${dark ? '#f1f5f9' : '#111827'}; resize: vertical; min-height: 80px; box-sizing: border-box; }
-      .tbp-ticket-textarea:focus { border-color: ${p}; }
-      .tbp-ticket-label { font-size: 11.5px; font-weight: 600; color: ${dark ? '#94a3b8' : '#64748b'}; margin-bottom: 4px; display: block; }
-      .tbp-ticket-field { display: flex; flex-direction: column; gap: 0; }
-      .tbp-ticket-error { background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 9px 12px; border-radius: 10px; font-size: 12px; }
-      .tbp-ticket-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; padding: 12px; border-radius: 10px; font-size: 13px; text-align: center; }
-      .tbp-ticket-divider { display: flex; align-items: center; gap: 8px; }
-      .tbp-ticket-divider span { flex: 1; height: 1px; background: ${dark ? '#334155' : '#e2e8f0'}; }
-      .tbp-ticket-divider p { font-size: 11px; color: ${dark ? '#64748b' : '#9ca3af'}; white-space: nowrap; }
-      .tbp-ticket-link { background: none; border: none; cursor: pointer; color: ${p}; font-size: 12px; font-family: 'Inter', sans-serif; padding: 0; text-decoration: underline; }
-      .tbp-ticket-user-bar { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: ${dark ? '#1e293b' : '#f0f9ff'}; border-radius: 10px; font-size: 12px; color: ${dark ? '#7dd3fc' : '#0369a1'}; }
-      .tbp-ticket-logout { background: none; border: none; cursor: pointer; color: #ef4444; font-size: 11.5px; font-family: 'Inter', sans-serif; padding: 0; }
-      .tbp-open-ticket-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; border-radius: 14px; border: 1.5px solid ${dark ? '#334155' : '#e2e8f0'}; background: ${dark ? '#1e293b' : '#fff'}; cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; transition: all 0.15s; margin-top: 4px; }
+      /* Open Ticket button */
+      .tbp-open-ticket-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; border-radius: 14px; border: 1.5px solid ${dark ? '#334155' : '#e2e8f0'}; background: ${dark ? '#1e293b' : '#fff'}; cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; transition: all 0.15s; margin-top: 4px; text-decoration: none; }
       .tbp-open-ticket-btn:hover { background: ${dark ? '#334155' : '#f8fafc'}; border-color: ${p}; }
       .tbp-open-ticket-icon { width: 36px; height: 36px; border-radius: 10px; background: ${p}20; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: ${p}; }
       .tbp-open-ticket-text h4 { font-size: 13px; font-weight: 600; color: ${dark ? '#f1f5f9' : '#1e293b'}; margin: 0 0 2px; }
       .tbp-open-ticket-text p { font-size: 11.5px; color: ${dark ? '#64748b' : '#94a3b8'}; margin: 0; }
-      .tbp-back-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; cursor: pointer; color: ${dark ? '#94a3b8' : '#64748b'}; font-size: 12.5px; font-family: 'Inter', sans-serif; padding: 0; margin-bottom: 4px; }
-      .tbp-back-btn:hover { color: ${p}; }
 
       /* Mobile: hide floating button when chat is open (it overlaps send button) */
       ${state.isMobile ? '#tbp-window:not(.hidden) ~ #tbp-btn { display: none !important; }' : ''}
@@ -290,7 +257,7 @@
         </div>
 
         <div id="tbp-body">
-          ${state.ticketView ? renderTicket() : (state.view === 'home' ? renderHome() : renderChat())}
+          ${state.view === 'home' ? renderHome() : renderChat()}
         </div>
       </div>
 
@@ -305,116 +272,6 @@
     if (state.view === 'chat' && state.isOpen) {
       scrollBottomDeferred();
     }
-  }
-
-  function renderTicket() {
-    const err = state.ticketError ? `<div class="tbp-ticket-error">${esc(state.ticketError)}</div>` : '';
-    const backBtn = `<button class="tbp-back-btn" id="tbp-ticket-back"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg> Back</button>`;
-
-    if (state.ticketView === 'auth-choice') {
-      return `<div id="tbp-ticket-screen">
-        ${backBtn}
-        <div class="tbp-ticket-title">Open a Support Ticket</div>
-        <div class="tbp-ticket-sub">Login to your account or create a new one to submit a ticket.</div>
-        ${err}
-        <button class="tbp-ticket-btn tbp-ticket-btn-primary" id="tbp-ticket-go-login">Login to existing account</button>
-        <div class="tbp-ticket-divider"><span></span><p>or</p><span></span></div>
-        <button class="tbp-ticket-btn tbp-ticket-btn-outline" id="tbp-ticket-go-register">Create a new account</button>
-      </div>`;
-    }
-
-    if (state.ticketView === 'login') {
-      return `<div id="tbp-ticket-screen">
-        ${backBtn}
-        <div class="tbp-ticket-title">Login</div>
-        <div class="tbp-ticket-sub">Enter your credentials to continue.</div>
-        ${err}
-        <div class="tbp-ticket-field">
-          <label class="tbp-ticket-label">Email</label>
-          <input class="tbp-ticket-input" type="email" id="tbp-tl-email" placeholder="you@example.com">
-        </div>
-        <div class="tbp-ticket-field">
-          <label class="tbp-ticket-label">Password</label>
-          <input class="tbp-ticket-input" type="password" id="tbp-tl-pass" placeholder="••••••••">
-        </div>
-        <button class="tbp-ticket-btn tbp-ticket-btn-primary" id="tbp-ticket-login-submit">Login</button>
-        <p style="text-align:center;font-size:12px;color:${settings.dark_mode==='true'?'#94a3b8':'#64748b'}">Don't have an account? <button class="tbp-ticket-link" id="tbp-ticket-go-register2">Register</button></p>
-      </div>`;
-    }
-
-    if (state.ticketView === 'register') {
-      return `<div id="tbp-ticket-screen">
-        ${backBtn}
-        <div class="tbp-ticket-title">Create Account</div>
-        <div class="tbp-ticket-sub">Fill in your details to register.</div>
-        ${err}
-        <div class="tbp-ticket-field">
-          <label class="tbp-ticket-label">Full Name *</label>
-          <input class="tbp-ticket-input" type="text" id="tbp-tr-name" placeholder="John Doe">
-        </div>
-        <div class="tbp-ticket-field">
-          <label class="tbp-ticket-label">Email *</label>
-          <input class="tbp-ticket-input" type="email" id="tbp-tr-email" placeholder="you@example.com">
-        </div>
-        <div class="tbp-ticket-field">
-          <label class="tbp-ticket-label">Phone *</label>
-          <input class="tbp-ticket-input" type="tel" id="tbp-tr-phone" placeholder="+1 234 567 8900">
-        </div>
-        <div class="tbp-ticket-field">
-          <label class="tbp-ticket-label">Password *</label>
-          <input class="tbp-ticket-input" type="password" id="tbp-tr-pass" placeholder="Min 8 characters">
-        </div>
-        <button class="tbp-ticket-btn tbp-ticket-btn-primary" id="tbp-ticket-register-submit">Create Account</button>
-        <p style="text-align:center;font-size:12px;color:${settings.dark_mode==='true'?'#94a3b8':'#64748b'}">Already have an account? <button class="tbp-ticket-link" id="tbp-ticket-go-login2">Login</button></p>
-      </div>`;
-    }
-
-    if (state.ticketView === 'create') {
-      const u = state.ticketUser;
-      return `<div id="tbp-ticket-screen">
-        ${backBtn}
-        <div class="tbp-ticket-title">New Support Ticket</div>
-        <div class="tbp-ticket-user-bar">
-          <span>Logged in as <strong>${esc(u.full_name)}</strong></span>
-          <button class="tbp-ticket-logout" id="tbp-ticket-logout-btn">Logout</button>
-        </div>
-        ${err}
-        <div class="tbp-ticket-field">
-          <label class="tbp-ticket-label">Subject *</label>
-          <input class="tbp-ticket-input" type="text" id="tbp-tc-subject" placeholder="Brief description of the issue">
-        </div>
-        <div class="tbp-ticket-field">
-          <label class="tbp-ticket-label">Priority *</label>
-          <select class="tbp-ticket-select" id="tbp-tc-priority">
-            <option value="low">Low</option>
-            <option value="medium" selected>Medium</option>
-            <option value="high">High</option>
-            <option value="urgent">Urgent</option>
-          </select>
-        </div>
-        <div class="tbp-ticket-field">
-          <label class="tbp-ticket-label">Description *</label>
-          <textarea class="tbp-ticket-textarea" id="tbp-tc-desc" placeholder="Describe your issue in detail…"></textarea>
-        </div>
-        <button class="tbp-ticket-btn tbp-ticket-btn-primary" id="tbp-ticket-create-submit">Submit Ticket</button>
-      </div>`;
-    }
-
-    if (state.ticketView === 'success') {
-      return `<div id="tbp-ticket-screen">
-        <div style="text-align:center;padding:24px 0 12px">
-          <div style="width:56px;height:56px;background:${settings.primary_color}20;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
-            <svg fill="none" stroke="${settings.primary_color}" viewBox="0 0 24 24" width="28" height="28"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-          </div>
-          <div class="tbp-ticket-title">Ticket Submitted!</div>
-          <div class="tbp-ticket-sub" style="margin-top:4px">${esc(state.ticketSuccess || 'Your ticket has been submitted. We will respond soon.')}</div>
-        </div>
-        <button class="tbp-ticket-btn tbp-ticket-btn-primary" id="tbp-ticket-new">Submit Another Ticket</button>
-        <button class="tbp-ticket-btn tbp-ticket-btn-outline" id="tbp-ticket-home">Back to Home</button>
-      </div>`;
-    }
-
-    return '';
   }
 
   function renderHome() {
@@ -438,10 +295,10 @@
       <div class="tbp-welcome-bubble">${esc(settings.welcome_message)}</div>
       ${state.faqs.length > 0 ? `<p class="tbp-faq-title">Quick answers</p>${faqHtml}` : ''}
       <button class="tbp-start-chat" id="tbp-start-chat">${iconChat()} Start a conversation</button>
-      <button class="tbp-open-ticket-btn" id="tbp-open-ticket-btn">
+      <a class="tbp-open-ticket-btn" href="${BASE_URL}/login" target="_blank" rel="noopener">
         <div class="tbp-open-ticket-icon"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="18" height="18"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg></div>
         <div class="tbp-open-ticket-text"><h4>Open a Ticket</h4><p>Track your issue &amp; get a response</p></div>
-      </button>
+      </a>
       ${settings.show_branding === 'true' ? '<div class="tbp-branding">Powered by <a href="https://travelbookingpanel.com" target="_blank">TravelBookingPanel</a></div>' : ''}
     </div>`;
   }
@@ -534,134 +391,6 @@
     $id('tbp-start-from-faq')?.addEventListener('click', startChat);
     $id('tbp-back')?.addEventListener('click', () => { state.selectedFaq = null; render(); });
 
-    // Open Ticket button on home screen
-    $id('tbp-open-ticket-btn')?.addEventListener('click', () => {
-      state.ticketError = null;
-      if (state.ticketUser) {
-        state.ticketView = 'create';
-      } else {
-        state.ticketView = 'auth-choice';
-      }
-      render();
-    });
-
-    // Ticket back buttons
-    $id('tbp-ticket-back')?.addEventListener('click', () => {
-      if (state.ticketView === 'login' || state.ticketView === 'register') {
-        state.ticketView = 'auth-choice';
-      } else {
-        state.ticketView = null;
-      }
-      state.ticketError = null;
-      render();
-    });
-
-    // Auth choice navigation
-    $id('tbp-ticket-go-login')?.addEventListener('click', () => { state.ticketView = 'login'; state.ticketError = null; render(); });
-    $id('tbp-ticket-go-register')?.addEventListener('click', () => { state.ticketView = 'register'; state.ticketError = null; render(); });
-    $id('tbp-ticket-go-login2')?.addEventListener('click', () => { state.ticketView = 'login'; state.ticketError = null; render(); });
-    $id('tbp-ticket-go-register2')?.addEventListener('click', () => { state.ticketView = 'register'; state.ticketError = null; render(); });
-
-    // Login submit
-    $id('tbp-ticket-login-submit')?.addEventListener('click', async () => {
-      const email = $id('tbp-tl-email')?.value?.trim();
-      const pass = $id('tbp-tl-pass')?.value;
-      if (!email || !pass) { state.ticketError = 'Please fill in all fields.'; render(); return; }
-      state.ticketError = null;
-      const btn = $id('tbp-ticket-login-submit');
-      if (btn) btn.disabled = true;
-      try {
-        const res = await ticketApiFetch('/ticket/login', 'POST', { email, password: pass });
-        if (res.error || res.message && !res.token) { state.ticketError = res.error || res.message; render(); return; }
-        state.ticketUser = { id: res.id, full_name: res.full_name, email: res.email, token: res.token };
-        localStorage.setItem(TICKET_USER_KEY, JSON.stringify(state.ticketUser));
-        state.ticketView = 'create';
-        render();
-      } catch (e) {
-        state.ticketError = 'Invalid email or password.';
-        render();
-      } finally {
-        const b = $id('tbp-ticket-login-submit');
-        if (b) b.disabled = false;
-      }
-    });
-
-    // Register submit
-    $id('tbp-ticket-register-submit')?.addEventListener('click', async () => {
-      const full_name = $id('tbp-tr-name')?.value?.trim();
-      const email = $id('tbp-tr-email')?.value?.trim();
-      const phone = $id('tbp-tr-phone')?.value?.trim();
-      const password = $id('tbp-tr-pass')?.value;
-      if (!full_name || !email || !phone || !password) { state.ticketError = 'Please fill in all required fields.'; render(); return; }
-      if (password.length < 8) { state.ticketError = 'Password must be at least 8 characters.'; render(); return; }
-      state.ticketError = null;
-      const btn = $id('tbp-ticket-register-submit');
-      if (btn) btn.disabled = true;
-      try {
-        const res = await ticketApiFetch('/ticket/register', 'POST', { full_name, email, phone, password });
-        if (res.error || (res.message && !res.token)) { state.ticketError = res.error || res.message; render(); return; }
-        state.ticketUser = { id: res.id, full_name: res.full_name, email: res.email, token: res.token };
-        localStorage.setItem(TICKET_USER_KEY, JSON.stringify(state.ticketUser));
-        state.ticketView = 'create';
-        render();
-      } catch (e) {
-        state.ticketError = 'Registration failed. Email may already be in use.';
-        render();
-      } finally {
-        const b = $id('tbp-ticket-register-submit');
-        if (b) b.disabled = false;
-      }
-    });
-
-    // Create ticket submit
-    $id('tbp-ticket-create-submit')?.addEventListener('click', async () => {
-      const subject = $id('tbp-tc-subject')?.value?.trim();
-      const description = $id('tbp-tc-desc')?.value?.trim();
-      const priority = $id('tbp-tc-priority')?.value;
-      if (!subject || !description) { state.ticketError = 'Please fill in subject and description.'; render(); return; }
-      state.ticketError = null;
-      const btn = $id('tbp-ticket-create-submit');
-      if (btn) btn.disabled = true;
-      try {
-        const res = await ticketApiFetch('/ticket/create', 'POST', { subject, description, priority }, state.ticketUser?.token);
-        if (res.error) { state.ticketError = res.error; render(); return; }
-        state.ticketSuccess = 'Ticket #' + (res.ticket_number || '') + ' submitted. We will respond soon.';
-        state.ticketView = 'success';
-        render();
-      } catch (e) {
-        state.ticketError = 'Failed to submit ticket. Please try again.';
-        render();
-      } finally {
-        const b = $id('tbp-ticket-create-submit');
-        if (b) b.disabled = false;
-      }
-    });
-
-    // Ticket logout
-    $id('tbp-ticket-logout-btn')?.addEventListener('click', async () => {
-      if (state.ticketUser?.token) {
-        ticketApiFetch('/ticket/logout', 'POST', {}, state.ticketUser.token).catch(() => {});
-      }
-      state.ticketUser = null;
-      localStorage.removeItem(TICKET_USER_KEY);
-      state.ticketView = 'auth-choice';
-      state.ticketError = null;
-      render();
-    });
-
-    // After success
-    $id('tbp-ticket-new')?.addEventListener('click', () => {
-      state.ticketView = 'create';
-      state.ticketSuccess = null;
-      state.ticketError = null;
-      render();
-    });
-    $id('tbp-ticket-home')?.addEventListener('click', () => {
-      state.ticketView = null;
-      state.ticketSuccess = null;
-      state.ticketError = null;
-      render();
-    });
 
     $all('[data-faq-id]').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -1044,14 +773,6 @@
     return res.json();
   }
 
-  async function ticketApiFetch(path, method = 'POST', body = null, token = null) {
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['X-Ticket-Token'] = token;
-    const opts = { method, headers };
-    if (body && method !== 'GET') opts.body = JSON.stringify(body);
-    const res = await fetch(API + path, opts);
-    return res.json();
-  }
 
   async function apiFetchForm(path, formData) {
     const res = await fetch(API + path, {
