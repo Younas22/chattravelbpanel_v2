@@ -80,7 +80,7 @@ class TicketController extends Controller
         }
 
         if ($ticket->ticket_user_id !== auth('ticket_user')->id()) {
-            abort(403);
+            return redirect()->route('tickets.index')->with('error', 'You do not have access to this ticket.');
         }
 
         $ticket->load('messages');
@@ -97,7 +97,7 @@ class TicketController extends Controller
         }
 
         if ($ticket->ticket_user_id !== auth('ticket_user')->id()) {
-            abort(403);
+            return redirect()->route('tickets.index')->with('error', 'You do not have access to this ticket.');
         }
 
         $request->validate([
