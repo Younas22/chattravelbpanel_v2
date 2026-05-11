@@ -15,8 +15,14 @@ use App\Http\Controllers\Chat\TicketController;
 use App\Http\Controllers\WidgetScriptController;
 use Illuminate\Support\Facades\Route;
 
-// Widget script
+// Widget scripts
 Route::get('/widget.js', WidgetScriptController::class)->name('widget.js');
+Route::get('/offer-popup.js', function () {
+    return response()->file(public_path('offer-popup.js'), [
+        'Content-Type'  => 'application/javascript',
+        'Cache-Control' => 'public, max-age=300',
+    ]);
+})->name('offer-popup.js');
 
 // Redirect root to admin
 Route::get('/', fn() => redirect()->route('admin.dashboard'));
@@ -89,6 +95,7 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     // Global Offer
     Route::get('/offers', [GlobalOfferController::class, 'index'])->name('offers.index');
     Route::post('/offers', [GlobalOfferController::class, 'save'])->name('offers.save');
+    Route::post('/offers/toggle', [GlobalOfferController::class, 'toggle'])->name('offers.toggle');
 
     // Settings
     Route::get('/settings/widget', [SettingsController::class, 'widget'])->name('settings.widget');

@@ -50,6 +50,7 @@
                     <tr class="text-left text-xs text-slate-500 uppercase tracking-wider">
                         <th class="px-5 py-3 font-medium">Visitor</th>
                         <th class="px-5 py-3 font-medium">Location</th>
+                        <th class="px-5 py-3 font-medium">This Month Holiday</th>
                         <th class="px-5 py-3 font-medium">Device</th>
                         <th class="px-5 py-3 font-medium">Landing Page</th>
                         <th class="px-5 py-3 font-medium">Last Seen</th>
@@ -64,6 +65,23 @@
                             <p class="text-xs text-slate-400 font-mono">{{ $visitor->ip_address }}</p>
                         </td>
                         <td class="px-5 py-3.5 text-slate-600">{{ $visitor->country }} {{ $visitor->city ? ", $visitor->city" : '' }}</td>
+                        <td class="px-5 py-3.5">
+                            @php $h = $countryHolidays[$visitor->country_code] ?? null; @endphp
+                            @if($h)
+                                <div class="flex flex-col gap-0.5">
+                                    <span class="inline-flex items-center gap-1 text-xs font-semibold
+                                        {{ $h['is_today'] ? 'text-orange-600' : 'text-indigo-600' }}">
+                                        @if($h['is_today'])
+                                            <span class="w-1.5 h-1.5 bg-orange-500 rounded-full animate-pulse"></span>
+                                        @endif
+                                        {{ $h['name'] }}
+                                    </span>
+                                    <span class="text-[11px] text-slate-400 font-mono">{{ $h['date'] }}</span>
+                                </div>
+                            @else
+                                <span class="text-xs text-slate-300">—</span>
+                            @endif
+                        </td>
                         <td class="px-5 py-3.5">
                             <span class="text-slate-600">{{ $visitor->browser }}</span>
                             <span class="text-slate-400 text-xs ml-1">/ {{ $visitor->os }}</span>

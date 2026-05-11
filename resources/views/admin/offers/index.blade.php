@@ -14,17 +14,34 @@
     }
 }">
 
-    {{-- Page header --}}
-    <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center shrink-0">
-            <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-            </svg>
+    {{-- Page header with quick ON/OFF --}}
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center shrink-0">
+                <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="font-semibold text-slate-900">Global Offer</h1>
+                <p class="text-xs text-slate-400 mt-0.5">Set the sitewide pricing offer shown to customers</p>
+            </div>
         </div>
-        <div>
-            <h1 class="font-semibold text-slate-900">Global Offer</h1>
-            <p class="text-xs text-slate-400 mt-0.5">Set the sitewide pricing offer shown to customers</p>
-        </div>
+
+        {{-- Quick ON/OFF toggle --}}
+        <form method="POST" action="{{ route('admin.offers.toggle') }}" class="flex items-center gap-3">
+            @csrf
+            <span class="text-sm font-medium {{ $offer?->is_active ? 'text-green-600' : 'text-slate-400' }}">
+                {{ $offer?->is_active ? 'Offer is ON' : 'Offer is OFF' }}
+            </span>
+            <button type="submit"
+                class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                style="{{ $offer?->is_active ? 'background-color:#16a34a' : 'background-color:#cbd5e1' }}">
+                <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-200 mt-0.5"
+                    style="{{ $offer?->is_active ? 'transform:translateX(26px)' : 'transform:translateX(2px)' }}">
+                </span>
+            </button>
+        </form>
     </div>
 
     {{-- Form Card --}}
@@ -165,5 +182,61 @@
     </div>
     @endif
 
+    {{-- Widget embed codes --}}
+    <div class="card border border-slate-200">
+        <div class="flex items-center gap-2 mb-1">
+            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+            </svg>
+            <h3 class="text-sm font-semibold text-slate-700">Widget Embed Codes</h3>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">Add before <code class="bg-slate-100 px-1 rounded">&lt;/body&gt;</code> on your website. The offer popup shows automatically when active.</p>
+
+        {{-- Offer Popup only --}}
+        <div class="mb-4">
+            <p class="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1.5">
+                <span class="w-2 h-2 bg-orange-400 rounded-full"></span>
+                Offer Popup only
+            </p>
+            @php $offerCode = '<script src="' . url('offer-popup.js') . '"></script>'; @endphp
+            <div class="relative">
+                <pre class="bg-slate-900 text-green-400 text-xs rounded-xl px-4 py-3 overflow-x-auto font-mono leading-relaxed select-all">{{ $offerCode }}</pre>
+                <button onclick="copyCode(this, {{ json_encode($offerCode) }})"
+                    class="absolute top-2 right-2 px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg transition-colors cursor-pointer">
+                    Copy
+                </button>
+            </div>
+        </div>
+
+        {{-- Full widget (chat + offer popup) --}}
+        <div>
+            <p class="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1.5">
+                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                Full widget — Chat + Offer Popup
+            </p>
+            @php $chatCode = '<script src="' . url('widget.js') . '"></script>'; @endphp
+            <div class="relative">
+                <pre class="bg-slate-900 text-blue-300 text-xs rounded-xl px-4 py-3 overflow-x-auto font-mono leading-relaxed select-all">{{ $chatCode }}</pre>
+                <button onclick="copyCode(this, {{ json_encode($chatCode) }})"
+                    class="absolute top-2 right-2 px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg transition-colors cursor-pointer">
+                    Copy
+                </button>
+            </div>
+        </div>
+    </div>
+
 </div>
+
+@push('scripts')
+<script>
+function copyCode(btn, code) {
+    navigator.clipboard.writeText(code).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.style.background = '#16a34a';
+        setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
+    });
+}
+</script>
+@endpush
 @endsection

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Chat\ConversationController;
+use App\Http\Controllers\Chat\OfferPopupController;
 use App\Http\Controllers\Chat\VisitorController;
 use App\Http\Controllers\Chat\WidgetTicketController;
 use Illuminate\Support\Facades\Route;
@@ -11,6 +12,9 @@ Route::prefix('chat')->middleware(['throttle:60,1'])->group(function () {
     // Widget settings & FAQs
     Route::get('/settings', [ConversationController::class, 'settings']);
     Route::get('/faqs', [ConversationController::class, 'faqs']);
+
+    // Offer popup
+    Route::get('/offer', [OfferPopupController::class, 'popup']);
 
     // Visitor tracking
     Route::post('/visitor/identify', [VisitorController::class, 'identify']);

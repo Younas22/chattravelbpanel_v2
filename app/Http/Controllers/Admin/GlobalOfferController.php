@@ -14,6 +14,19 @@ class GlobalOfferController extends Controller
         return view('admin.offers.index', compact('offer'));
     }
 
+    public function toggle()
+    {
+        $offer = GlobalOffer::firstOrCreate(['id' => 1], [
+            'original_price' => 0,
+            'discount_price' => 0,
+            'is_active'      => false,
+        ]);
+        $offer->update(['is_active' => !$offer->is_active]);
+
+        $status = $offer->is_active ? 'activated' : 'deactivated';
+        return redirect()->route('admin.offers.index')->with('success', "Global offer {$status}.");
+    }
+
     public function save(Request $request)
     {
         $data = $request->validate([
