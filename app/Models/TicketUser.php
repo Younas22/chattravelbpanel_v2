@@ -31,6 +31,6 @@ class TicketUser extends Authenticatable
     public function profileImageUrl(): ?string
     {
         if (!$this->profile_image) return null;
-        return 'http://localhost/chattravelbpanel_v2/public/storage/' . $this->profile_image;
+        return asset('storage/' . $this->profile_image);
     }
 }

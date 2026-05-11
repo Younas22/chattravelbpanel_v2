@@ -79,7 +79,7 @@ class TicketController extends Controller
             return redirect()->route('tickets.login');
         }
 
-        if ($ticket->ticket_user_id !== auth('ticket_user')->id()) {
+        if ((int)$ticket->ticket_user_id !== (int)auth('ticket_user')->id()) {
             return redirect()->route('tickets.index')->with('error', 'You do not have access to this ticket.');
         }
 
@@ -96,7 +96,7 @@ class TicketController extends Controller
             return redirect()->route('tickets.login');
         }
 
-        if ($ticket->ticket_user_id !== auth('ticket_user')->id()) {
+        if ((int)$ticket->ticket_user_id !== (int)auth('ticket_user')->id()) {
             return redirect()->route('tickets.index')->with('error', 'You do not have access to this ticket.');
         }
 
