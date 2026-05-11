@@ -53,6 +53,9 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     Route::patch('/tickets/{ticket}/status', [AdminTicketController::class, 'updateStatus'])->name('tickets.status');
     Route::patch('/tickets/{ticket}/priority', [AdminTicketController::class, 'updatePriority'])->name('tickets.priority');
 
+    // Ticket Users
+    Route::get('/ticket-users', [AdminTicketController::class, 'ticketUsers'])->name('ticket-users.index');
+
     // Visitors
     Route::get('/visitors', [VisitorController::class, 'index'])->name('visitors.index');
     Route::get('/visitors/live', [VisitorController::class, 'live'])->name('visitors.live');
@@ -99,6 +102,9 @@ Route::prefix('support')->name('tickets.')->group(function () {
     Route::get('/', [TicketController::class, 'index'])->name('index');
     Route::get('/create', [TicketController::class, 'create'])->name('create');
     Route::post('/create', [TicketController::class, 'store'])->name('store');
+    Route::get('/profile', [TicketController::class, 'profileForm'])->name('profile');
+    Route::post('/profile', [TicketController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/profile/image', [TicketController::class, 'updateProfileImage'])->name('profile.image');
     Route::get('/{ticket}', [TicketController::class, 'show'])->name('show');
     Route::post('/{ticket}/reply', [TicketController::class, 'reply'])->name('reply');
 });

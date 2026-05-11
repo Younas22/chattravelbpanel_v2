@@ -21,6 +21,7 @@
             <div class="flex items-center gap-3">
                 @if(auth('ticket_user')->check())
                     <a href="{{ route('tickets.create') }}" class="text-sm text-blue-600 hover:underline font-medium">New Ticket</a>
+                    <a href="{{ route('tickets.profile') }}" class="text-sm text-slate-600 hover:text-slate-900 font-medium">Profile</a>
                     <form method="POST" action="{{ route('tickets.logout') }}" class="inline">
                         @csrf
                         <button type="submit" class="text-sm text-slate-500 hover:text-slate-700 cursor-pointer">Logout</button>

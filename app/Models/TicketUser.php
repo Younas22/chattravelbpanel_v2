@@ -12,17 +12,25 @@ class TicketUser extends Authenticatable
 
     protected $fillable = [
         'full_name', 'email', 'phone', 'company_name', 'password',
+        'widget_token', 'profile_image', 'social_links',
     ];
 
     protected $hidden = ['password', 'remember_token'];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'password' => 'hashed',
+        'password'          => 'hashed',
+        'social_links'      => 'array',
     ];
 
     public function tickets(): HasMany
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    public function profileImageUrl(): ?string
+    {
+        if (!$this->profile_image) return null;
+        return 'http://localhost/chattravelbpanel_v2/public/storage/' . $this->profile_image;
     }
 }

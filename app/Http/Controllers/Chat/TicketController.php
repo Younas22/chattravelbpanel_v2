@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
 {
@@ -179,5 +180,60 @@ class TicketController extends Controller
     {
         auth('ticket_user')->logout();
         return redirect()->route('tickets.login');
+    }
+
+    public function profileForm()
+    {
+        if (!auth('ticket_user')->check()) {
+            return redirect()->route('tickets.login');
+        }
+        $user = auth('ticket_user')->user();
+        return view('tickets.profile', compact('user'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        if (!auth('ticket_user')->check()) {
+            return redirect()->route('tickets.login');
+        }
+
+        $request->validate([
+            'full_name'              => 'required|string|max:200',
+            'phone'                  => 'nullable|string|max:30',
+            'social_links.twitter'   => 'nullable|url|max:200',
+            'social_links.facebook'  => 'nullable|url|max:200',
+            'social_links.instagram' => 'nullable|url|max:200',
+            'social_links.linkedin'  => 'nullable|url|max:200',
+        ]);
+
+        auth('ticket_user')->user()->update([
+            'full_name'    => $request->full_name,
+            'phone'        => $request->phone,
+            'social_links' => $request->input('social_links', []),
+        ]);
+
+        return back()->with('success', 'Profile updated successfully.');
+    }
+
+    public function updateProfileImage(Request $request)
+    {
+        if (!auth('ticket_user')->check()) {
+            return redirect()->route('tickets.login');
+        }
+
+        $request->validate([
+            'image' => 'required|image|max:2048|mimes:jpg,jpeg,png,gif,webp',
+        ]);
+
+        $user = auth('ticket_user')->user();
+
+        if ($user->profile_image) {
+            Storage::disk('public')->delete($user->profile_image);
+        }
+
+        $path = $request->file('image')->store('ticket-avatars', 'public');
+        $user->update(['profile_image' => $path]);
+
+        return back()->with('success', 'Profile image updated.');
     }
 }

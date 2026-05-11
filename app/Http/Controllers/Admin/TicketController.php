@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
+use App\Models\TicketUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -96,5 +97,21 @@ class TicketController extends Controller
         $request->validate(['priority' => 'required|in:low,medium,high,urgent']);
         $ticket->update(['priority' => $request->priority]);
         return response()->json(['priority' => $request->priority]);
+    }
+
+    public function ticketUsers(Request $request)
+    {
+        $query = TicketUser::withCount('tickets')->orderByDesc('created_at');
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('full_name', 'like', "%{$request->search}%")
+                  ->orWhere('email', 'like', "%{$request->search}%")
+                  ->orWhere('phone', 'like', "%{$request->search}%");
+            });
+        }
+
+        $users = $query->paginate(20);
+        return view('admin.ticket-users.index', compact('users'));
     }
 }
