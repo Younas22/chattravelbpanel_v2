@@ -127,6 +127,12 @@
                 <span class="sidebar-tooltip" x-show="!sidebarOpen">Analytics</span>
             </a>
 
+            <a href="{{ route('admin.countries.index') }}" class="sidebar-link {{ request()->routeIs('admin.countries*') ? 'active' : '' }}">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span x-show="sidebarOpen" class="whitespace-nowrap">Countries</span>
+                <span class="sidebar-tooltip" x-show="!sidebarOpen">Countries</span>
+            </a>
+
             <div class="pt-2 pb-1" x-show="sidebarOpen">
                 <p class="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Configure</p>
             </div>
@@ -144,6 +150,12 @@
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span x-show="sidebarOpen" class="whitespace-nowrap">Quick FAQs</span>
                 <span class="sidebar-tooltip" x-show="!sidebarOpen">Quick FAQs</span>
+            </a>
+
+            <a href="{{ route('admin.offers.index') }}" class="sidebar-link {{ request()->routeIs('admin.offers*') ? 'active' : '' }}">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+                <span x-show="sidebarOpen" class="whitespace-nowrap">Global Offer</span>
+                <span class="sidebar-tooltip" x-show="!sidebarOpen">Global Offer</span>
             </a>
 
             <a href="{{ route('admin.settings.widget') }}" class="sidebar-link {{ request()->routeIs('admin.settings*') ? 'active' : '' }}">

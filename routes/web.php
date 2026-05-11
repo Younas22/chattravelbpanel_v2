@@ -4,8 +4,10 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\AnalyticsController;
 use App\Http\Controllers\Admin\CannedReplyController;
 use App\Http\Controllers\Admin\ConversationController;
+use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqController;
+use App\Http\Controllers\Admin\GlobalOfferController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use App\Http\Controllers\Admin\VisitorController;
@@ -78,6 +80,15 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
 
     // Analytics
     Route::get('/analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
+
+    // Countries & National Holidays
+    Route::get('/countries', [CountryController::class, 'index'])->name('countries.index');
+    Route::post('/countries/{country}/fetch-holidays', [CountryController::class, 'fetchHolidays'])->name('countries.fetch-holidays');
+    Route::get('/countries/{country}/holidays', [CountryController::class, 'holidays'])->name('countries.holidays');
+
+    // Global Offer
+    Route::get('/offers', [GlobalOfferController::class, 'index'])->name('offers.index');
+    Route::post('/offers', [GlobalOfferController::class, 'save'])->name('offers.save');
 
     // Settings
     Route::get('/settings/widget', [SettingsController::class, 'widget'])->name('settings.widget');
