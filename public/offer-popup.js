@@ -103,7 +103,7 @@
         '<div class="tbp-oh">' +
           '<button class="tbp-oh-close" id="tbp-offer-close" title="Hide offer">&#10005;</button>' +
           tagHtml +
-          '<div class="tbp-oh-title">' + title + '</div>' +
+          '<div class="tbp-oh-title">' + title + 'Offer</div>' +
           subHtml +
         '</div>' +
         '<div class="tbp-ob">' +
