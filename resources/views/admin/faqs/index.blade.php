@@ -19,9 +19,15 @@
                 <p class="text-slate-500">No FAQs yet. Add your first one!</p>
             </div>
         @else
-            <div class="divide-y divide-slate-50">
+            <div class="divide-y divide-slate-50" id="faq-sortable">
                 @foreach($faqs as $faq)
-                <div class="flex items-start gap-4 px-5 py-4 hover:bg-slate-50 transition-colors">
+                <div class="flex items-start gap-3 px-5 py-4 hover:bg-slate-50 transition-colors" data-id="{{ $faq->id }}">
+                    {{-- Drag handle --}}
+                    <div class="faq-drag-handle mt-0.5 shrink-0 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors" title="Drag to reorder">
+                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M7 4a1 1 0 000 2h6a1 1 0 100-2H7zM7 9a1 1 0 000 2h6a1 1 0 100-2H7zM7 14a1 1 0 000 2h6a1 1 0 100-2H7z"/>
+                        </svg>
+                    </div>
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-1">
                             <p class="font-semibold text-slate-900 text-sm">{{ $faq->question }}</p>
@@ -81,7 +87,28 @@
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    var el = document.getElementById('faq-sortable');
+    if (!el) return;
+    Sortable.create(el, {
+        handle: '.faq-drag-handle',
+        animation: 150,
+        ghostClass: 'bg-blue-50',
+        onEnd: function () {
+            var order = Array.from(el.querySelectorAll('[data-id]')).map(function (row) {
+                return parseInt(row.dataset.id, 10);
+            });
+            fetch('/admin/faqs/order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '' },
+                body: JSON.stringify({ order: order })
+            });
+        }
+    });
+});
+
 function faqManager() {
     return {
         showModal: false,
