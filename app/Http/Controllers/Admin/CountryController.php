@@ -21,17 +21,20 @@ class CountryController extends Controller
         $year = $request->input('year', date('Y'));
         $code = strtoupper($country->iso2);
 
-        $response = Http::timeout(15)->get("https://tallyfy.com/national-holidays/api/{$code}/{$year}.json");
+        $holidays = $this->fetchFromTallyfy($code, $year)
+            ?? $this->fetchFromNager($code, $year);
 
-        if ($response->failed()) {
-            $status = $response->status();
+        if ($holidays === null) {
             return response()->json([
-                'error' => "API returned {$status} for country code '{$code}'. This country may not be supported."
+                'error' => "Both APIs failed for country code '{$code}'. This country may not be supported."
             ], 422);
         }
 
-        $data = $response->json();
-        $holidays = $data['holidays'] ?? [];
+        if (empty($holidays)) {
+            return response()->json([
+                'error' => "No holidays found for country code '{$code}' in {$year}."
+            ], 422);
+        }
 
         $inserted = 0;
         foreach ($holidays as $h) {
@@ -63,6 +66,44 @@ class CountryController extends Controller
             'total'    => count($holidays),
             'message'  => "{$inserted} new holidays saved for {$country->name} ({$year}).",
         ]);
+    }
+
+    private function fetchFromTallyfy(string $code, int|string $year): ?array
+    {
+        $response = Http::timeout(15)->get("https://tallyfy.com/national-holidays/api/{$code}/{$year}.json");
+
+        if ($response->failed()) {
+            return null;
+        }
+
+        $holidays = $response->json('holidays') ?? [];
+
+        if (empty($holidays)) {
+            return null;
+        }
+
+        return $holidays;
+    }
+
+    private function fetchFromNager(string $code, int|string $year): ?array
+    {
+        $response = Http::timeout(15)->get("https://date.nager.at/api/v3/PublicHolidays/{$year}/{$code}");
+
+        if ($response->failed() || !is_array($response->json())) {
+            return null;
+        }
+
+        $raw = $response->json();
+
+        return array_map(fn($h) => [
+            'date'                => $h['date'],
+            'name'                => $h['name'],
+            'local_name'          => $h['localName'] ?? null,
+            'type'                => isset($h['types'][0]) ? strtolower($h['types'][0]) : 'national',
+            'observed_date'       => $h['date'],
+            'is_observed_shifted' => false,
+            'description'         => null,
+        ], $raw);
     }
 
     public function holidays(Request $request, Country $country)
