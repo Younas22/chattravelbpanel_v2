@@ -307,7 +307,7 @@
       <div class="tbp-wa-bubble">
         <div class="tbp-wa-title">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.116 1.528 5.85L.057 23.01a.75.75 0 00.932.933l5.16-1.471A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.846 0-3.575-.497-5.067-1.362l-.363-.214-3.763 1.073 1.073-3.763-.214-.363A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-          WhatsApp پر رابطہ کریں
+          Contact us on WhatsApp
         </div>
         ${waContacts.map(c => `
           <a class="tbp-wa-link" href="https://wa.me/${esc(c.number)}?text=${encodeURIComponent('Hi! I am contacting from your website.')}" target="_blank" rel="noopener" data-wa-number="${esc(c.number)}" data-wa-label="${esc(c.label || '')}">
@@ -372,7 +372,32 @@
 
   function iconReply() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>`; }
 
+  function renderWhatsappContactsMsg(m) {
+    const dark = settings.dark_mode === 'true';
+    const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const linksHtml = (m.contacts || []).map(c => `
+      <a class="tbp-wa-link" href="https://wa.me/${esc(c.number)}?text=${encodeURIComponent('Hi! I am contacting from your website.')}" target="_blank" rel="noopener" data-wa-number="${esc(c.number)}" data-wa-label="${esc(c.label || '')}">
+        <div class="tbp-wa-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.116 1.528 5.85L.057 23.01a.75.75 0 00.932.933l5.16-1.471A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.846 0-3.575-.497-5.067-1.362l-.363-.214-3.763 1.073 1.073-3.763-.214-.363A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg></div>
+        <span class="tbp-wa-label">${esc(c.label || c.number)}</span>
+        <svg class="tbp-wa-arrow" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+      </a>`).join('');
+    return `<div class="tbp-msg-row visitor" style="justify-content:flex-start">
+      <div class="tbp-msg visitor" style="align-items:flex-start;max-width:82%">
+        <div class="tbp-wa-bubble" style="margin-bottom:0">
+          <div class="tbp-wa-title">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.116 1.528 5.85L.057 23.01a.75.75 0 00.932.933l5.16-1.471A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.846 0-3.575-.497-5.067-1.362l-.363-.214-3.763 1.073 1.073-3.763-.214-.363A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            You can also reach us on WhatsApp
+          </div>
+          ${linksHtml}
+        </div>
+        <span class="tbp-time">${time}</span>
+      </div>
+    </div>`;
+  }
+
   function renderMessage(m) {
+    if (m.msg_type === 'whatsapp_contacts') return renderWhatsappContactsMsg(m);
+
     const isVisitor = m.sender_type === 'visitor';
     const side = isVisitor ? 'visitor' : 'admin';
     const cls = isVisitor ? 'visitor' : (m.sender_type === 'bot' ? 'bot' : 'admin');
@@ -608,6 +633,16 @@
         body: settings.welcome_message,
         created_at: new Date().toISOString(),
       });
+      const waContacts = Array.isArray(settings.whatsapp_contacts) ? settings.whatsapp_contacts : [];
+      if (waContacts.length > 0) {
+        state.messages.push({
+          id: 'whatsapp-contacts',
+          sender_type: 'bot',
+          msg_type: 'whatsapp_contacts',
+          contacts: waContacts,
+          created_at: new Date().toISOString(),
+        });
+      }
       render();
       startPolling();
     }

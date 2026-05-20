@@ -163,7 +163,7 @@
             {{-- WhatsApp Contacts --}}
             <div class="card">
                 <h2 class="font-semibold text-slate-900 mb-1">WhatsApp Contacts</h2>
-                <p class="text-xs text-slate-500 mb-4">Widget کھلنے پر welcome message کے بعد یہ contacts دکھائے جائیں گے۔ Multiple numbers add کر سکتے ہیں۔</p>
+                <p class="text-xs text-slate-500 mb-4">These contacts appear after the welcome message on the home screen and inside the chat. You can add multiple numbers.</p>
 
                 <div id="wa-contacts-list" class="space-y-3 mb-4">
                     @php
@@ -173,8 +173,8 @@
                     <div class="wa-contact-row flex items-center gap-2">
                         <input type="text" name="whatsapp_contacts[{{ $i }}][label]"
                             value="{{ $contact['label'] ?? '' }}"
-                            placeholder="Label (مثلاً: Sales, Support)"
-                            class="w-36 flex-shrink-0 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            placeholder="Label (e.g. Sales, Support)"
+                            class="w-40 flex-shrink-0 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                         <span class="text-slate-400 text-sm flex-shrink-0">wa.me/</span>
                         <input type="text" name="whatsapp_contacts[{{ $i }}][number]"
                             value="{{ $contact['number'] ?? '' }}"
@@ -197,7 +197,7 @@
                 </button>
 
                 <p class="text-xs text-slate-400 mt-3">
-                    Country code کے ساتھ صرف numbers لکھیں (مثلاً: <code class="bg-slate-100 px-1 rounded">923207560200</code>)۔ ہر click track ہوگا۔
+                    Enter the number with country code, digits only (e.g. <code class="bg-slate-100 px-1 rounded">923207560200</code>). Every click is tracked automatically.
                 </p>
             </div>
 
