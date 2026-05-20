@@ -54,6 +54,7 @@ class WidgetSetting extends Model
             'system_logo'         => '',
             'company_image'       => '',
             'favicon'             => '',
+            'whatsapp_contacts'   => '[]',
         ];
     }
 }

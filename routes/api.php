@@ -13,6 +13,9 @@ Route::prefix('chat')->middleware(['throttle:60,1'])->group(function () {
     Route::get('/settings', [ConversationController::class, 'settings']);
     Route::get('/faqs', [ConversationController::class, 'faqs']);
 
+    // WhatsApp click tracking
+    Route::post('/whatsapp-click', [ConversationController::class, 'trackWhatsappClick']);
+
     // Offer popup
     Route::get('/offer', [OfferPopupController::class, 'popup']);
 

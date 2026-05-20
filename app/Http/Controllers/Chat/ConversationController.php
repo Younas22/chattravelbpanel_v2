@@ -10,6 +10,7 @@ use App\Models\Conversation;
 use App\Models\Message;
 use App\Models\QuickFaq;
 use App\Models\Visitor;
+use App\Models\WhatsappClick;
 use App\Models\WidgetSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -46,7 +47,29 @@ class ConversationController extends Controller
             'agent_name'         => $settings['agent_name'],
             'show_branding'      => $settings['show_branding'],
             'company_image'      => $settings['company_image'] ? url($settings['company_image']) : '',
+            'whatsapp_contacts'  => json_decode($settings['whatsapp_contacts'] ?? '[]', true) ?: [],
         ]);
+    }
+
+    public function trackWhatsappClick(Request $request)
+    {
+        $request->validate([
+            'number'      => 'required|string|max:30',
+            'label'       => 'nullable|string|max:100',
+            'session_id'  => 'nullable|string|max:64',
+            'page_url'    => 'nullable|string|max:1000',
+            'page_title'  => 'nullable|string|max:255',
+        ]);
+
+        WhatsappClick::create([
+            'session_id'       => $request->session_id,
+            'whatsapp_number'  => preg_replace('/[^0-9]/', '', $request->number),
+            'whatsapp_label'   => $request->label,
+            'page_url'         => $request->page_url,
+            'page_title'       => $request->page_title,
+        ]);
+
+        return response()->json(['ok' => true]);
     }
 
     public function start(Request $request)

@@ -39,12 +39,28 @@ class SettingsController extends Controller
             'system_logo'        => 'nullable|image|max:2048',
             'company_image'      => 'nullable|image|max:2048',
             'favicon'            => 'nullable|mimes:ico,png,jpg,jpeg,svg,gif|max:512',
+            'whatsapp_contacts'              => 'nullable|array',
+            'whatsapp_contacts.*.label'      => 'nullable|string|max:100',
+            'whatsapp_contacts.*.number'     => 'nullable|string|max:30',
         ]);
 
         // Convert checkboxes
         foreach (['dark_mode', 'auto_popup', 'sound_enabled', 'show_online_status', 'show_branding'] as $key) {
             $data[$key] = $request->has($key) ? 'true' : 'false';
         }
+
+        // Convert whatsapp_contacts array to JSON, filtering empty entries
+        $contacts = [];
+        foreach ($request->input('whatsapp_contacts', []) as $c) {
+            $num = trim($c['number'] ?? '');
+            if ($num !== '') {
+                $contacts[] = [
+                    'label'  => trim($c['label'] ?? ''),
+                    'number' => preg_replace('/[^0-9]/', '', $num),
+                ];
+            }
+        }
+        $data['whatsapp_contacts'] = json_encode($contacts);
 
         $uploadDir = public_path('uploads/branding');
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);

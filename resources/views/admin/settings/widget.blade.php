@@ -160,6 +160,47 @@
                 </div>
             </div>
 
+            {{-- WhatsApp Contacts --}}
+            <div class="card">
+                <h2 class="font-semibold text-slate-900 mb-1">WhatsApp Contacts</h2>
+                <p class="text-xs text-slate-500 mb-4">Widget کھلنے پر welcome message کے بعد یہ contacts دکھائے جائیں گے۔ Multiple numbers add کر سکتے ہیں۔</p>
+
+                <div id="wa-contacts-list" class="space-y-3 mb-4">
+                    @php
+                        $waContacts = json_decode($settings['whatsapp_contacts'] ?? '[]', true) ?: [];
+                    @endphp
+                    @forelse($waContacts as $i => $contact)
+                    <div class="wa-contact-row flex items-center gap-2">
+                        <input type="text" name="whatsapp_contacts[{{ $i }}][label]"
+                            value="{{ $contact['label'] ?? '' }}"
+                            placeholder="Label (مثلاً: Sales, Support)"
+                            class="w-36 flex-shrink-0 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <span class="text-slate-400 text-sm flex-shrink-0">wa.me/</span>
+                        <input type="text" name="whatsapp_contacts[{{ $i }}][number]"
+                            value="{{ $contact['number'] ?? '' }}"
+                            placeholder="923207560200"
+                            class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <button type="button" onclick="this.closest('.wa-contact-row').remove()"
+                            class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    @empty
+                    {{-- empty — JS will add rows --}}
+                    @endforelse
+                </div>
+
+                <button type="button" id="wa-add-btn"
+                    class="flex items-center gap-2 px-4 py-2 rounded-xl border border-dashed border-green-400 text-green-600 text-sm font-medium hover:bg-green-50 transition-colors cursor-pointer">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Add WhatsApp Number
+                </button>
+
+                <p class="text-xs text-slate-400 mt-3">
+                    Country code کے ساتھ صرف numbers لکھیں (مثلاً: <code class="bg-slate-100 px-1 rounded">923207560200</code>)۔ ہر click track ہوگا۔
+                </p>
+            </div>
+
             {{-- Behavior --}}
             <div class="card">
                 <h2 class="font-semibold text-slate-900 mb-4">Behavior</h2>
@@ -381,6 +422,48 @@
     }
 
     updatePreview();
+
+    // WhatsApp contacts — dynamic add/remove
+    const waList = document.getElementById('wa-contacts-list');
+    const waAddBtn = document.getElementById('wa-add-btn');
+
+    function waRowIndex() {
+        return waList ? waList.querySelectorAll('.wa-contact-row').length : 0;
+    }
+
+    function addWaRow() {
+        const idx = waRowIndex();
+        const row = document.createElement('div');
+        row.className = 'wa-contact-row flex items-center gap-2';
+        row.innerHTML = `
+            <input type="text" name="whatsapp_contacts[${idx}][label]"
+                placeholder="Label (مثلاً: Sales, Support)"
+                class="w-36 flex-shrink-0 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+            <span class="text-slate-400 text-sm flex-shrink-0">wa.me/</span>
+            <input type="text" name="whatsapp_contacts[${idx}][number]"
+                placeholder="923207560200"
+                class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+            <button type="button" onclick="this.closest('.wa-contact-row').remove()"
+                class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>`;
+        waList.appendChild(row);
+        row.querySelector('input').focus();
+    }
+
+    if (waAddBtn) waAddBtn.addEventListener('click', addWaRow);
+
+    // Re-index name attributes before form submit so server gets 0,1,2...
+    const widgetForm = document.getElementById('widget-form');
+    if (widgetForm) {
+        widgetForm.addEventListener('submit', function () {
+            waList.querySelectorAll('.wa-contact-row').forEach(function (row, i) {
+                const inputs = row.querySelectorAll('input[type="text"]');
+                if (inputs[0]) inputs[0].name = `whatsapp_contacts[${i}][label]`;
+                if (inputs[1]) inputs[1].name = `whatsapp_contacts[${i}][number]`;
+            });
+        });
+    }
 })();
 </script>
 @endpush
