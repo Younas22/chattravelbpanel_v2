@@ -108,8 +108,7 @@
       #tbp-unread { position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; font-size: 10px; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid white; }
       #tbp-window { position: absolute; ${settings.position === 'bottom-right' ? 'bottom: 68px; right: 0;' : 'bottom: 68px; left: 0;'} width: ${state.isMobile ? '100vw' : (state.isExpanded ? '620px' : '380px')}; ${state.isMobile ? 'position: fixed; bottom: 0; right: 0; left: 0; height: 100dvh; border-radius: 0;' : 'height: ' + (state.isExpanded ? 'min(720px, calc(100dvh - 95px))' : 'min(560px, calc(100dvh - 95px))') + '; border-radius: ' + r + ';'} background: ${dark ? '#1e293b' : '#fff'}; box-shadow: 0 20px 60px rgba(0,0,0,0.18); display: flex; flex-direction: column; overflow: hidden; transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); transform-origin: bottom right; }
       #tbp-window.hidden { transform: scale(0.8); opacity: 0; pointer-events: none; }
-      #tbp-header { background: ${p}; padding: 12px 16px 10px; display: flex; flex-direction: column; gap: 0; flex-shrink: 0; }
-      #tbp-header-row { display: flex; align-items: center; justify-content: space-between; }
+      #tbp-header { background: ${p}; padding: 14px 16px 12px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
       #tbp-header-info { display: flex; align-items: center; gap: 10px; }
       #tbp-avatar { width: 38px; height: 38px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: 700; color: ${t}; font-size: 15px; flex-shrink: 0; overflow: hidden; }
       #tbp-header h3 { color: ${t}; font-size: 14px; font-weight: 600; }
@@ -117,14 +116,14 @@
       #tbp-close, #tbp-expand { background: rgba(255,255,255,0.2); border: none; border-radius: 8px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: ${t}; transition: background 0.2s; flex-shrink: 0; }
       #tbp-close:hover, #tbp-expand:hover { background: rgba(255,255,255,0.3); }
       #tbp-header-actions { display: flex; align-items: center; gap: 6px; }
-      #tbp-wa-header-bar { display: flex; gap: 5px; margin-top: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 1px; }
-      #tbp-wa-header-bar::-webkit-scrollbar { display: none; }
-      .tbp-wa-hdr-btn { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px 3px 4px; border-radius: 20px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.28); cursor: pointer; text-decoration: none; white-space: nowrap; flex-shrink: 0; transition: background 0.15s; }
-      .tbp-wa-hdr-btn:hover { background: rgba(255,255,255,0.3); }
-      .tbp-wa-hdr-icon { width: 17px; height: 17px; border-radius: 50%; background: #25d366; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-      .tbp-wa-hdr-text { display: flex; flex-direction: column; line-height: 1.25; }
-      .tbp-wa-hdr-name { font-size: 10px; font-weight: 700; color: ${t}; }
-      .tbp-wa-hdr-num { font-size: 9px; color: ${t}; opacity: 0.75; }
+      /* WhatsApp chat message */
+      .tbp-wa-chat-bubble { background: ${dark ? '#1a2e1a' : '#f0fdf4'}; border: 1px solid ${dark ? '#166534' : '#bbf7d0'}; border-radius: 14px; border-top-left-radius: 4px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; }
+      .tbp-wa-chat-btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px 5px 5px; border-radius: 20px; background: #25d366; text-decoration: none; transition: opacity 0.15s; }
+      .tbp-wa-chat-btn:hover { opacity: 0.88; }
+      .tbp-wa-chat-icon { width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .tbp-wa-chat-info { display: flex; flex-direction: column; line-height: 1.25; }
+      .tbp-wa-chat-name { font-size: 10px; font-weight: 700; color: #fff; }
+      .tbp-wa-chat-num { font-size: 9.5px; color: rgba(255,255,255,0.85); }
       #tbp-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
       .tbp-screen { flex: 1; display: flex; flex-direction: column; }
 
@@ -252,22 +251,19 @@
     widget.innerHTML = `
       <div id="tbp-window" class="${state.isOpen ? '' : 'hidden'}">
         <div id="tbp-header">
-          <div id="tbp-header-row">
-            <div id="tbp-header-info">
-              <div id="tbp-avatar">${settings.company_image ? '<img src="' + settings.company_image + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : settings.agent_name.charAt(0)}</div>
-              <div>
-                <h3>${settings.widget_title}</h3>
-                <p>
-                  ${settings.show_online_status === 'true' ? '<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:7px;height:7px;background:#4ade80;border-radius:50%;"></span> Online</span>' : settings.widget_subtitle}
-                </p>
-              </div>
-            </div>
-            <div id="tbp-header-actions">
-              ${!state.isMobile ? `<button id="tbp-expand" title="${state.isExpanded ? 'Minimize' : 'Expand'}">${state.isExpanded ? iconMinimize() : iconExpand()}</button>` : ''}
-              <button id="tbp-close">${iconX()}</button>
+          <div id="tbp-header-info">
+            <div id="tbp-avatar">${settings.company_image ? '<img src="' + settings.company_image + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : settings.agent_name.charAt(0)}</div>
+            <div>
+              <h3>${settings.widget_title}</h3>
+              <p>
+                ${settings.show_online_status === 'true' ? '<span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:7px;height:7px;background:#4ade80;border-radius:50%;"></span> Online</span>' : settings.widget_subtitle}
+              </p>
             </div>
           </div>
-          ${renderWaHeaderBar()}
+          <div id="tbp-header-actions">
+            ${!state.isMobile ? `<button id="tbp-expand" title="${state.isExpanded ? 'Minimize' : 'Expand'}">${state.isExpanded ? iconMinimize() : iconExpand()}</button>` : ''}
+            <button id="tbp-close">${iconX()}</button>
+          </div>
         </div>
 
         <div id="tbp-body">
@@ -317,19 +313,23 @@
     </div>`;
   }
 
-  function renderWaHeaderBar() {
-    const waContacts = Array.isArray(settings.whatsapp_contacts) ? settings.whatsapp_contacts : [];
-    if (!waContacts.length || state.view !== 'chat') return '';
-    const waIconWhite = `<svg width="9" height="9" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.116 1.528 5.85L.057 23.01a.75.75 0 00.932.933l5.16-1.471A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.846 0-3.575-.497-5.067-1.362l-.363-.214-3.763 1.073 1.073-3.763-.214-.363A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`;
-    const btns = waContacts.map(c => `
-      <a class="tbp-wa-hdr-btn" href="https://wa.me/${esc(c.number)}?text=${encodeURIComponent('Hi! I am contacting from your website.')}" target="_blank" rel="noopener" data-wa-number="${esc(c.number)}" data-wa-label="${esc(c.label || '')}">
-        <div class="tbp-wa-hdr-icon">${waIconWhite}</div>
-        <div class="tbp-wa-hdr-text">
-          ${c.label ? `<span class="tbp-wa-hdr-name">${esc(c.label)}</span>` : ''}
-          <span class="tbp-wa-hdr-num">+${esc(c.number)}</span>
+  function renderWhatsappContactsMsg(m) {
+    const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const waIconWhite = `<svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.116 1.528 5.85L.057 23.01a.75.75 0 00.932.933l5.16-1.471A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.846 0-3.575-.497-5.067-1.362l-.363-.214-3.763 1.073 1.073-3.763-.214-.363A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`;
+    const btns = (m.contacts || []).map(c => `
+      <a class="tbp-wa-chat-btn" href="https://wa.me/${esc(c.number)}?text=${encodeURIComponent('Hi! I am contacting from your website.')}" target="_blank" rel="noopener" data-wa-number="${esc(c.number)}" data-wa-label="${esc(c.label || '')}">
+        <div class="tbp-wa-chat-icon">${waIconWhite}</div>
+        <div class="tbp-wa-chat-info">
+          ${c.label ? `<span class="tbp-wa-chat-name">${esc(c.label)}</span>` : ''}
+          <span class="tbp-wa-chat-num">+${esc(c.number)}</span>
         </div>
       </a>`).join('');
-    return `<div id="tbp-wa-header-bar">${btns}</div>`;
+    return `<div class="tbp-msg-row admin">
+      <div class="tbp-msg admin">
+        <div class="tbp-wa-chat-bubble">${btns}</div>
+        <span class="tbp-time">${time}</span>
+      </div>
+    </div>`;
   }
 
   function renderChat() {
@@ -375,6 +375,7 @@
   function iconReply() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>`; }
 
   function renderMessage(m) {
+    if (m.msg_type === 'whatsapp_contacts') return renderWhatsappContactsMsg(m);
     const isVisitor = m.sender_type === 'visitor';
     const side = isVisitor ? 'visitor' : 'admin';
     const cls = isVisitor ? 'visitor' : (m.sender_type === 'bot' ? 'bot' : 'admin');
@@ -495,7 +496,7 @@
     $id('tbp-reply-clear')?.addEventListener('click', clearReply);
 
     // WhatsApp click tracking
-    $all('.tbp-wa-hdr-btn').forEach(btn => {
+    $all('.tbp-wa-chat-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         apiFetch('/whatsapp-click', 'POST', {
           number:     btn.dataset.waNumber,
@@ -610,6 +611,16 @@
         body: settings.welcome_message,
         created_at: new Date().toISOString(),
       });
+      const waContacts = Array.isArray(settings.whatsapp_contacts) ? settings.whatsapp_contacts : [];
+      if (waContacts.length > 0) {
+        state.messages.push({
+          id: 'wa-contacts',
+          sender_type: 'bot',
+          msg_type: 'whatsapp_contacts',
+          contacts: waContacts,
+          created_at: new Date().toISOString(),
+        });
+      }
       render();
       startPolling();
     }
