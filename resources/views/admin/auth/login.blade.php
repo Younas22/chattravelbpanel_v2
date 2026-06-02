@@ -28,7 +28,7 @@
                 </div>
             @endif
             <h1 class="text-2xl font-bold text-white">{{ $systemName }}</h1>
-            <p class="text-slate-400 text-sm mt-1">Sign in to your dashboard</p>
+            <p class="text-slate-400 text-sm mt-1">Sign in to your dashboard1</p>
         </div>
 
         {{-- Card --}}
