@@ -252,7 +252,7 @@
       <div id="tbp-window" class="${state.isOpen ? '' : 'hidden'}">
         <div id="tbp-header">
           <div id="tbp-header-info">
-            <div id="tbp-avatar">${settings.company_image ? '<img src="' + settings.company_image + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%">' : settings.agent_name.charAt(0)}</div>
+            <div id="tbp-avatar">${settings.company_image ? '<img src="' + settings.company_image + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%" alt="Avatar">' : settings.agent_name.charAt(0)}</div>
             <div>
               <h3>${settings.widget_title}</h3>
               <p>
