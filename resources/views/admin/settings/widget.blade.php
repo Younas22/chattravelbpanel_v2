@@ -269,7 +269,7 @@
                         <div style="display:flex;align-items:center;gap:8px;">
                             <div id="preview-avatar" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;overflow:hidden;">
                                 @if($settings['company_image'])
-                                    <img src="{{ url($settings['company_image']) }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">
+                                    <img src="{{ url($settings['company_image']) }}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="Avatar">
                                 @else
                                     <span id="preview-avatar-text" style="color:{{ $settings['text_color'] }}">{{ strtoupper(substr($settings['agent_name'], 0, 1)) }}</span>
                                 @endif
