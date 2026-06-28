@@ -12,16 +12,20 @@ class DirectMessageController extends Controller
 {
     use HasChatSidebar;
 
-    public function show(TicketUser $contact)
+    public function show(Request $request, TicketUser $contact)
     {
         if (!auth('ticket_user')->check()) {
-            return redirect()->route('tickets.login');
+            return $request->wantsJson()
+                ? response()->json(['error' => 'Unauthenticated.'], 401)
+                : redirect()->route('tickets.login');
         }
 
         $user = auth('ticket_user')->user();
 
         if (!$user->sharesGroupWith($contact->id)) {
-            return redirect()->route('tickets.chat.index')->with('error', 'You do not have access to message this user.');
+            return $request->wantsJson()
+                ? response()->json(['error' => 'You do not have access to message this user.'], 403)
+                : redirect()->route('tickets.chat.index')->with('error', 'You do not have access to message this user.');
         }
 
         $messages = DirectMessage::betweenTicketUsers($user->id, $contact->id)->with('replyTo')->orderBy('created_at')->get();
@@ -30,6 +34,17 @@ class DirectMessageController extends Controller
             ->where('recipient_type', 'ticket_user')->where('recipient_id', $user->id)
             ->where('is_read', false)
             ->update(['is_read' => true]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'contact' => [
+                    'id'                => $contact->id,
+                    'full_name'         => $contact->full_name,
+                    'profile_image_url' => $contact->profileImageUrl(),
+                ],
+                'messages' => $messages->map(fn($m) => $m->toApiArray($user->id, 'ticket_user')),
+            ]);
+        }
 
         $groups = $this->sidebarGroups($user);
         $contacts = $this->sidebarContacts($user);
@@ -106,23 +121,7 @@ class DirectMessageController extends Controller
             ->when($afterId, fn($q) => $q->where('id', '>', $afterId))
             ->orderBy('created_at')
             ->get()
-            ->map(fn($m) => [
-                'id'              => $m->id,
-                'is_mine'         => $m->sender_id === $user->id,
-                'sender_name'     => $m->sender_name,
-                'body'            => $m->body,
-                'attachment_url'  => $m->attachment_url,
-                'attachment_name' => $m->attachment_name,
-                'attachment_type' => $m->attachment_type,
-                'created_at'      => $m->created_at->toISOString(),
-                'reply_to'        => $m->replyTo ? [
-                    'id'              => $m->replyTo->id,
-                    'body'            => $m->replyTo->body,
-                    'is_mine'         => $m->replyTo->sender_id === $user->id,
-                    'sender_name'     => $m->replyTo->sender_name,
-                    'attachment_name' => $m->replyTo->attachment_name,
-                ] : null,
-            ]);
+            ->map(fn($m) => $m->toApiArray($user->id, 'ticket_user'));
 
         if ($messages->isNotEmpty()) {
             DirectMessage::where('sender_type', 'ticket_user')->where('sender_id', $contact->id)
@@ -134,10 +133,12 @@ class DirectMessageController extends Controller
         return response()->json(['messages' => $messages]);
     }
 
-    public function showSupport()
+    public function showSupport(Request $request)
     {
         if (!auth('ticket_user')->check()) {
-            return redirect()->route('tickets.login');
+            return $request->wantsJson()
+                ? response()->json(['error' => 'Unauthenticated.'], 401)
+                : redirect()->route('tickets.login');
         }
 
         $user = auth('ticket_user')->user();
@@ -148,6 +149,12 @@ class DirectMessageController extends Controller
             ->where('recipient_type', 'ticket_user')->where('recipient_id', $user->id)
             ->where('is_read', false)
             ->update(['is_read' => true]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'messages' => $messages->map(fn($m) => $m->toApiArray($user->id, 'ticket_user')),
+            ]);
+        }
 
         $groups = $this->sidebarGroups($user);
         $contacts = $this->sidebarContacts($user);
@@ -215,23 +222,7 @@ class DirectMessageController extends Controller
             ->when($afterId, fn($q) => $q->where('id', '>', $afterId))
             ->orderBy('created_at')
             ->get()
-            ->map(fn($m) => [
-                'id'              => $m->id,
-                'is_mine'         => $m->sender_type === 'ticket_user',
-                'sender_name'     => $m->sender_name,
-                'body'            => $m->body,
-                'attachment_url'  => $m->attachment_url,
-                'attachment_name' => $m->attachment_name,
-                'attachment_type' => $m->attachment_type,
-                'created_at'      => $m->created_at->toISOString(),
-                'reply_to'        => $m->replyTo ? [
-                    'id'              => $m->replyTo->id,
-                    'body'            => $m->replyTo->body,
-                    'is_mine'         => $m->replyTo->sender_type === 'ticket_user',
-                    'sender_name'     => $m->replyTo->sender_name,
-                    'attachment_name' => $m->replyTo->attachment_name,
-                ] : null,
-            ]);
+            ->map(fn($m) => $m->toApiArray($user->id, 'ticket_user'));
 
         if ($messages->isNotEmpty()) {
             DirectMessage::where('sender_type', 'admin')

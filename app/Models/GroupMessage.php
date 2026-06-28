@@ -60,4 +60,31 @@ class GroupMessage extends Model
         }
         return optional(TicketUser::find($this->sender_id))->profileImageUrl();
     }
+
+    /** Shared shape used by both the poll endpoints and the JSON form of the
+     *  initial page load, so API clients (e.g. ChatDesktop) see identical data
+     *  whichever path they came from. */
+    public function toApiArray(): array
+    {
+        return [
+            'id'              => $this->id,
+            'sender_type'     => $this->sender_type,
+            'sender_id'       => $this->sender_id,
+            'sender_name'     => $this->sender_name,
+            'sender_avatar'   => $this->sender_avatar,
+            'body'            => $this->body,
+            'attachment_url'  => $this->attachment_url,
+            'attachment_name' => $this->attachment_name,
+            'attachment_type' => $this->attachment_type,
+            'created_at'      => $this->created_at->toISOString(),
+            'reply_to'        => $this->replyTo ? [
+                'id'              => $this->replyTo->id,
+                'body'            => $this->replyTo->body,
+                'sender_type'     => $this->replyTo->sender_type,
+                'sender_id'       => $this->replyTo->sender_id,
+                'sender_name'     => $this->replyTo->sender_name,
+                'attachment_name' => $this->replyTo->attachment_name,
+            ] : null,
+        ];
+    }
 }

@@ -74,4 +74,45 @@ class DirectMessage extends Model
     {
         return $this->belongsTo(DirectMessage::class, 'reply_to_id');
     }
+
+    /** Shared shape for poll endpoints and the JSON form of the initial page
+     *  load. When $viewerId is given, an `is_mine` flag is computed relative
+     *  to that viewer (matching the admin-vs-ticket_user / ticket_user-vs-
+     *  ticket_user comparisons each existing poll endpoint already does). */
+    public function toApiArray(?int $viewerId = null, ?string $viewerType = null): array
+    {
+        $isMine = fn(self $m) => $viewerType
+            ? ($m->sender_type === $viewerType && $m->sender_id === $viewerId)
+            : ($m->sender_id === $viewerId);
+
+        $data = [
+            'id'              => $this->id,
+            'sender_type'     => $this->sender_type,
+            'sender_id'       => $this->sender_id,
+            'sender_name'     => $this->sender_name,
+            'body'            => $this->body,
+            'is_read'         => $this->is_read,
+            'attachment_url'  => $this->attachment_url,
+            'attachment_name' => $this->attachment_name,
+            'attachment_type' => $this->attachment_type,
+            'created_at'      => $this->created_at->toISOString(),
+            'reply_to'        => $this->replyTo ? [
+                'id'              => $this->replyTo->id,
+                'body'            => $this->replyTo->body,
+                'sender_type'     => $this->replyTo->sender_type,
+                'sender_id'       => $this->replyTo->sender_id,
+                'sender_name'     => $this->replyTo->sender_name,
+                'attachment_name' => $this->replyTo->attachment_name,
+            ] : null,
+        ];
+
+        if ($viewerId !== null) {
+            $data['is_mine'] = $isMine($this);
+            if ($this->replyTo && $data['reply_to']) {
+                $data['reply_to']['is_mine'] = $isMine($this->replyTo);
+            }
+        }
+
+        return $data;
+    }
 }

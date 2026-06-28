@@ -21,6 +21,27 @@ class GroupController extends Controller
         }
 
         $groups = $query->paginate(20);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'groups' => $groups->getCollection()->map(fn($g) => [
+                    'id'                => $g->id,
+                    'name'              => $g->name,
+                    'description'       => $g->description,
+                    'profile_image_url' => $g->profileImageUrl(),
+                    'members_count'     => $g->members_count,
+                    'unread_admin'      => $g->unread_admin,
+                    'last_message'      => $g->latestMessage?->body,
+                    'updated_at'        => $g->updated_at->toISOString(),
+                ]),
+                'pagination' => [
+                    'current_page' => $groups->currentPage(),
+                    'last_page'    => $groups->lastPage(),
+                    'total'        => $groups->total(),
+                ],
+            ]);
+        }
+
         $allUsers = TicketUser::orderBy('full_name')->get();
 
         return view('admin.groups.index', compact('groups', 'allUsers'));
@@ -52,10 +73,28 @@ class GroupController extends Controller
         return response()->json(['redirect_url' => route('admin.groups.show', $group)]);
     }
 
-    public function show(Group $group)
+    public function show(Request $request, Group $group)
     {
         $group->load(['members', 'messages.replyTo']);
         $group->update(['unread_admin' => 0]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'group' => [
+                    'id'                => $group->id,
+                    'name'              => $group->name,
+                    'description'       => $group->description,
+                    'profile_image_url' => $group->profileImageUrl(),
+                ],
+                'members' => $group->members->map(fn($m) => [
+                    'id'                => $m->id,
+                    'full_name'         => $m->full_name,
+                    'email'             => $m->email,
+                    'profile_image_url' => $m->profileImageUrl(),
+                ]),
+                'messages' => $group->messages->map(fn($m) => $m->toApiArray()),
+            ]);
+        }
 
         $availableUsers = TicketUser::whereNotIn('id', $group->members->pluck('id'))
             ->orderBy('full_name')
@@ -149,24 +188,7 @@ class GroupController extends Controller
             ->with('replyTo')
             ->when($afterId, fn($q) => $q->where('id', '>', $afterId))
             ->get()
-            ->map(fn($m) => [
-                'id'              => $m->id,
-                'sender_type'     => $m->sender_type,
-                'sender_name'     => $m->sender_name,
-                'sender_avatar'   => $m->sender_avatar,
-                'body'            => $m->body,
-                'attachment_url'  => $m->attachment_url,
-                'attachment_name' => $m->attachment_name,
-                'attachment_type' => $m->attachment_type,
-                'created_at'      => $m->created_at->toISOString(),
-                'reply_to'        => $m->replyTo ? [
-                    'id'              => $m->replyTo->id,
-                    'body'            => $m->replyTo->body,
-                    'sender_type'     => $m->replyTo->sender_type,
-                    'sender_name'     => $m->replyTo->sender_name,
-                    'attachment_name' => $m->replyTo->attachment_name,
-                ] : null,
-            ]);
+            ->map(fn($m) => $m->toApiArray());
 
         if ($messages->isNotEmpty()) {
             $group->update(['unread_admin' => 0]);
@@ -185,12 +207,20 @@ class GroupController extends Controller
             $request->ticket_user_id => ['last_read_at' => now()],
         ]);
 
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
         return back()->with('success', 'Member added.');
     }
 
-    public function removeMember(Group $group, TicketUser $ticketUser)
+    public function removeMember(Request $request, Group $group, TicketUser $ticketUser)
     {
         $group->members()->detach($ticketUser->id);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
 
         return back()->with('success', 'Member removed.');
     }

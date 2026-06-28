@@ -14,10 +14,12 @@ class GroupChatController extends Controller
 {
     use HasChatSidebar;
 
-    public function index()
+    public function index(Request $request)
     {
         if (!auth('ticket_user')->check()) {
-            return redirect()->route('tickets.login');
+            return $request->wantsJson()
+                ? response()->json(['error' => 'Unauthenticated.'], 401)
+                : redirect()->route('tickets.login');
         }
 
         $user = auth('ticket_user')->user();
@@ -25,23 +27,67 @@ class GroupChatController extends Controller
         $contacts = $this->sidebarContacts($user);
         $supportUnread = $this->sidebarSupportUnread($user);
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'groups' => $groups->map(fn($g) => [
+                    'id'                => $g->id,
+                    'name'              => $g->name,
+                    'profile_image_url' => $g->profileImageUrl(),
+                    'members_count'     => $g->members_count,
+                    'unread_count'      => $g->unread_count,
+                    'last_message'      => $g->latestMessage?->body,
+                    'updated_at'        => $g->updated_at->toISOString(),
+                ]),
+                'contacts' => $contacts->map(fn($c) => [
+                    'id'                => $c->id,
+                    'full_name'         => $c->full_name,
+                    'profile_image_url' => $c->profileImageUrl(),
+                    'unread_count'      => $c->unread_count,
+                    'last_message'      => $c->last_message?->body,
+                ]),
+                'support_unread' => $supportUnread,
+            ]);
+        }
+
         return view('tickets.chat.index', compact('groups', 'contacts', 'supportUnread'));
     }
 
-    public function show(Group $group)
+    public function show(Request $request, Group $group)
     {
         if (!auth('ticket_user')->check()) {
-            return redirect()->route('tickets.login');
+            return $request->wantsJson()
+                ? response()->json(['error' => 'Unauthenticated.'], 401)
+                : redirect()->route('tickets.login');
         }
 
         $user = auth('ticket_user')->user();
 
         if (!$group->members()->where('ticket_users.id', $user->id)->exists()) {
-            return redirect()->route('tickets.chat.index')->with('error', 'You do not have access to this group.');
+            return $request->wantsJson()
+                ? response()->json(['error' => 'You do not have access to this group.'], 403)
+                : redirect()->route('tickets.chat.index')->with('error', 'You do not have access to this group.');
         }
 
         $group->load(['members', 'messages.replyTo']);
         $group->members()->updateExistingPivot($user->id, ['last_read_at' => now()]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'group' => [
+                    'id'                => $group->id,
+                    'name'              => $group->name,
+                    'description'       => $group->description,
+                    'profile_image_url' => $group->profileImageUrl(),
+                ],
+                'members' => $group->members->map(fn($m) => [
+                    'id'                => $m->id,
+                    'full_name'         => $m->full_name,
+                    'email'             => $m->email,
+                    'profile_image_url' => $m->profileImageUrl(),
+                ]),
+                'messages' => $group->messages->map(fn($m) => $m->toApiArray()),
+            ]);
+        }
 
         $groups = $this->sidebarGroups($user);
         $contacts = $this->sidebarContacts($user);
@@ -124,26 +170,7 @@ class GroupChatController extends Controller
             ->with('replyTo')
             ->when($afterId, fn($q) => $q->where('id', '>', $afterId))
             ->get()
-            ->map(fn($m) => [
-                'id'              => $m->id,
-                'sender_type'     => $m->sender_type,
-                'sender_id'       => $m->sender_id,
-                'sender_name'     => $m->sender_name,
-                'sender_avatar'   => $m->sender_avatar,
-                'body'            => $m->body,
-                'attachment_url'  => $m->attachment_url,
-                'attachment_name' => $m->attachment_name,
-                'attachment_type' => $m->attachment_type,
-                'created_at'      => $m->created_at->toISOString(),
-                'reply_to'        => $m->replyTo ? [
-                    'id'              => $m->replyTo->id,
-                    'body'            => $m->replyTo->body,
-                    'sender_type'     => $m->replyTo->sender_type,
-                    'sender_id'       => $m->replyTo->sender_id,
-                    'sender_name'     => $m->replyTo->sender_name,
-                    'attachment_name' => $m->replyTo->attachment_name,
-                ] : null,
-            ]);
+            ->map(fn($m) => $m->toApiArray());
 
         if ($messages->isNotEmpty()) {
             $group->members()->updateExistingPivot($user->id, ['last_read_at' => now()]);

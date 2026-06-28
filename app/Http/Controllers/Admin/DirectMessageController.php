@@ -14,6 +14,19 @@ class DirectMessageController extends Controller
     {
         $threads = $this->threads($request->search);
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'threads' => $threads->map(fn($t) => [
+                    'id'                => $t->id,
+                    'full_name'         => $t->full_name,
+                    'email'             => $t->email,
+                    'profile_image_url' => $t->profileImageUrl(),
+                    'last_message'      => $t->last_message?->body,
+                    'unread_count'      => $t->unread_count,
+                ]),
+            ]);
+        }
+
         return view('admin.messages.index', compact('threads'));
     }
 
@@ -25,6 +38,18 @@ class DirectMessageController extends Controller
             ->where('recipient_type', 'admin')
             ->where('is_read', false)
             ->update(['is_read' => true]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'contact' => [
+                    'id'                => $ticketUser->id,
+                    'full_name'         => $ticketUser->full_name,
+                    'email'             => $ticketUser->email,
+                    'profile_image_url' => $ticketUser->profileImageUrl(),
+                ],
+                'messages' => $messages->map(fn($m) => $m->toApiArray()),
+            ]);
+        }
 
         $threads = $this->threads();
 
@@ -78,23 +103,7 @@ class DirectMessageController extends Controller
             ->when($afterId, fn($q) => $q->where('id', '>', $afterId))
             ->orderBy('created_at')
             ->get()
-            ->map(fn($m) => [
-                'id'              => $m->id,
-                'sender_type'     => $m->sender_type,
-                'sender_name'     => $m->sender_name,
-                'body'            => $m->body,
-                'attachment_url'  => $m->attachment_url,
-                'attachment_name' => $m->attachment_name,
-                'attachment_type' => $m->attachment_type,
-                'created_at'      => $m->created_at->toISOString(),
-                'reply_to'        => $m->replyTo ? [
-                    'id'              => $m->replyTo->id,
-                    'body'            => $m->replyTo->body,
-                    'sender_type'     => $m->replyTo->sender_type,
-                    'sender_name'     => $m->replyTo->sender_name,
-                    'attachment_name' => $m->replyTo->attachment_name,
-                ] : null,
-            ]);
+            ->map(fn($m) => $m->toApiArray());
 
         if ($messages->isNotEmpty()) {
             DirectMessage::where('sender_type', 'ticket_user')->where('sender_id', $ticketUser->id)

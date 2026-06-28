@@ -113,6 +113,27 @@ class TicketController extends Controller
         }
 
         $users = $query->paginate(20);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'users' => $users->getCollection()->map(fn($u) => [
+                    'id'                => $u->id,
+                    'full_name'         => $u->full_name,
+                    'email'             => $u->email,
+                    'phone'             => $u->phone,
+                    'company_name'      => $u->company_name,
+                    'profile_image_url' => $u->profileImageUrl(),
+                    'tickets_count'     => $u->tickets_count,
+                    'created_at'        => $u->created_at->toISOString(),
+                ]),
+                'pagination' => [
+                    'current_page' => $users->currentPage(),
+                    'last_page'    => $users->lastPage(),
+                    'total'        => $users->total(),
+                ],
+            ]);
+        }
+
         return view('admin.ticket-users.index', compact('users'));
     }
 
