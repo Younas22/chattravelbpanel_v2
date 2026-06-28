@@ -41,4 +41,11 @@ class TicketUser extends Authenticatable
         if (!$this->profile_image) return null;
         return asset('storage/' . $this->profile_image);
     }
+
+    public function sharesGroupWith(int $otherId): bool
+    {
+        return $this->groups()
+            ->whereHas('members', fn($q) => $q->where('ticket_users.id', $otherId))
+            ->exists();
+    }
 }

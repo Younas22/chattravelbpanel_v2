@@ -1,212 +1,246 @@
-@extends('tickets.layouts.app')
+@extends('tickets.layouts.chat')
 @section('title', $group->name)
 
 @section('content')
-<div class="max-w-2xl">
+<div class="flex h-full gap-4" x-data="groupChat({{ $group->id }})">
+    @include('tickets.chat._sidebar', ['activeType' => 'group', 'activeId' => $group->id])
 
-    <div class="flex items-center justify-between mb-6">
-        <div>
-            <h1 class="text-xl font-bold text-slate-900">{{ $group->name }}</h1>
-            <p class="text-xs text-slate-400 mt-0.5">{{ $group->members->count() }} member{{ $group->members->count() !== 1 ? 's' : '' }}</p>
-        </div>
-        <a href="{{ route('tickets.chat.index') }}" class="text-sm text-slate-500 hover:text-slate-700">← Chat</a>
-    </div>
+    {{-- Chat Panel --}}
+    <div class="flex flex-col flex-1 card !p-0 overflow-hidden">
 
-    {{-- Messages --}}
-    <div id="messages-container" class="space-y-4 mb-6 max-h-[55vh] overflow-y-auto">
-        @forelse($group->messages as $msg)
-        <div class="bg-white rounded-2xl border border-slate-100 p-5 {{ $msg->sender_type === 'admin' ? 'border-l-4 border-l-blue-500' : '' }}">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-8 h-8 rounded-full {{ $msg->sender_type === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600' }} flex items-center justify-center text-sm font-bold">
-                    {{ strtoupper(substr($msg->sender_name, 0, 1)) }}
+        <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold">
+                    {{ strtoupper(substr($group->name, 0, 1)) }}
                 </div>
                 <div>
-                    <p class="text-sm font-semibold text-slate-800">{{ $msg->sender_type === 'admin' ? 'Support Team' : $msg->sender_name }}</p>
-                    <p class="text-xs text-slate-400">{{ $msg->created_at->format('M j, Y \a\t H:i') }}</p>
+                    <p class="font-semibold text-slate-900 text-sm">{{ $group->name }}</p>
+                    <p class="text-xs text-slate-500">{{ $group->members->count() }} member{{ $group->members->count() !== 1 ? 's' : '' }}</p>
                 </div>
             </div>
-            @if($msg->body)
-                <p class="text-sm text-slate-700 whitespace-pre-wrap">{!! nl2br(e($msg->body)) !!}</p>
-            @endif
-
-            @if($msg->attachment_url)
-            <div class="mt-3">
-                @if($msg->attachment_type === 'image')
-                    <img src="{{ $msg->attachment_url }}" class="max-w-full rounded-xl max-h-72 object-cover cursor-pointer" onclick="window.open('{{ $msg->attachment_url }}','_blank')">
-                @else
-                    <a href="{{ $msg->attachment_url }}" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm hover:bg-slate-100 transition-colors">
-                        <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                        {{ $msg->attachment_name }}
-                    </a>
-                @endif
-            </div>
-            @endif
+            <a href="{{ route('tickets.chat.index') }}" class="btn-secondary !py-1.5 !text-xs">← Chat</a>
         </div>
-        @empty
-        <div class="bg-slate-50 rounded-2xl border border-slate-200 p-8 text-center text-sm text-slate-500">No messages yet. Say hello!</div>
-        @endforelse
+
+        <div class="flex-1 overflow-y-auto p-5 space-y-3" id="messages-container">
+            @forelse($group->messages as $msg)
+            <div class="flex {{ $msg->sender_type === 'admin' ? 'justify-start' : 'justify-end' }}">
+                <div class="max-w-[70%]">
+                    <p class="text-[11px] font-medium text-slate-400 mb-1 {{ $msg->sender_type === 'admin' ? '' : 'text-right' }}">{{ $msg->sender_type === 'admin' ? 'Support Team' : $msg->sender_name }}</p>
+
+                    @if($msg->body)
+                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_type === 'admin' ? 'bg-blue-600 text-white rounded-bl-sm' : 'bg-slate-100 text-slate-900 rounded-br-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
+                            {!! nl2br(e($msg->body)) !!}
+                        </div>
+                    @endif
+
+                    @if($msg->attachment_url)
+                        <div class="mt-1.5">
+                            @if($msg->attachment_type === 'image')
+                                <img src="{{ $msg->attachment_url }}" alt="{{ $msg->attachment_name }}"
+                                    class="max-w-full rounded-xl max-h-60 object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                                    onclick="window.open('{{ $msg->attachment_url }}', '_blank')">
+                            @elseif($msg->attachment_type === 'video')
+                                <video src="{{ $msg->attachment_url }}" controls class="max-w-full rounded-xl max-h-60 bg-black" style="max-width:320px;"></video>
+                            @else
+                                <a href="{{ $msg->attachment_url }}" target="_blank"
+                                    class="flex items-center gap-2 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+                                    <svg class="w-5 h-5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                    <span class="truncate text-slate-700">{{ $msg->attachment_name }}</span>
+                                </a>
+                            @endif
+                        </div>
+                    @endif
+
+                    <p class="text-[10px] text-slate-400 mt-1 {{ $msg->sender_type === 'admin' ? '' : 'text-right' }}">{{ $msg->created_at->format('M j, H:i') }}</p>
+                </div>
+            </div>
+            @empty
+            <div class="py-10 text-center text-slate-400 text-sm">No messages yet. Say hello to the group!</div>
+            @endforelse
+
+            <template x-for="msg in newMessages" :key="msg.id">
+                <div class="flex" :class="msg.sender_type === 'admin' ? 'justify-start' : 'justify-end'">
+                    <div class="max-w-[70%]">
+                        <p class="text-[11px] font-medium text-slate-400 mb-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="msg.sender_type === 'admin' ? 'Support Team' : msg.sender_name"></p>
+                        <div x-show="msg.body"
+                            :class="msg.sender_type === 'admin' ? 'bg-blue-600 text-white rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-br-sm px-4 py-2.5 text-sm'"
+                            style="overflow-wrap:break-word;word-break:break-word;"
+                            x-text="msg.body"></div>
+                        <div x-show="msg.attachment_url && msg.attachment_type === 'image'" class="mt-1.5">
+                            <img :src="msg.attachment_url" class="max-w-full rounded-xl max-h-60 object-cover cursor-pointer" @click="window.open(msg.attachment_url, '_blank')" />
+                        </div>
+                        <div x-show="msg.attachment_url && msg.attachment_type === 'video'" class="mt-1.5">
+                            <video :src="msg.attachment_url" controls class="max-w-full rounded-xl max-h-60 bg-black" style="max-width:320px;"></video>
+                        </div>
+                        <div x-show="msg.attachment_url && msg.attachment_type !== 'image' && msg.attachment_type !== 'video'" class="mt-1.5">
+                            <a :href="msg.attachment_url" target="_blank" class="flex items-center gap-2 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
+                                <svg class="w-5 h-5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 002 2v14a2 2 0 002 2z"/></svg>
+                                <span class="truncate text-slate-700" x-text="msg.attachment_name || 'Attachment'"></span>
+                            </a>
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="formatTime(msg.created_at)"></p>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <div class="border-t border-slate-100 px-4 pt-3 pb-4">
+            <div x-show="filePreview" x-cloak class="mb-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                <span class="text-xs text-slate-700 truncate flex-1" x-text="filePreview"></span>
+                <button @click="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors cursor-pointer shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
+                <textarea x-model="message" x-ref="msgInput"
+                    @keydown.enter.prevent="if(!$event.shiftKey) send()"
+                    rows="1" placeholder="Message the group…"
+                    class="flex-1 resize-none bg-transparent text-sm focus:outline-none text-slate-800 placeholder-slate-400"
+                    style="max-height:120px;min-height:24px;"
+                    oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
+
+                <div class="flex items-center gap-0.5 shrink-0 pb-0.5">
+                    <input type="file" id="file-input" class="hidden" @change="handleFile($event)"
+                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.zip,.txt">
+                    <button @click="document.getElementById('file-input').click()" type="button"
+                        class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                    </button>
+                    <button @click="send()" :disabled="sending" type="button"
+                        class="ml-1 p-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 cursor-pointer">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    {{-- Reply --}}
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
-        <h3 class="font-semibold text-slate-900 text-sm mb-3">Send Message</h3>
-        <div id="chat-error" class="hidden mb-3 p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl"></div>
-        <div id="file-preview" class="hidden mb-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-2">
-            <span id="file-preview-name" class="text-xs text-slate-700 truncate flex-1"></span>
-            <button type="button" onclick="clearFile()" class="text-slate-400 hover:text-red-500 cursor-pointer">✕</button>
-        </div>
-        <div class="space-y-3">
-            <textarea id="chat-body" rows="3" placeholder="Your message…"
-                class="w-full resize-none px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-            <div class="flex items-center justify-between">
-                <input type="file" id="chat-attachment" class="text-sm text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-100 file:text-slate-600 file:text-xs hover:file:bg-slate-200 transition-colors" onchange="previewFile(this)">
-                <button type="button" id="send-btn" onclick="sendMessage()" class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors text-sm cursor-pointer">Send</button>
+    {{-- Members Sidebar --}}
+    <div class="w-64 shrink-0 overflow-y-auto">
+        <div class="card">
+            <h3 class="font-semibold text-slate-900 text-sm mb-3">Members</h3>
+            <div class="space-y-1">
+                @foreach($group->members as $member)
+                <div class="flex items-center gap-2.5 py-1.5">
+                    <div class="w-8 h-8 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-semibold text-xs shrink-0">
+                        {{ strtoupper(substr($member->full_name, 0, 1)) }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-slate-800 truncate">{{ $member->full_name }}{{ $member->id === auth('ticket_user')->id() ? ' (You)' : '' }}</p>
+                    </div>
+                    @if($member->id !== auth('ticket_user')->id())
+                        <a href="{{ route('tickets.chat.dm.show', $member) }}" title="Message" class="text-blue-500 hover:text-blue-700 transition-colors shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                        </a>
+                    @endif
+                </div>
+                @endforeach
             </div>
         </div>
     </div>
 </div>
+@endsection
 
+@push('scripts')
 <script>
-(function () {
-    let lastMessageId = {{ $group->messages->last()?->id ?? 0 }};
-    let sending = false;
-    let selectedFile = null;
-    const csrf = document.querySelector('meta[name="csrf-token"]').content;
-    const pollUrl = '{{ route('tickets.chat.poll', $group) }}';
-    const sendUrl = '{{ route('tickets.chat.message', $group) }}';
+function groupChat(groupId) {
+    return {
+        message: '',
+        sending: false,
+        newMessages: [],
+        lastMessageId: {{ $group->messages->last()?->id ?? 0 }},
+        selectedFile: null,
+        filePreview: '',
+        pollUrl: '{{ route('tickets.chat.poll', $group) }}',
+        sendUrl: '{{ route('tickets.chat.message', $group) }}',
 
-    function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
+        init() {
+            this.$nextTick(() => this.scrollToBottom());
+            this.startPolling();
+        },
 
-    function renderMessage(m) {
-        const isAdmin = m.sender_type === 'admin';
-        const initial = (m.sender_name || '?').charAt(0).toUpperCase();
-        const name = isAdmin ? 'Support Team' : escapeHtml(m.sender_name || 'Member');
-        const time = new Date(m.created_at).toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        startPolling() {
+            setInterval(() => this.pollMessages(), 4000);
+        },
 
-        let attachmentHtml = '';
-        if (m.attachment_url) {
-            if (m.attachment_type === 'image') {
-                attachmentHtml = `<div class="mt-3"><img src="${m.attachment_url}" class="max-w-full rounded-xl max-h-72 object-cover cursor-pointer" onclick="window.open('${m.attachment_url}','_blank')"></div>`;
-            } else {
-                attachmentHtml = `<div class="mt-3"><a href="${m.attachment_url}" target="_blank" class="inline-flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm hover:bg-slate-100 transition-colors">📎 ${escapeHtml(m.attachment_name || 'Attachment')}</a></div>`;
-            }
-        }
-
-        const bodyHtml = m.body ? `<p class="text-sm text-slate-700 whitespace-pre-wrap">${escapeHtml(m.body).replace(/\n/g, '<br>')}</p>` : '';
-
-        const div = document.createElement('div');
-        div.className = `bg-white rounded-2xl border border-slate-100 p-5 ${isAdmin ? 'border-l-4 border-l-blue-500' : ''}`;
-        div.innerHTML = `
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-8 h-8 rounded-full ${isAdmin ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600'} flex items-center justify-center text-sm font-bold">${initial}</div>
-                <div>
-                    <p class="text-sm font-semibold text-slate-800">${name}</p>
-                    <p class="text-xs text-slate-400">${time}</p>
-                </div>
-            </div>
-            ${bodyHtml}
-            ${attachmentHtml}
-        `;
-        return div;
-    }
-
-    function scrollToBottom() {
-        const c = document.getElementById('messages-container');
-        c.scrollTop = c.scrollHeight;
-    }
-
-    function pollMessages() {
-        fetch(`${pollUrl}?after_id=${lastMessageId}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+        pollMessages() {
+            fetch(`${this.pollUrl}?after_id=${this.lastMessageId}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
             .then(r => r.json())
             .then(data => {
                 if (data.messages && data.messages.length) {
-                    const container = document.getElementById('messages-container');
-                    const emptyState = container.querySelector('.bg-slate-50');
-                    if (emptyState) emptyState.remove();
                     data.messages.forEach(m => {
-                        container.appendChild(renderMessage(m));
-                        lastMessageId = Math.max(lastMessageId, m.id);
+                        if (!this.newMessages.find(n => n.id === m.id)) {
+                            this.newMessages.push(m);
+                            this.lastMessageId = Math.max(this.lastMessageId, m.id);
+                        }
                     });
-                    scrollToBottom();
+                    this.$nextTick(() => this.scrollToBottom());
                 }
             })
             .catch(() => {});
-    }
+        },
 
-    window.previewFile = function (input) {
-        const file = input.files[0];
-        if (!file) return;
-        selectedFile = file;
-        document.getElementById('file-preview-name').textContent = file.name;
-        document.getElementById('file-preview').classList.remove('hidden');
-    };
+        send() {
+            if ((!this.message.trim() && !this.selectedFile) || this.sending) return;
 
-    window.clearFile = function () {
-        selectedFile = null;
-        document.getElementById('chat-attachment').value = '';
-        document.getElementById('file-preview').classList.add('hidden');
-    };
+            this.sending = true;
+            const formData = new FormData();
+            if (this.message.trim()) formData.append('body', this.message.trim());
+            if (this.selectedFile) formData.append('attachment', this.selectedFile);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
-    window.sendMessage = function () {
-        const bodyEl = document.getElementById('chat-body');
-        const body = bodyEl.value.trim();
-        const errorEl = document.getElementById('chat-error');
-        errorEl.classList.add('hidden');
+            const self = this;
+            fetch(this.sendUrl, { method: 'POST', body: formData })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.message) {
+                        self.newMessages.push({
+                            id: data.message.id,
+                            sender_type: 'ticket_user',
+                            sender_name: data.message.sender_name,
+                            body: data.message.body,
+                            attachment_url: data.attachment_url,
+                            attachment_name: data.message.attachment_name,
+                            attachment_type: data.message.attachment_type,
+                            created_at: data.message.created_at,
+                        });
+                        self.lastMessageId = Math.max(self.lastMessageId, data.message.id);
+                        self.$nextTick(() => self.scrollToBottom());
+                    }
+                    self.sending = false;
+                    self.message = '';
+                    self.clearFile();
+                })
+                .catch(() => { self.sending = false; });
+        },
 
-        if (!body && !selectedFile) return;
-        if (sending) return;
-        sending = true;
-        document.getElementById('send-btn').disabled = true;
+        handleFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            this.selectedFile = file;
+            this.filePreview = file.name;
+        },
 
-        const formData = new FormData();
-        if (body) formData.append('body', body);
-        if (selectedFile) formData.append('attachment', selectedFile);
+        clearFile() {
+            this.selectedFile = null;
+            this.filePreview = '';
+            document.getElementById('file-input').value = '';
+        },
 
-        fetch(sendUrl, {
-            method: 'POST',
-            headers: { 'X-CSRF-TOKEN': csrf },
-            body: formData,
-        })
-        .then(r => r.json().then(data => ({ status: r.status, data })))
-        .then(({ status, data }) => {
-            sending = false;
-            document.getElementById('send-btn').disabled = false;
-            if (status >= 400) {
-                errorEl.textContent = data.error || 'Something went wrong.';
-                errorEl.classList.remove('hidden');
-                return;
-            }
+        scrollToBottom() {
             const container = document.getElementById('messages-container');
-            const emptyState = container.querySelector('.bg-slate-50');
-            if (emptyState) emptyState.remove();
-            container.appendChild(renderMessage({
-                sender_type: 'admin' === data.message.sender_type ? 'admin' : 'ticket_user',
-                sender_name: data.message.sender_name,
-                body: data.message.body,
-                attachment_url: data.attachment_url,
-                attachment_name: data.message.attachment_name,
-                attachment_type: data.message.attachment_type,
-                created_at: data.message.created_at,
-            }));
-            lastMessageId = Math.max(lastMessageId, data.message.id);
-            scrollToBottom();
-            bodyEl.value = '';
-            clearFile();
-        })
-        .catch(() => {
-            sending = false;
-            document.getElementById('send-btn').disabled = false;
-            errorEl.textContent = 'Network error. Please try again.';
-            errorEl.classList.remove('hidden');
-        });
-    };
+            if (container) container.scrollTop = container.scrollHeight;
+        },
 
-    scrollToBottom();
-    setInterval(pollMessages, 4000);
-})();
+        formatTime(iso) {
+            const d = new Date(iso);
+            return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+    }
+}
 </script>
-@endsection
+@endpush

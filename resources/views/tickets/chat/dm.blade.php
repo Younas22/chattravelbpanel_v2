@@ -1,70 +1,32 @@
-@extends('admin.layouts.app')
-@section('title', 'Group — ' . $group->name)
+@extends('tickets.layouts.chat')
+@section('title', $contact->full_name)
 
 @section('content')
-<div class="flex h-[calc(100vh-8rem)] relative gap-0">
-
-    {{-- Left: Groups List --}}
-    <div class="w-72 shrink-0 flex flex-col bg-white border border-slate-100 rounded-2xl overflow-hidden mr-4">
-        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 shrink-0">
-            <span class="font-semibold text-slate-900 text-sm">Groups</span>
-            <a href="{{ route('admin.groups.index') }}" class="text-xs text-blue-600 hover:underline">All groups</a>
-        </div>
-        <div class="flex-1 overflow-y-auto divide-y divide-slate-50">
-            @foreach($groups as $g)
-            <a href="{{ route('admin.groups.show', $g) }}"
-               class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors {{ $g->id === $group->id ? 'bg-blue-50 border-l-2 border-blue-500' : '' }}">
-                <div class="relative shrink-0">
-                    <div class="w-9 h-9 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-sm">
-                        {{ strtoupper(substr($g->name, 0, 1)) }}
-                    </div>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center justify-between gap-1">
-                        <span class="text-sm font-semibold text-slate-900 truncate">{{ $g->name }}</span>
-                        @if($g->unread_admin > 0)
-                            <span class="shrink-0 w-4 h-4 bg-blue-600 text-white text-[9px] rounded-full flex items-center justify-center font-bold">{{ $g->unread_admin > 9 ? '9+' : $g->unread_admin }}</span>
-                        @endif
-                    </div>
-                    <p class="text-xs text-slate-500 truncate">{{ $g->latestMessage?->body ?: ($g->members_count . ' members') }}</p>
-                </div>
-            </a>
-            @endforeach
-        </div>
-    </div>
-
-<div class="flex flex-1 gap-4 min-w-0" x-data="groupChat({{ $group->id }})">
+<div class="flex h-full gap-4" x-data="dmChat({{ $contact->id }})">
+    @include('tickets.chat._sidebar', ['activeType' => 'dm', 'activeId' => $contact->id])
 
     {{-- Chat Panel --}}
     <div class="flex flex-col flex-1 card !p-0 overflow-hidden">
 
-        {{-- Chat Header --}}
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold">
-                    {{ strtoupper(substr($group->name, 0, 1)) }}
+                <div class="w-10 h-10 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-semibold">
+                    {{ strtoupper(substr($contact->full_name, 0, 1)) }}
                 </div>
                 <div>
-                    <p class="font-semibold text-slate-900 text-sm">{{ $group->name }}</p>
-                    <p class="text-xs text-slate-500">{{ $group->members->count() }} member{{ $group->members->count() !== 1 ? 's' : '' }}</p>
+                    <p class="font-semibold text-slate-900 text-sm">{{ $contact->full_name }}</p>
+                    <p class="text-xs text-slate-500">{{ $contact->email }}</p>
                 </div>
             </div>
-
-            <div class="flex items-center gap-2">
-                <button @click="deleteGroup()" class="btn-danger !py-1.5 !text-xs">Delete Group</button>
-                <a href="{{ route('admin.groups.index') }}" class="btn-secondary !py-1.5 !text-xs">← Back</a>
-            </div>
+            <a href="{{ route('tickets.chat.index') }}" class="btn-secondary !py-1.5 !text-xs">← Chat</a>
         </div>
 
-        {{-- Messages --}}
         <div class="flex-1 overflow-y-auto p-5 space-y-3" id="messages-container">
-            @forelse($group->messages as $msg)
-            <div class="flex {{ $msg->sender_type === 'admin' ? 'justify-start' : 'justify-end' }}">
+            @forelse($messages as $msg)
+            <div class="flex {{ $msg->sender_id === auth('ticket_user')->id() ? 'justify-end' : 'justify-start' }}">
                 <div class="max-w-[70%]">
-                    <p class="text-[11px] font-medium text-slate-400 mb-1 {{ $msg->sender_type === 'admin' ? '' : 'text-right' }}">{{ $msg->sender_name }}</p>
-
                     @if($msg->body)
-                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_type === 'admin' ? 'bg-blue-600 text-white rounded-bl-sm' : 'bg-slate-100 text-slate-900 rounded-br-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
+                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_id === auth('ticket_user')->id() ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-slate-100 text-slate-900 rounded-bl-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
                             {!! nl2br(e($msg->body)) !!}
                         </div>
                     @endif
@@ -87,20 +49,18 @@
                         </div>
                     @endif
 
-                    <p class="text-[10px] text-slate-400 mt-1 {{ $msg->sender_type === 'admin' ? '' : 'text-right' }}">{{ $msg->created_at->format('M j, H:i') }}</p>
+                    <p class="text-[10px] text-slate-400 mt-1 {{ $msg->sender_id === auth('ticket_user')->id() ? 'text-right' : '' }}">{{ $msg->created_at->format('M j, H:i') }}</p>
                 </div>
             </div>
             @empty
-            <div class="py-10 text-center text-slate-400 text-sm">No messages yet. Say hello to the group!</div>
+            <div class="py-10 text-center text-slate-400 text-sm">No messages yet. Say hello to {{ $contact->full_name }}!</div>
             @endforelse
 
-            {{-- New messages from polling --}}
             <template x-for="msg in newMessages" :key="msg.id">
-                <div class="flex" :class="msg.sender_type === 'admin' ? 'justify-start' : 'justify-end'">
+                <div class="flex" :class="msg.is_mine ? 'justify-end' : 'justify-start'">
                     <div class="max-w-[70%]">
-                        <p class="text-[11px] font-medium text-slate-400 mb-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="msg.sender_name"></p>
                         <div x-show="msg.body"
-                            :class="msg.sender_type === 'admin' ? 'bg-blue-600 text-white rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-br-sm px-4 py-2.5 text-sm'"
+                            :class="msg.is_mine ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm'"
                             style="overflow-wrap:break-word;word-break:break-word;"
                             x-text="msg.body"></div>
                         <div x-show="msg.attachment_url && msg.attachment_type === 'image'" class="mt-1.5">
@@ -111,17 +71,16 @@
                         </div>
                         <div x-show="msg.attachment_url && msg.attachment_type !== 'image' && msg.attachment_type !== 'video'" class="mt-1.5">
                             <a :href="msg.attachment_url" target="_blank" class="flex items-center gap-2 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
-                                <svg class="w-5 h-5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                <svg class="w-5 h-5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 002 2v14a2 2 0 002 2z"/></svg>
                                 <span class="truncate text-slate-700" x-text="msg.attachment_name || 'Attachment'"></span>
                             </a>
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="formatTime(msg.created_at)"></p>
+                        <p class="text-[10px] text-slate-400 mt-1" :class="msg.is_mine ? 'text-right' : ''" x-text="formatTime(msg.created_at)"></p>
                     </div>
                 </div>
             </template>
         </div>
 
-        {{-- Input bar --}}
         <div class="border-t border-slate-100 px-4 pt-3 pb-4">
             <div x-show="filePreview" x-cloak class="mb-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-2">
                 <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
@@ -134,14 +93,14 @@
             <div class="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
                 <textarea x-model="message" x-ref="msgInput"
                     @keydown.enter.prevent="if(!$event.shiftKey) send()"
-                    rows="1" placeholder="Message the group…"
+                    rows="1" placeholder="Message {{ $contact->full_name }}…"
                     class="flex-1 resize-none bg-transparent text-sm focus:outline-none text-slate-800 placeholder-slate-400"
                     style="max-height:120px;min-height:24px;"
                     oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
 
                 <div class="flex items-center gap-0.5 shrink-0 pb-0.5">
                     <input type="file" id="file-input" class="hidden" @change="handleFile($event)"
-                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.xml,.zip,.mp4,.txt">
+                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.zip,.txt">
                     <button @click="document.getElementById('file-input').click()" type="button"
                         class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
@@ -154,111 +113,29 @@
             </div>
         </div>
     </div>
-
-    {{-- Members Sidebar --}}
-    <div class="w-72 shrink-0 space-y-4 overflow-y-auto">
-        <div class="card">
-            <h3 class="font-semibold text-slate-900 text-sm mb-3">Members</h3>
-            <div class="space-y-2">
-                @forelse($group->members as $member)
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-xs shrink-0">
-                        {{ strtoupper(substr($member->full_name, 0, 1)) }}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-slate-800 truncate">{{ $member->full_name }}</p>
-                        <p class="text-xs text-slate-400 truncate">{{ $member->email }}</p>
-                    </div>
-                    <button onclick="groupRemoveMember('{{ route('admin.groups.members.remove', [$group, $member]) }}')" class="text-slate-400 hover:text-red-500 transition-colors cursor-pointer shrink-0" title="Remove">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                    </button>
-                </div>
-                @empty
-                <p class="text-sm text-slate-400">No members yet.</p>
-                @endforelse
-            </div>
-        </div>
-
-        <div class="card" x-data="{ memberSearch: '' }">
-            <h3 class="font-semibold text-slate-900 text-sm mb-3">Add Member</h3>
-            @if($availableUsers->isEmpty())
-                <p class="text-sm text-slate-400">All ticket users are already in this group.</p>
-            @else
-                <input type="text" x-model="memberSearch" placeholder="Search users…"
-                    class="w-full mb-2 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <div class="max-h-64 overflow-y-auto divide-y divide-slate-50 -mx-1">
-                    @foreach($availableUsers as $user)
-                    <div class="flex items-center gap-2.5 px-1 py-2"
-                        x-show="'{{ strtolower($user->full_name . ' ' . $user->email) }}'.includes(memberSearch.toLowerCase())">
-                        <div class="w-8 h-8 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-semibold text-xs shrink-0">
-                            {{ strtoupper(substr($user->full_name, 0, 1)) }}
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-sm font-medium text-slate-800 truncate">{{ $user->full_name }}</p>
-                            <p class="text-xs text-slate-400 truncate">{{ $user->email }}</p>
-                        </div>
-                        <button onclick="groupAddMember('{{ route('admin.groups.members.add', $group) }}', {{ $user->id }})"
-                            class="btn-secondary !py-1 !px-2.5 !text-xs cursor-pointer shrink-0">Add</button>
-                    </div>
-                    @endforeach
-                </div>
-            @endif
-        </div>
-    </div>
-
-</div>{{-- /groupChat --}}
-</div>{{-- /outer flex --}}
+</div>
 @endsection
 
 @push('scripts')
 <script>
-function groupRemoveMember(url) {
-    if (!confirm('Remove this member from the group?')) return;
-    fetch(url, {
-        method: 'DELETE',
-        headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-    }).then(() => location.reload());
-}
-
-function groupAddMember(url, ticketUserId) {
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-        },
-        body: JSON.stringify({ ticket_user_id: ticketUserId }),
-    }).then(() => location.reload());
-}
-
-function groupChat(groupId) {
+function dmChat(contactId) {
     return {
         message: '',
         sending: false,
         newMessages: [],
-        lastMessageId: {{ $group->messages->last()?->id ?? 0 }},
+        lastMessageId: {{ $messages->last()?->id ?? 0 }},
         selectedFile: null,
         filePreview: '',
-        pollUrl: '{{ route('admin.groups.poll', $group) }}',
-        sendUrl: '{{ route('admin.groups.message', $group) }}',
-        deleteUrl: '{{ route('admin.groups.destroy', $group) }}',
-        indexUrl: '{{ route('admin.groups.index') }}',
+        pollUrl: '{{ route('tickets.chat.dm.poll', $contact) }}',
+        sendUrl: '{{ route('tickets.chat.dm.message', $contact) }}',
 
         init() {
             this.$nextTick(() => this.scrollToBottom());
             this.startPolling();
         },
 
-        deleteGroup() {
-            if (!confirm('Delete this group? This cannot be undone.')) return;
-            fetch(this.deleteUrl, {
-                method: 'DELETE',
-                headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
-            }).then(() => { window.location = this.indexUrl; });
-        },
-
         startPolling() {
-            setInterval(() => this.pollMessages(), 3000);
+            setInterval(() => this.pollMessages(), 4000);
         },
 
         pollMessages() {
@@ -296,8 +173,7 @@ function groupChat(groupId) {
                     if (data.message) {
                         self.newMessages.push({
                             id: data.message.id,
-                            sender_type: 'admin',
-                            sender_name: data.message.sender_name,
+                            is_mine: true,
                             body: data.message.body,
                             attachment_url: data.attachment_url,
                             attachment_name: data.message.attachment_name,

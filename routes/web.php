@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\GroupController as AdminGroupController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use App\Http\Controllers\Admin\VisitorController;
+use App\Http\Controllers\Chat\DirectMessageController;
 use App\Http\Controllers\Chat\GroupChatController;
 use App\Http\Controllers\Chat\TicketController;
 use App\Http\Controllers\WidgetScriptController;
@@ -141,6 +142,9 @@ Route::name('tickets.')->group(function () {
 
     // Group chat
     Route::get('/chat',                  [GroupChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/dm/{contact}',          [DirectMessageController::class, 'show'])->name('chat.dm.show');
+    Route::post('/chat/dm/{contact}/message', [DirectMessageController::class, 'sendMessage'])->name('chat.dm.message');
+    Route::get('/chat/dm/{contact}/messages', [DirectMessageController::class, 'pollMessages'])->name('chat.dm.poll');
     Route::get('/chat/{group}',          [GroupChatController::class, 'show'])->name('chat.show');
     Route::post('/chat/{group}/message', [GroupChatController::class, 'sendMessage'])->name('chat.message');
     Route::get('/chat/{group}/messages', [GroupChatController::class, 'pollMessages'])->name('chat.poll');

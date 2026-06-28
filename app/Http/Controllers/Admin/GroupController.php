@@ -97,7 +97,11 @@ class GroupController extends Controller
         $message = GroupMessage::create($data);
         $group->touch();
 
-        broadcast(new GroupMessageSent($message))->toOthers();
+        try {
+            broadcast(new GroupMessageSent($message))->toOthers();
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         return response()->json([
             'message'        => $message,
