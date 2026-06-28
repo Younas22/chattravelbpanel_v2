@@ -4,12 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DirectMessage extends Model
 {
     protected $fillable = [
-        'sender_id', 'recipient_id', 'body',
+        'sender_type', 'sender_id', 'recipient_type', 'recipient_id', 'body',
         'attachment_path', 'attachment_name', 'attachment_mime',
         'attachment_size', 'attachment_type', 'is_read',
     ];
@@ -18,24 +17,27 @@ class DirectMessage extends Model
         'is_read' => 'boolean',
     ];
 
-    protected $appends = ['attachment_url', 'formatted_size'];
+    protected $appends = ['attachment_url', 'formatted_size', 'sender_name'];
 
-    public function sender(): BelongsTo
-    {
-        return $this->belongsTo(TicketUser::class, 'sender_id');
-    }
-
-    public function recipient(): BelongsTo
-    {
-        return $this->belongsTo(TicketUser::class, 'recipient_id');
-    }
-
-    public function scopeBetween(Builder $query, int $a, int $b): Builder
+    public function scopeBetweenTicketUsers(Builder $query, int $a, int $b): Builder
     {
         return $query->where(function ($q) use ($a, $b) {
-            $q->where('sender_id', $a)->where('recipient_id', $b);
+            $q->where('sender_type', 'ticket_user')->where('sender_id', $a)
+              ->where('recipient_type', 'ticket_user')->where('recipient_id', $b);
         })->orWhere(function ($q) use ($a, $b) {
-            $q->where('sender_id', $b)->where('recipient_id', $a);
+            $q->where('sender_type', 'ticket_user')->where('sender_id', $b)
+              ->where('recipient_type', 'ticket_user')->where('recipient_id', $a);
+        });
+    }
+
+    public function scopeBetweenAdminAndTicketUser(Builder $query, int $ticketUserId): Builder
+    {
+        return $query->where(function ($q) use ($ticketUserId) {
+            $q->where('sender_type', 'ticket_user')->where('sender_id', $ticketUserId)
+              ->where('recipient_type', 'admin');
+        })->orWhere(function ($q) use ($ticketUserId) {
+            $q->where('recipient_type', 'ticket_user')->where('recipient_id', $ticketUserId)
+              ->where('sender_type', 'admin');
         });
     }
 
@@ -57,5 +59,13 @@ class DirectMessage extends Model
             $i++;
         }
         return round($size, 2) . ' ' . $units[$i];
+    }
+
+    public function getSenderNameAttribute(): string
+    {
+        if ($this->sender_type === 'admin') {
+            return optional(User::find($this->sender_id))->name ?? 'Support Team';
+        }
+        return optional(TicketUser::find($this->sender_id))->full_name ?? 'Member';
     }
 }

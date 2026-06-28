@@ -140,6 +140,15 @@
                     oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
 
                 <div class="flex items-center gap-0.5 shrink-0 pb-0.5">
+                    <div class="relative">
+                        <button @click="showEmoji = !showEmoji" type="button"
+                            :class="showEmoji ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'"
+                            class="p-1.5 rounded-lg transition-colors text-lg leading-none cursor-pointer">😊</button>
+                        <div x-show="showEmoji" x-cloak @click.outside="showEmoji = false"
+                            class="absolute z-50" style="bottom:calc(100% + 6px);right:0;">
+                            <emoji-picker @emoji-click="insertEmoji($event.detail.unicode)" style="width:320px;height:380px;display:block;"></emoji-picker>
+                        </div>
+                    </div>
                     <input type="file" id="file-input" class="hidden" @change="handleFile($event)"
                         accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.xml,.zip,.mp4,.txt">
                     <button @click="document.getElementById('file-input').click()" type="button"
@@ -162,9 +171,7 @@
             <div class="space-y-2">
                 @forelse($group->members as $member)
                 <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-xs shrink-0">
-                        {{ strtoupper(substr($member->full_name, 0, 1)) }}
-                    </div>
+                    <x-avatar :name="$member->full_name" :image="$member->profileImageUrl()" size-class="w-8 h-8" />
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-slate-800 truncate">{{ $member->full_name }}</p>
                         <p class="text-xs text-slate-400 truncate">{{ $member->email }}</p>
@@ -190,9 +197,7 @@
                     @foreach($availableUsers as $user)
                     <div class="flex items-center gap-2.5 px-1 py-2"
                         x-show="'{{ strtolower($user->full_name . ' ' . $user->email) }}'.includes(memberSearch.toLowerCase())">
-                        <div class="w-8 h-8 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-semibold text-xs shrink-0">
-                            {{ strtoupper(substr($user->full_name, 0, 1)) }}
-                        </div>
+                        <x-avatar :name="$user->full_name" :image="$user->profileImageUrl()" size-class="w-8 h-8" color-class="bg-slate-100 text-slate-600" />
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-medium text-slate-800 truncate">{{ $user->full_name }}</p>
                             <p class="text-xs text-slate-400 truncate">{{ $user->email }}</p>
@@ -239,10 +244,23 @@ function groupChat(groupId) {
         lastMessageId: {{ $group->messages->last()?->id ?? 0 }},
         selectedFile: null,
         filePreview: '',
+        showEmoji: false,
         pollUrl: '{{ route('admin.groups.poll', $group) }}',
         sendUrl: '{{ route('admin.groups.message', $group) }}',
         deleteUrl: '{{ route('admin.groups.destroy', $group) }}',
         indexUrl: '{{ route('admin.groups.index') }}',
+
+        insertEmoji(emoji) {
+            const ta = this.$refs.msgInput;
+            const start = ta.selectionStart;
+            const end = ta.selectionEnd;
+            this.message = this.message.slice(0, start) + emoji + this.message.slice(end);
+            this.$nextTick(() => {
+                ta.selectionStart = ta.selectionEnd = start + emoji.length;
+                ta.focus();
+            });
+            this.showEmoji = false;
+        },
 
         init() {
             this.$nextTick(() => this.scrollToBottom());

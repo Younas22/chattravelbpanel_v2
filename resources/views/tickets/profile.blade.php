@@ -12,7 +12,7 @@
         <div class="flex items-center gap-5">
             <div class="shrink-0">
                 @if($user->profile_image)
-                    <img src="http://localhost/chattravelbpanel_v2/public/storage/{{ $user->profile_image }}"
+                    <img src="{{ $user->profileImageUrl() }}"
                          class="w-20 h-20 rounded-full object-cover ring-4 ring-slate-100"
                          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
                          id="profile-img-preview">
@@ -102,6 +102,37 @@
 
         <button type="submit" class="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors cursor-pointer">
             Save Profile
+        </button>
+    </form>
+
+    {{-- Change Password --}}
+    <form method="POST" action="{{ route('tickets.profile.password') }}" class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+        @csrf
+        <h2 class="text-sm font-semibold text-slate-700">Change Password</h2>
+
+        <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5">Current Password</label>
+            <input type="password" name="current_password"
+                   class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            @error('current_password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">New Password</label>
+                <input type="password" name="password"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                @error('password')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-slate-600 mb-1.5">Confirm New Password</label>
+                <input type="password" name="password_confirmation"
+                       class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+
+        <button type="submit" class="w-full py-2.5 bg-blue-600 text-white rounded-xl text-sm font-semibold hover:bg-blue-700 transition-colors cursor-pointer">
+            Update Password
         </button>
     </form>
 

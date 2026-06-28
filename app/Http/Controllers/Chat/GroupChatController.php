@@ -23,8 +23,9 @@ class GroupChatController extends Controller
         $user = auth('ticket_user')->user();
         $groups = $this->sidebarGroups($user);
         $contacts = $this->sidebarContacts($user);
+        $supportUnread = $this->sidebarSupportUnread($user);
 
-        return view('tickets.chat.index', compact('groups', 'contacts'));
+        return view('tickets.chat.index', compact('groups', 'contacts', 'supportUnread'));
     }
 
     public function show(Group $group)
@@ -44,8 +45,9 @@ class GroupChatController extends Controller
 
         $groups = $this->sidebarGroups($user);
         $contacts = $this->sidebarContacts($user);
+        $supportUnread = $this->sidebarSupportUnread($user);
 
-        return view('tickets.chat.show', compact('group', 'groups', 'contacts'));
+        return view('tickets.chat.show', compact('group', 'groups', 'contacts', 'supportUnread'));
     }
 
     public function sendMessage(Request $request, Group $group)

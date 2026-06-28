@@ -160,10 +160,10 @@ class WidgetTicketController extends Controller
 
         // Delete old image
         if ($user->profile_image) {
-            Storage::disk('public')->delete($user->profile_image);
+            Storage::disk('public_direct')->delete($user->profile_image);
         }
 
-        $path = $request->file('image')->store('ticket-avatars', 'public');
+        $path = $request->file('image')->store('ticket-avatars', 'public_direct');
         $user->update(['profile_image' => $path]);
 
         return response()->json([

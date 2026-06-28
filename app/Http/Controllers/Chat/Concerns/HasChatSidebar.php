@@ -33,14 +33,22 @@ trait HasChatSidebar
             ->orderBy('full_name')
             ->get()
             ->map(function ($contact) use ($user) {
-                $contact->last_message = DirectMessage::between($user->id, $contact->id)
+                $contact->last_message = DirectMessage::betweenTicketUsers($user->id, $contact->id)
                     ->latest()
                     ->first();
-                $contact->unread_count = DirectMessage::where('sender_id', $contact->id)
-                    ->where('recipient_id', $user->id)
+                $contact->unread_count = DirectMessage::where('sender_type', 'ticket_user')->where('sender_id', $contact->id)
+                    ->where('recipient_type', 'ticket_user')->where('recipient_id', $user->id)
                     ->where('is_read', false)
                     ->count();
                 return $contact;
             });
+    }
+
+    protected function sidebarSupportUnread(TicketUser $user): int
+    {
+        return DirectMessage::where('sender_type', 'admin')
+            ->where('recipient_type', 'ticket_user')->where('recipient_id', $user->id)
+            ->where('is_read', false)
+            ->count();
     }
 }

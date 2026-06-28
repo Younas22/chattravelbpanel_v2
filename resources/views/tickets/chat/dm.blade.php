@@ -3,16 +3,15 @@
 
 @section('content')
 <div class="flex h-full gap-4" x-data="dmChat({{ $contact->id }})">
-    @include('tickets.chat._sidebar', ['activeType' => 'dm', 'activeId' => $contact->id])
+    @include('tickets.chat._sidebar', ['activeType' => 'dm', 'activeId' => $contact->id, 'supportUnread' => $supportUnread])
+
 
     {{-- Chat Panel --}}
     <div class="flex flex-col flex-1 card !p-0 overflow-hidden">
 
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-semibold">
-                    {{ strtoupper(substr($contact->full_name, 0, 1)) }}
-                </div>
+                <x-avatar :name="$contact->full_name" :image="$contact->profileImageUrl()" size-class="w-10 h-10" color-class="bg-slate-100 text-slate-600" />
                 <div>
                     <p class="font-semibold text-slate-900 text-sm">{{ $contact->full_name }}</p>
                     <p class="text-xs text-slate-500">{{ $contact->email }}</p>
@@ -99,6 +98,15 @@
                     oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
 
                 <div class="flex items-center gap-0.5 shrink-0 pb-0.5">
+                    <div class="relative">
+                        <button @click="showEmoji = !showEmoji" type="button"
+                            :class="showEmoji ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'"
+                            class="p-1.5 rounded-lg transition-colors text-lg leading-none cursor-pointer">😊</button>
+                        <div x-show="showEmoji" x-cloak @click.outside="showEmoji = false"
+                            class="absolute z-50" style="bottom:calc(100% + 6px);right:0;">
+                            <emoji-picker @emoji-click="insertEmoji($event.detail.unicode)" style="width:320px;height:380px;display:block;"></emoji-picker>
+                        </div>
+                    </div>
                     <input type="file" id="file-input" class="hidden" @change="handleFile($event)"
                         accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.zip,.txt">
                     <button @click="document.getElementById('file-input').click()" type="button"
@@ -126,8 +134,21 @@ function dmChat(contactId) {
         lastMessageId: {{ $messages->last()?->id ?? 0 }},
         selectedFile: null,
         filePreview: '',
+        showEmoji: false,
         pollUrl: '{{ route('tickets.chat.dm.poll', $contact) }}',
         sendUrl: '{{ route('tickets.chat.dm.message', $contact) }}',
+
+        insertEmoji(emoji) {
+            const ta = this.$refs.msgInput;
+            const start = ta.selectionStart;
+            const end = ta.selectionEnd;
+            this.message = this.message.slice(0, start) + emoji + this.message.slice(end);
+            this.$nextTick(() => {
+                ta.selectionStart = ta.selectionEnd = start + emoji.length;
+                ta.focus();
+            });
+            this.showEmoji = false;
+        },
 
         init() {
             this.$nextTick(() => this.scrollToBottom());

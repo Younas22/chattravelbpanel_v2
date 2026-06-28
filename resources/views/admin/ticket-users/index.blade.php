@@ -33,6 +33,7 @@
                             <th class="px-5 py-3.5 font-medium">Tickets</th>
                             <th class="px-5 py-3.5 font-medium">Social</th>
                             <th class="px-5 py-3.5 font-medium">Joined</th>
+                            <th class="px-5 py-3.5 font-medium"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-50">
@@ -41,7 +42,7 @@
                             <td class="px-5 py-4">
                                 <div class="flex items-center gap-3">
                                     @if($user->profile_image)
-                                        <img src="http://localhost/chattravelbpanel_v2/public/storage/{{ $user->profile_image }}"
+                                        <img src="{{ $user->profileImageUrl() }}"
                                              class="w-9 h-9 rounded-full object-cover ring-2 ring-slate-100"
                                              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                                         <div class="w-9 h-9 bg-blue-100 rounded-full items-center justify-center" style="display:none">
@@ -94,6 +95,12 @@
                                 </div>
                             </td>
                             <td class="px-5 py-4 text-slate-500 text-xs">{{ $user->created_at->format('M j, Y') }}</td>
+                            <td class="px-5 py-4">
+                                <a href="{{ route('admin.messages.show', $user) }}" title="Message" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                                    Message
+                                </a>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>

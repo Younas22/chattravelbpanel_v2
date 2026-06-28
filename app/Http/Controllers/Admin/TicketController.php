@@ -70,7 +70,7 @@ class TicketController extends Controller
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $path = $file->store('ticket-attachments/' . $ticket->id, 'public');
+            $path = $file->store('ticket-attachments/' . $ticket->id, 'public_direct');
             $data['attachment_path'] = $path;
             $data['attachment_name'] = $file->getClientOriginalName();
             $data['attachment_mime'] = $file->getMimeType();

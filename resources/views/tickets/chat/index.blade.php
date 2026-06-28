@@ -3,7 +3,7 @@
 
 @section('content')
 <div class="flex h-full gap-4">
-    @include('tickets.chat._sidebar')
+    @include('tickets.chat._sidebar', ['supportUnread' => $supportUnread])
 
     <div class="flex-1 card !p-0 overflow-hidden flex items-center justify-center">
         <div class="text-center text-slate-400 max-w-xs px-4">

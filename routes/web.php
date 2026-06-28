@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\CannedReplyController;
 use App\Http\Controllers\Admin\ConversationController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DirectMessageController as AdminDirectMessageController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\GlobalOfferController;
 use App\Http\Controllers\Admin\GroupController as AdminGroupController;
@@ -78,6 +79,12 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     Route::delete('/groups/{group}/members/{ticketUser}', [AdminGroupController::class, 'removeMember'])->name('groups.members.remove');
     Route::delete('/groups/{group}', [AdminGroupController::class, 'destroy'])->name('groups.destroy');
 
+    // Direct Messages (admin <-> ticket user individual chat)
+    Route::get('/messages', [AdminDirectMessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/{ticketUser}', [AdminDirectMessageController::class, 'show'])->name('messages.show');
+    Route::post('/messages/{ticketUser}/message', [AdminDirectMessageController::class, 'sendMessage'])->name('messages.message');
+    Route::get('/messages/{ticketUser}/messages', [AdminDirectMessageController::class, 'pollMessages'])->name('messages.poll');
+
     // Visitors
     Route::get('/visitors', [VisitorController::class, 'index'])->name('visitors.index');
     Route::get('/visitors/live', [VisitorController::class, 'live'])->name('visitors.live');
@@ -137,11 +144,15 @@ Route::name('tickets.')->group(function () {
     Route::get('/profile',         [TicketController::class, 'profileForm'])->name('profile');
     Route::post('/profile',        [TicketController::class, 'updateProfile'])->name('profile.update');
     Route::post('/profile/image',  [TicketController::class, 'updateProfileImage'])->name('profile.image');
+    Route::post('/profile/password', [TicketController::class, 'updatePassword'])->name('profile.password');
     Route::get('/tickets/{ticket}',       [TicketController::class, 'show'])->name('show');
     Route::post('/tickets/{ticket}/reply',[TicketController::class, 'reply'])->name('reply');
 
     // Group chat
     Route::get('/chat',                  [GroupChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/support',          [DirectMessageController::class, 'showSupport'])->name('chat.support.show');
+    Route::post('/chat/support/message', [DirectMessageController::class, 'sendSupportMessage'])->name('chat.support.message');
+    Route::get('/chat/support/messages', [DirectMessageController::class, 'pollSupportMessages'])->name('chat.support.poll');
     Route::get('/chat/dm/{contact}',          [DirectMessageController::class, 'show'])->name('chat.dm.show');
     Route::post('/chat/dm/{contact}/message', [DirectMessageController::class, 'sendMessage'])->name('chat.dm.message');
     Route::get('/chat/dm/{contact}/messages', [DirectMessageController::class, 'pollMessages'])->name('chat.dm.poll');

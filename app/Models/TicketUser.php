@@ -39,7 +39,7 @@ class TicketUser extends Authenticatable
     public function profileImageUrl(): ?string
     {
         if (!$this->profile_image) return null;
-        return asset('storage/' . $this->profile_image);
+        return rtrim(config('app.url'), '/') . '/attachments/' . $this->profile_image;
     }
 
     public function sharesGroupWith(int $otherId): bool

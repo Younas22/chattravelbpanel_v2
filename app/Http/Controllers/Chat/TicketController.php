@@ -63,7 +63,7 @@ class TicketController extends Controller
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $msgData['attachment_path'] = $file->store('ticket-attachments/' . $ticket->id, 'public');
+            $msgData['attachment_path'] = $file->store('ticket-attachments/' . $ticket->id, 'public_direct');
             $msgData['attachment_name'] = $file->getClientOriginalName();
             $msgData['attachment_mime'] = $file->getMimeType();
         }
@@ -114,7 +114,7 @@ class TicketController extends Controller
 
         if ($request->hasFile('attachment')) {
             $file = $request->file('attachment');
-            $data['attachment_path'] = $file->store('ticket-attachments/' . $ticket->id, 'public');
+            $data['attachment_path'] = $file->store('ticket-attachments/' . $ticket->id, 'public_direct');
             $data['attachment_name'] = $file->getClientOriginalName();
             $data['attachment_mime'] = $file->getMimeType();
         }
@@ -215,6 +215,28 @@ class TicketController extends Controller
         return back()->with('success', 'Profile updated successfully.');
     }
 
+    public function updatePassword(Request $request)
+    {
+        if (!auth('ticket_user')->check()) {
+            return redirect()->route('tickets.login');
+        }
+
+        $request->validate([
+            'current_password' => 'required|string',
+            'password'         => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = auth('ticket_user')->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.'])->withInput();
+        }
+
+        $user->update(['password' => Hash::make($request->password)]);
+
+        return back()->with('success', 'Password updated successfully.');
+    }
+
     public function updateProfileImage(Request $request)
     {
         if (!auth('ticket_user')->check()) {
@@ -228,10 +250,10 @@ class TicketController extends Controller
         $user = auth('ticket_user')->user();
 
         if ($user->profile_image) {
-            Storage::disk('public')->delete($user->profile_image);
+            Storage::disk('public_direct')->delete($user->profile_image);
         }
 
-        $path = $request->file('image')->store('ticket-avatars', 'public');
+        $path = $request->file('image')->store('ticket-avatars', 'public_direct');
         $user->update(['profile_image' => $path]);
 
         return back()->with('success', 'Profile image updated.');

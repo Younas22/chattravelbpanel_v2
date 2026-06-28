@@ -1,34 +1,34 @@
 @extends('tickets.layouts.chat')
-@section('title', $group->name)
+@section('title', 'Support Team')
 
 @section('content')
-<div class="flex h-full gap-4" x-data="groupChat({{ $group->id }})">
-    @include('tickets.chat._sidebar', ['activeType' => 'group', 'activeId' => $group->id, 'supportUnread' => $supportUnread])
+<div class="flex h-full gap-4" x-data="supportChat()">
+    @include('tickets.chat._sidebar', ['activeType' => 'support'])
 
     {{-- Chat Panel --}}
     <div class="flex flex-col flex-1 card !p-0 overflow-hidden">
 
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold">
-                    {{ strtoupper(substr($group->name, 0, 1)) }}
+                <div class="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                 </div>
                 <div>
-                    <p class="font-semibold text-slate-900 text-sm">{{ $group->name }}</p>
-                    <p class="text-xs text-slate-500">{{ $group->members->count() }} member{{ $group->members->count() !== 1 ? 's' : '' }}</p>
+                    <p class="font-semibold text-slate-900 text-sm">Support Team</p>
+                    <p class="text-xs text-slate-500">Message our admin team directly</p>
                 </div>
             </div>
             <a href="{{ route('tickets.chat.index') }}" class="btn-secondary !py-1.5 !text-xs">← Chat</a>
         </div>
 
         <div class="flex-1 overflow-y-auto p-5 space-y-3" id="messages-container">
-            @forelse($group->messages as $msg)
-            <div class="flex {{ $msg->sender_type === 'admin' ? 'justify-start' : 'justify-end' }}">
+            @forelse($messages as $msg)
+            <div class="flex {{ $msg->sender_type === 'ticket_user' ? 'justify-end' : 'justify-start' }}">
                 <div class="max-w-[70%]">
-                    <p class="text-[11px] font-medium text-slate-400 mb-1 {{ $msg->sender_type === 'admin' ? '' : 'text-right' }}">{{ $msg->sender_type === 'admin' ? 'Support Team' : $msg->sender_name }}</p>
+                    <p class="text-[11px] font-medium text-slate-400 mb-1 {{ $msg->sender_type === 'ticket_user' ? 'text-right' : '' }}">{{ $msg->sender_type === 'admin' ? 'Support Team' : 'You' }}</p>
 
                     @if($msg->body)
-                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_type === 'admin' ? 'bg-blue-600 text-white rounded-bl-sm' : 'bg-slate-100 text-slate-900 rounded-br-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
+                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_type === 'ticket_user' ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-slate-100 text-slate-900 rounded-bl-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
                             {!! nl2br(e($msg->body)) !!}
                         </div>
                     @endif
@@ -51,19 +51,19 @@
                         </div>
                     @endif
 
-                    <p class="text-[10px] text-slate-400 mt-1 {{ $msg->sender_type === 'admin' ? '' : 'text-right' }}">{{ $msg->created_at->format('M j, H:i') }}</p>
+                    <p class="text-[10px] text-slate-400 mt-1 {{ $msg->sender_type === 'ticket_user' ? 'text-right' : '' }}">{{ $msg->created_at->format('M j, H:i') }}</p>
                 </div>
             </div>
             @empty
-            <div class="py-10 text-center text-slate-400 text-sm">No messages yet. Say hello to the group!</div>
+            <div class="py-10 text-center text-slate-400 text-sm">No messages yet. Say hello to our support team!</div>
             @endforelse
 
             <template x-for="msg in newMessages" :key="msg.id">
-                <div class="flex" :class="msg.sender_type === 'admin' ? 'justify-start' : 'justify-end'">
+                <div class="flex" :class="msg.is_mine ? 'justify-end' : 'justify-start'">
                     <div class="max-w-[70%]">
-                        <p class="text-[11px] font-medium text-slate-400 mb-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="msg.sender_type === 'admin' ? 'Support Team' : msg.sender_name"></p>
+                        <p class="text-[11px] font-medium text-slate-400 mb-1" :class="msg.is_mine ? 'text-right' : ''" x-text="msg.is_mine ? 'You' : 'Support Team'"></p>
                         <div x-show="msg.body"
-                            :class="msg.sender_type === 'admin' ? 'bg-blue-600 text-white rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-br-sm px-4 py-2.5 text-sm'"
+                            :class="msg.is_mine ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm'"
                             style="overflow-wrap:break-word;word-break:break-word;"
                             x-text="msg.body"></div>
                         <div x-show="msg.attachment_url && msg.attachment_type === 'image'" class="mt-1.5">
@@ -78,7 +78,7 @@
                                 <span class="truncate text-slate-700" x-text="msg.attachment_name || 'Attachment'"></span>
                             </a>
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="formatTime(msg.created_at)"></p>
+                        <p class="text-[10px] text-slate-400 mt-1" :class="msg.is_mine ? 'text-right' : ''" x-text="formatTime(msg.created_at)"></p>
                     </div>
                 </div>
             </template>
@@ -96,7 +96,7 @@
             <div class="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
                 <textarea x-model="message" x-ref="msgInput"
                     @keydown.enter.prevent="if(!$event.shiftKey) send()"
-                    rows="1" placeholder="Message the group…"
+                    rows="1" placeholder="Message our support team…"
                     class="flex-1 resize-none bg-transparent text-sm focus:outline-none text-slate-800 placeholder-slate-400"
                     style="max-height:120px;min-height:24px;"
                     oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
@@ -125,44 +125,22 @@
             </div>
         </div>
     </div>
-
-    {{-- Members Sidebar --}}
-    <div class="w-64 shrink-0 overflow-y-auto">
-        <div class="card">
-            <h3 class="font-semibold text-slate-900 text-sm mb-3">Members</h3>
-            <div class="space-y-1">
-                @foreach($group->members as $member)
-                <div class="flex items-center gap-2.5 py-1.5">
-                    <x-avatar :name="$member->full_name" :image="$member->profileImageUrl()" size-class="w-8 h-8" color-class="bg-slate-100 text-slate-600" />
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-slate-800 truncate">{{ $member->full_name }}{{ $member->id === auth('ticket_user')->id() ? ' (You)' : '' }}</p>
-                    </div>
-                    @if($member->id !== auth('ticket_user')->id())
-                        <a href="{{ route('tickets.chat.dm.show', $member) }}" title="Message" class="text-blue-500 hover:text-blue-700 transition-colors shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                        </a>
-                    @endif
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-function groupChat(groupId) {
+function supportChat() {
     return {
         message: '',
         sending: false,
         newMessages: [],
-        lastMessageId: {{ $group->messages->last()?->id ?? 0 }},
+        lastMessageId: {{ $messages->last()?->id ?? 0 }},
         selectedFile: null,
         filePreview: '',
         showEmoji: false,
-        pollUrl: '{{ route('tickets.chat.poll', $group) }}',
-        sendUrl: '{{ route('tickets.chat.message', $group) }}',
+        pollUrl: '{{ route('tickets.chat.support.poll') }}',
+        sendUrl: '{{ route('tickets.chat.support.message') }}',
 
         insertEmoji(emoji) {
             const ta = this.$refs.msgInput;
@@ -220,8 +198,7 @@ function groupChat(groupId) {
                     if (data.message) {
                         self.newMessages.push({
                             id: data.message.id,
-                            sender_type: 'ticket_user',
-                            sender_name: data.message.sender_name,
+                            is_mine: true,
                             body: data.message.body,
                             attachment_url: data.attachment_url,
                             attachment_name: data.message.attachment_name,

@@ -1,31 +1,55 @@
-@extends('tickets.layouts.chat')
-@section('title', $group->name)
+@extends('admin.layouts.app')
+@section('title', 'Message — ' . $ticketUser->full_name)
 
 @section('content')
-<div class="flex h-full gap-4" x-data="groupChat({{ $group->id }})">
-    @include('tickets.chat._sidebar', ['activeType' => 'group', 'activeId' => $group->id, 'supportUnread' => $supportUnread])
+<div class="flex h-[calc(100vh-8rem)] relative gap-0">
+
+    {{-- Left: Threads List --}}
+    <div class="w-72 shrink-0 flex flex-col bg-white border border-slate-100 rounded-2xl overflow-hidden mr-4">
+        <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 shrink-0">
+            <span class="font-semibold text-slate-900 text-sm">Messages</span>
+            <a href="{{ route('admin.messages.index') }}" class="text-xs text-blue-600 hover:underline">All</a>
+        </div>
+        <div class="flex-1 overflow-y-auto divide-y divide-slate-50">
+            @foreach($threads as $thread)
+            <a href="{{ route('admin.messages.show', $thread) }}"
+               class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors {{ $thread->id === $ticketUser->id ? 'bg-blue-50 border-l-2 border-blue-500' : '' }}">
+                <x-avatar :name="$thread->full_name" :image="$thread->profileImageUrl()" size-class="w-9 h-9" />
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-1">
+                        <span class="text-sm font-semibold text-slate-900 truncate">{{ $thread->full_name }}</span>
+                        @if($thread->unread_count > 0)
+                            <span class="shrink-0 w-4 h-4 bg-blue-600 text-white text-[9px] rounded-full flex items-center justify-center font-bold">{{ $thread->unread_count > 9 ? '9+' : $thread->unread_count }}</span>
+                        @endif
+                    </div>
+                    <p class="text-xs text-slate-500 truncate">{{ $thread->last_message?->body ?: '📎 Attachment' }}</p>
+                </div>
+            </a>
+            @endforeach
+        </div>
+    </div>
+
+<div class="flex flex-1" x-data="adminDmChat({{ $ticketUser->id }})">
 
     {{-- Chat Panel --}}
     <div class="flex flex-col flex-1 card !p-0 overflow-hidden">
 
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold">
-                    {{ strtoupper(substr($group->name, 0, 1)) }}
-                </div>
+                <x-avatar :name="$ticketUser->full_name" :image="$ticketUser->profileImageUrl()" size-class="w-10 h-10" />
                 <div>
-                    <p class="font-semibold text-slate-900 text-sm">{{ $group->name }}</p>
-                    <p class="text-xs text-slate-500">{{ $group->members->count() }} member{{ $group->members->count() !== 1 ? 's' : '' }}</p>
+                    <p class="font-semibold text-slate-900 text-sm">{{ $ticketUser->full_name }}</p>
+                    <p class="text-xs text-slate-500">{{ $ticketUser->email }}</p>
                 </div>
             </div>
-            <a href="{{ route('tickets.chat.index') }}" class="btn-secondary !py-1.5 !text-xs">← Chat</a>
+            <a href="{{ route('admin.ticket-users.index') }}" class="btn-secondary !py-1.5 !text-xs">← Ticket Users</a>
         </div>
 
         <div class="flex-1 overflow-y-auto p-5 space-y-3" id="messages-container">
-            @forelse($group->messages as $msg)
+            @forelse($messages as $msg)
             <div class="flex {{ $msg->sender_type === 'admin' ? 'justify-start' : 'justify-end' }}">
                 <div class="max-w-[70%]">
-                    <p class="text-[11px] font-medium text-slate-400 mb-1 {{ $msg->sender_type === 'admin' ? '' : 'text-right' }}">{{ $msg->sender_type === 'admin' ? 'Support Team' : $msg->sender_name }}</p>
+                    <p class="text-[11px] font-medium text-slate-400 mb-1 {{ $msg->sender_type === 'admin' ? '' : 'text-right' }}">{{ $msg->sender_type === 'admin' ? $msg->sender_name : $ticketUser->full_name }}</p>
 
                     @if($msg->body)
                         <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_type === 'admin' ? 'bg-blue-600 text-white rounded-bl-sm' : 'bg-slate-100 text-slate-900 rounded-br-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
@@ -55,13 +79,13 @@
                 </div>
             </div>
             @empty
-            <div class="py-10 text-center text-slate-400 text-sm">No messages yet. Say hello to the group!</div>
+            <div class="py-10 text-center text-slate-400 text-sm">No messages yet. Say hello to {{ $ticketUser->full_name }}!</div>
             @endforelse
 
             <template x-for="msg in newMessages" :key="msg.id">
                 <div class="flex" :class="msg.sender_type === 'admin' ? 'justify-start' : 'justify-end'">
                     <div class="max-w-[70%]">
-                        <p class="text-[11px] font-medium text-slate-400 mb-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="msg.sender_type === 'admin' ? 'Support Team' : msg.sender_name"></p>
+                        <p class="text-[11px] font-medium text-slate-400 mb-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="msg.sender_name"></p>
                         <div x-show="msg.body"
                             :class="msg.sender_type === 'admin' ? 'bg-blue-600 text-white rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-br-sm px-4 py-2.5 text-sm'"
                             style="overflow-wrap:break-word;word-break:break-word;"
@@ -96,7 +120,7 @@
             <div class="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
                 <textarea x-model="message" x-ref="msgInput"
                     @keydown.enter.prevent="if(!$event.shiftKey) send()"
-                    rows="1" placeholder="Message the group…"
+                    rows="1" placeholder="Message {{ $ticketUser->full_name }}…"
                     class="flex-1 resize-none bg-transparent text-sm focus:outline-none text-slate-800 placeholder-slate-400"
                     style="max-height:120px;min-height:24px;"
                     oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px'"></textarea>
@@ -112,7 +136,7 @@
                         </div>
                     </div>
                     <input type="file" id="file-input" class="hidden" @change="handleFile($event)"
-                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.zip,.txt">
+                        accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.xml,.zip,.mp4,.txt">
                     <button @click="document.getElementById('file-input').click()" type="button"
                         class="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
@@ -125,44 +149,23 @@
             </div>
         </div>
     </div>
-
-    {{-- Members Sidebar --}}
-    <div class="w-64 shrink-0 overflow-y-auto">
-        <div class="card">
-            <h3 class="font-semibold text-slate-900 text-sm mb-3">Members</h3>
-            <div class="space-y-1">
-                @foreach($group->members as $member)
-                <div class="flex items-center gap-2.5 py-1.5">
-                    <x-avatar :name="$member->full_name" :image="$member->profileImageUrl()" size-class="w-8 h-8" color-class="bg-slate-100 text-slate-600" />
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-slate-800 truncate">{{ $member->full_name }}{{ $member->id === auth('ticket_user')->id() ? ' (You)' : '' }}</p>
-                    </div>
-                    @if($member->id !== auth('ticket_user')->id())
-                        <a href="{{ route('tickets.chat.dm.show', $member) }}" title="Message" class="text-blue-500 hover:text-blue-700 transition-colors shrink-0">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
-                        </a>
-                    @endif
-                </div>
-                @endforeach
-            </div>
-        </div>
-    </div>
-</div>
+</div>{{-- /adminDmChat --}}
+</div>{{-- /outer flex --}}
 @endsection
 
 @push('scripts')
 <script>
-function groupChat(groupId) {
+function adminDmChat(ticketUserId) {
     return {
         message: '',
         sending: false,
         newMessages: [],
-        lastMessageId: {{ $group->messages->last()?->id ?? 0 }},
+        lastMessageId: {{ $messages->last()?->id ?? 0 }},
         selectedFile: null,
         filePreview: '',
         showEmoji: false,
-        pollUrl: '{{ route('tickets.chat.poll', $group) }}',
-        sendUrl: '{{ route('tickets.chat.message', $group) }}',
+        pollUrl: '{{ route('admin.messages.poll', $ticketUser) }}',
+        sendUrl: '{{ route('admin.messages.message', $ticketUser) }}',
 
         insertEmoji(emoji) {
             const ta = this.$refs.msgInput;
@@ -182,7 +185,7 @@ function groupChat(groupId) {
         },
 
         startPolling() {
-            setInterval(() => this.pollMessages(), 4000);
+            setInterval(() => this.pollMessages(), 3000);
         },
 
         pollMessages() {
@@ -220,7 +223,7 @@ function groupChat(groupId) {
                     if (data.message) {
                         self.newMessages.push({
                             id: data.message.id,
-                            sender_type: 'ticket_user',
+                            sender_type: 'admin',
                             sender_name: data.message.sender_name,
                             body: data.message.body,
                             attachment_url: data.attachment_url,
