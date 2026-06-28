@@ -23,7 +23,10 @@
 
         <div class="flex-1 overflow-y-auto p-5 space-y-3" id="messages-container">
             @forelse($group->messages as $msg)
-            <div class="flex {{ $msg->sender_type === 'admin' ? 'justify-start' : 'justify-end' }}">
+            <div class="flex items-start gap-2 {{ $msg->sender_type === 'admin' ? 'justify-start' : 'justify-end' }}">
+                @if($msg->sender_type === 'admin')
+                    <x-avatar name="Support Team" :image="$msg->sender_avatar" size-class="w-7 h-7" color-class="bg-blue-100 text-blue-700" />
+                @endif
                 <div class="max-w-[70%]">
                     <p class="text-[11px] font-medium text-slate-400 mb-1 {{ $msg->sender_type === 'admin' ? '' : 'text-right' }}">{{ $msg->sender_type === 'admin' ? 'Support Team' : $msg->sender_name }}</p>
 
@@ -53,13 +56,25 @@
 
                     <p class="text-[10px] text-slate-400 mt-1 {{ $msg->sender_type === 'admin' ? '' : 'text-right' }}">{{ $msg->created_at->format('M j, H:i') }}</p>
                 </div>
+                @if($msg->sender_type !== 'admin')
+                    <x-avatar :name="$msg->sender_name" :image="$msg->sender_avatar" size-class="w-7 h-7" color-class="bg-slate-100 text-slate-600" />
+                @endif
             </div>
             @empty
             <div class="py-10 text-center text-slate-400 text-sm">No messages yet. Say hello to the group!</div>
             @endforelse
 
             <template x-for="msg in newMessages" :key="msg.id">
-                <div class="flex" :class="msg.sender_type === 'admin' ? 'justify-start' : 'justify-end'">
+                <div class="flex items-start gap-2" :class="msg.sender_type === 'admin' ? 'justify-start' : 'justify-end'">
+                    <template x-if="msg.sender_type === 'admin'">
+                        <div class="w-7 h-7 shrink-0 relative">
+                            <img x-show="msg.sender_avatar && !msg.avatarFailed" :src="msg.sender_avatar"
+                                 x-on:error="msg.avatarFailed = true"
+                                 class="w-7 h-7 rounded-full object-cover absolute inset-0">
+                            <div x-show="!msg.sender_avatar || msg.avatarFailed"
+                                 class="w-7 h-7 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold text-xs absolute inset-0">S</div>
+                        </div>
+                    </template>
                     <div class="max-w-[70%]">
                         <p class="text-[11px] font-medium text-slate-400 mb-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="msg.sender_type === 'admin' ? 'Support Team' : msg.sender_name"></p>
                         <div x-show="msg.body"
@@ -80,6 +95,16 @@
                         </div>
                         <p class="text-[10px] text-slate-400 mt-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="formatTime(msg.created_at)"></p>
                     </div>
+                    <template x-if="msg.sender_type !== 'admin'">
+                        <div class="w-7 h-7 shrink-0 relative">
+                            <img x-show="msg.sender_avatar && !msg.avatarFailed" :src="msg.sender_avatar"
+                                 x-on:error="msg.avatarFailed = true"
+                                 class="w-7 h-7 rounded-full object-cover absolute inset-0">
+                            <div x-show="!msg.sender_avatar || msg.avatarFailed"
+                                 class="w-7 h-7 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-semibold text-xs absolute inset-0"
+                                 x-text="(msg.sender_name || 'Member').charAt(0).toUpperCase()"></div>
+                        </div>
+                    </template>
                 </div>
             </template>
         </div>
@@ -222,6 +247,7 @@ function groupChat(groupId) {
                             id: data.message.id,
                             sender_type: 'ticket_user',
                             sender_name: data.message.sender_name,
+                            sender_avatar: data.message.sender_avatar,
                             body: data.message.body,
                             attachment_url: data.attachment_url,
                             attachment_name: data.message.attachment_name,

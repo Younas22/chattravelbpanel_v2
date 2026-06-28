@@ -120,6 +120,7 @@ class GroupController extends Controller
                 'id'              => $m->id,
                 'sender_type'     => $m->sender_type,
                 'sender_name'     => $m->sender_name,
+                'sender_avatar'   => $m->sender_avatar,
                 'body'            => $m->body,
                 'attachment_url'  => $m->attachment_url,
                 'attachment_name' => $m->attachment_name,

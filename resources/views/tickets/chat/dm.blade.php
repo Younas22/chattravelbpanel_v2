@@ -22,10 +22,10 @@
 
         <div class="flex-1 overflow-y-auto p-5 space-y-3" id="messages-container">
             @forelse($messages as $msg)
-            <div class="flex {{ $msg->sender_id === auth('ticket_user')->id() ? 'justify-end' : 'justify-start' }}">
+            <div class="flex {{ $msg->sender_id === auth('ticket_user')->id() ? 'justify-start' : 'justify-end' }}">
                 <div class="max-w-[70%]">
                     @if($msg->body)
-                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_id === auth('ticket_user')->id() ? 'bg-blue-600 text-white rounded-br-sm' : 'bg-slate-100 text-slate-900 rounded-bl-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
+                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_id === auth('ticket_user')->id() ? 'bg-blue-600 text-white rounded-bl-sm' : 'bg-slate-100 text-slate-900 rounded-br-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
                             {!! nl2br(e($msg->body)) !!}
                         </div>
                     @endif
@@ -48,7 +48,7 @@
                         </div>
                     @endif
 
-                    <p class="text-[10px] text-slate-400 mt-1 {{ $msg->sender_id === auth('ticket_user')->id() ? 'text-right' : '' }}">{{ $msg->created_at->format('M j, H:i') }}</p>
+                    <p class="text-[10px] text-slate-400 mt-1 {{ $msg->sender_id === auth('ticket_user')->id() ? '' : 'text-right' }}">{{ $msg->created_at->format('M j, H:i') }}</p>
                 </div>
             </div>
             @empty
@@ -56,10 +56,10 @@
             @endforelse
 
             <template x-for="msg in newMessages" :key="msg.id">
-                <div class="flex" :class="msg.is_mine ? 'justify-end' : 'justify-start'">
+                <div class="flex" :class="msg.is_mine ? 'justify-start' : 'justify-end'">
                     <div class="max-w-[70%]">
                         <div x-show="msg.body"
-                            :class="msg.is_mine ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm'"
+                            :class="msg.is_mine ? 'bg-blue-600 text-white rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-br-sm px-4 py-2.5 text-sm'"
                             style="overflow-wrap:break-word;word-break:break-word;"
                             x-text="msg.body"></div>
                         <div x-show="msg.attachment_url && msg.attachment_type === 'image'" class="mt-1.5">
@@ -74,7 +74,7 @@
                                 <span class="truncate text-slate-700" x-text="msg.attachment_name || 'Attachment'"></span>
                             </a>
                         </div>
-                        <p class="text-[10px] text-slate-400 mt-1" :class="msg.is_mine ? 'text-right' : ''" x-text="formatTime(msg.created_at)"></p>
+                        <p class="text-[10px] text-slate-400 mt-1" :class="msg.is_mine ? '' : 'text-right'" x-text="formatTime(msg.created_at)"></p>
                     </div>
                 </div>
             </template>

@@ -13,7 +13,7 @@ class GroupMessage extends Model
         'attachment_size', 'attachment_type',
     ];
 
-    protected $appends = ['attachment_url', 'formatted_size', 'sender_name'];
+    protected $appends = ['attachment_url', 'formatted_size', 'sender_name', 'sender_avatar'];
 
     public function group(): BelongsTo
     {
@@ -46,5 +46,13 @@ class GroupMessage extends Model
             return optional(User::find($this->sender_id))->name ?? 'Admin';
         }
         return optional(TicketUser::find($this->sender_id))->full_name ?? 'Member';
+    }
+
+    public function getSenderAvatarAttribute(): ?string
+    {
+        if ($this->sender_type === 'admin') {
+            return optional(User::find($this->sender_id))->avatar_url;
+        }
+        return optional(TicketUser::find($this->sender_id))->profileImageUrl();
     }
 }
