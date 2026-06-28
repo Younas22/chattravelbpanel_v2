@@ -121,6 +121,18 @@
                 <span class="sidebar-tooltip" x-show="!sidebarOpen">Ticket Users</span>
             </a>
 
+            <a href="{{ route('admin.groups.index') }}" class="sidebar-link {{ request()->routeIs('admin.groups*') ? 'active' : '' }}">
+                <div class="relative shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    @php $groupUnread = \App\Models\Group::sum('unread_admin'); @endphp
+                    @if($groupUnread > 0)
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{{ $groupUnread > 9 ? '9+' : $groupUnread }}</span>
+                    @endif
+                </div>
+                <span x-show="sidebarOpen" class="whitespace-nowrap">Groups</span>
+                <span class="sidebar-tooltip" x-show="!sidebarOpen">Groups</span>
+            </a>
+
             <a href="{{ route('admin.analytics.index') }}" class="sidebar-link {{ request()->routeIs('admin.analytics*') ? 'active' : '' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 <span x-show="sidebarOpen" class="whitespace-nowrap">Analytics</span>

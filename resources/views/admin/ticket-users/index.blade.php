@@ -2,7 +2,7 @@
 @section('title', 'Ticket Users')
 
 @section('content')
-<div class="space-y-4">
+<div class="space-y-4" x-data="ticketUserManager()">
 
     <div class="card !p-4 flex flex-wrap items-center gap-3">
         <form method="GET" class="flex flex-wrap gap-3 flex-1">
@@ -11,6 +11,10 @@
             <button type="submit" class="btn-primary cursor-pointer">Search</button>
         </form>
         <div class="text-sm text-slate-500">Total: <span class="font-semibold text-slate-800">{{ $users->total() }}</span> users</div>
+        <button @click="showModal = true" class="btn-primary cursor-pointer">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add User
+        </button>
     </div>
 
     <div class="card !p-0 overflow-hidden">
@@ -98,5 +102,78 @@
             <div class="px-5 py-4 border-t border-slate-100">{{ $users->withQueryString()->links() }}</div>
         @endif
     </div>
+
+    {{-- Add User Modal --}}
+    <div x-show="showModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showModal = false"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+            <h2 class="font-semibold text-slate-900 mb-4">Add Ticket User</h2>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Full Name</label>
+                    <input type="text" x-model="form.full_name" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. John Smith">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
+                    <input type="email" x-model="form.email" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="john@example.com">
+                </div>
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Phone <span class="text-slate-400 font-normal">(optional)</span></label>
+                        <input type="text" x-model="form.phone" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Company <span class="text-slate-400 font-normal">(optional)</span></label>
+                        <input type="text" x-model="form.company_name" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
+                    <input type="password" x-model="form.password" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Min. 8 characters">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3 mt-6">
+                <button @click="showModal = false" class="btn-secondary cursor-pointer">Cancel</button>
+                <button @click="save()" :disabled="saving" class="btn-primary cursor-pointer disabled:opacity-50">Save</button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function ticketUserManager() {
+    return {
+        showModal: false,
+        saving: false,
+        form: { full_name: '', email: '', phone: '', company_name: '', password: '' },
+
+        save() {
+            this.saving = true;
+            fetch('{{ route('admin.ticket-users.store') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify(this.form),
+            })
+            .then(r => r.json().then(data => ({ status: r.status, data })))
+            .then(({ status, data }) => {
+                this.saving = false;
+                if (status === 422) {
+                    alert(Object.values(data.errors).flat().join('\n'));
+                    return;
+                }
+                location.reload();
+            })
+            .catch(() => { this.saving = false; });
+        }
+    }
+}
+</script>
+@endpush

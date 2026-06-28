@@ -1,0 +1,5 @@
+{
+  "permissions": {
+    "allow": ["Bash(php -l *)", "Bash(npm run typecheck)"]
+  }
+}

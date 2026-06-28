@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Support') — TravelBookingPanel</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css'])
@@ -20,6 +21,7 @@
 
             <div class="flex items-center gap-3">
                 @if(auth('ticket_user')->check())
+                    <a href="{{ route('tickets.chat.index') }}" class="text-sm text-slate-600 hover:text-slate-900 font-medium">Chat</a>
                     <a href="{{ route('tickets.create') }}" class="text-sm text-blue-600 hover:underline font-medium">New Ticket</a>
                     <a href="{{ route('tickets.profile') }}" class="text-sm text-slate-600 hover:text-slate-900 font-medium">Profile</a>
                     <form method="POST" action="{{ route('tickets.logout') }}" class="inline">

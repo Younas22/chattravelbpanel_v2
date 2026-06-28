@@ -12,6 +12,11 @@ Broadcast::channel('conversation.{conversationId}', function ($user, $conversati
     return false;
 });
 
+// Admin can access any private group channel
+Broadcast::channel('group.{groupId}', function ($user, $groupId) {
+    return $user && $user->is_admin;
+});
+
 // Admin visitors channel (public for admin only)
 Broadcast::channel('admin-conversations', function ($user) {
     return $user && $user->is_admin;

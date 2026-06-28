@@ -440,8 +440,10 @@
         if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
       });
       textarea.addEventListener('input', () => {
-        textarea.style.height = 'auto';
-        textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+        requestAnimationFrame(() => {
+          textarea.style.height = 'auto';
+          textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+        });
         handleTyping();
       });
     }
@@ -535,8 +537,10 @@
           textarea.value = val.slice(0, start) + btn.textContent + val.slice(end);
           textarea.selectionStart = textarea.selectionEnd = start + btn.textContent.length;
           textarea.focus();
-          textarea.style.height = 'auto';
-          textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+          requestAnimationFrame(() => {
+            textarea.style.height = 'auto';
+            textarea.style.height = Math.min(textarea.scrollHeight, 100) + 'px';
+          });
         }
         $id('tbp-emoji-panel')?.classList.add('hidden');
       });

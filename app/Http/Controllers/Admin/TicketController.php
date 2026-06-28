@@ -7,6 +7,7 @@ use App\Models\Ticket;
 use App\Models\TicketMessage;
 use App\Models\TicketUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class TicketController extends Controller
@@ -113,5 +114,26 @@ class TicketController extends Controller
 
         $users = $query->paginate(20);
         return view('admin.ticket-users.index', compact('users'));
+    }
+
+    public function storeUser(Request $request)
+    {
+        $request->validate([
+            'full_name'    => 'required|string|max:200',
+            'email'        => 'required|email|unique:ticket_users,email',
+            'phone'        => 'nullable|string|max:30',
+            'company_name' => 'nullable|string|max:200',
+            'password'     => 'required|string|min:8',
+        ]);
+
+        TicketUser::create([
+            'full_name'    => $request->full_name,
+            'email'        => $request->email,
+            'phone'        => $request->phone,
+            'company_name' => $request->company_name,
+            'password'     => Hash::make($request->password),
+        ]);
+
+        return response()->json(['success' => true]);
     }
 }

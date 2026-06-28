@@ -8,9 +8,11 @@ use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\GlobalOfferController;
+use App\Http\Controllers\Admin\GroupController as AdminGroupController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use App\Http\Controllers\Admin\VisitorController;
+use App\Http\Controllers\Chat\GroupChatController;
 use App\Http\Controllers\Chat\TicketController;
 use App\Http\Controllers\WidgetScriptController;
 use Illuminate\Support\Facades\Route;
@@ -63,6 +65,17 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
 
     // Ticket Users
     Route::get('/ticket-users', [AdminTicketController::class, 'ticketUsers'])->name('ticket-users.index');
+    Route::post('/ticket-users', [AdminTicketController::class, 'storeUser'])->name('ticket-users.store');
+
+    // Groups
+    Route::get('/groups', [AdminGroupController::class, 'index'])->name('groups.index');
+    Route::post('/groups', [AdminGroupController::class, 'store'])->name('groups.store');
+    Route::get('/groups/{group}', [AdminGroupController::class, 'show'])->name('groups.show');
+    Route::get('/groups/{group}/messages', [AdminGroupController::class, 'pollMessages'])->name('groups.poll');
+    Route::post('/groups/{group}/message', [AdminGroupController::class, 'sendMessage'])->name('groups.message');
+    Route::post('/groups/{group}/members', [AdminGroupController::class, 'addMember'])->name('groups.members.add');
+    Route::delete('/groups/{group}/members/{ticketUser}', [AdminGroupController::class, 'removeMember'])->name('groups.members.remove');
+    Route::delete('/groups/{group}', [AdminGroupController::class, 'destroy'])->name('groups.destroy');
 
     // Visitors
     Route::get('/visitors', [VisitorController::class, 'index'])->name('visitors.index');
@@ -125,4 +138,10 @@ Route::name('tickets.')->group(function () {
     Route::post('/profile/image',  [TicketController::class, 'updateProfileImage'])->name('profile.image');
     Route::get('/tickets/{ticket}',       [TicketController::class, 'show'])->name('show');
     Route::post('/tickets/{ticket}/reply',[TicketController::class, 'reply'])->name('reply');
+
+    // Group chat
+    Route::get('/chat',                  [GroupChatController::class, 'index'])->name('chat.index');
+    Route::get('/chat/{group}',          [GroupChatController::class, 'show'])->name('chat.show');
+    Route::post('/chat/{group}/message', [GroupChatController::class, 'sendMessage'])->name('chat.message');
+    Route::get('/chat/{group}/messages', [GroupChatController::class, 'pollMessages'])->name('chat.poll');
 });
