@@ -14,11 +14,7 @@
             @foreach($groups as $g)
             <a href="{{ route('admin.groups.show', $g) }}"
                class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors {{ $g->id === $group->id ? 'bg-blue-50 border-l-2 border-blue-500' : '' }}">
-                <div class="relative shrink-0">
-                    <div class="w-9 h-9 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-sm">
-                        {{ strtoupper(substr($g->name, 0, 1)) }}
-                    </div>
-                </div>
+                <x-avatar :name="$g->name" :image="$g->profileImageUrl()" size-class="w-9 h-9" />
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-1">
                         <span class="text-sm font-semibold text-slate-900 truncate">{{ $g->name }}</span>
@@ -41,9 +37,7 @@
         {{-- Chat Header --}}
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold">
-                    {{ strtoupper(substr($group->name, 0, 1)) }}
-                </div>
+                <x-avatar :name="$group->name" :image="$group->profileImageUrl()" size-class="w-10 h-10" />
                 <div>
                     <p class="font-semibold text-slate-900 text-sm">{{ $group->name }}</p>
                     <p class="text-xs text-slate-500">{{ $group->members->count() }} member{{ $group->members->count() !== 1 ? 's' : '' }}</p>
@@ -51,8 +45,42 @@
             </div>
 
             <div class="flex items-center gap-2">
+                <button @click="openEditGroup()" class="btn-secondary !py-1.5 !text-xs">Edit Group</button>
                 <button @click="deleteGroup()" class="btn-danger !py-1.5 !text-xs">Delete Group</button>
                 <a href="{{ route('admin.groups.index') }}" class="btn-secondary !py-1.5 !text-xs">← Back</a>
+            </div>
+        </div>
+
+        {{-- Edit Group Modal --}}
+        <div x-show="showEditModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="showEditModal = false"></div>
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6">
+                <h2 class="font-semibold text-slate-900 mb-4">Edit Group</h2>
+
+                <div class="flex items-center gap-4 mb-5">
+                    <x-avatar :name="$group->name" :image="$group->profileImageUrl()" size-class="w-16 h-16" />
+                    <div>
+                        <input type="file" id="group-image-input" class="hidden" @change="uploadGroupImage($event)" accept=".jpg,.jpeg,.png,.gif,.webp">
+                        <button @click="document.getElementById('group-image-input').click()" type="button" class="btn-secondary !text-xs cursor-pointer">Change Photo</button>
+                        <p class="text-xs text-slate-400 mt-1">JPG, PNG, GIF or WebP — max 2MB</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Group Name</label>
+                        <input type="text" x-model="editForm.name" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1.5">Description <span class="text-slate-400 font-normal">(optional)</span></label>
+                        <textarea x-model="editForm.description" rows="2" class="w-full resize-none px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-3 mt-6">
+                    <button @click="showEditModal = false" class="btn-secondary cursor-pointer">Cancel</button>
+                    <button @click="saveGroupEdit()" class="btn-primary cursor-pointer">Save</button>
+                </div>
             </div>
         </div>
 
@@ -326,10 +354,14 @@ function groupChat(groupId) {
         filePreview: '',
         showEmoji: false,
         replyTo: null,
+        showEditModal: false,
+        editForm: { name: '', description: '' },
         pollUrl: '{{ route('admin.groups.poll', $group) }}',
         sendUrl: '{{ route('admin.groups.message', $group) }}',
         deleteUrl: '{{ route('admin.groups.destroy', $group) }}',
         indexUrl: '{{ route('admin.groups.index') }}',
+        updateUrl: '{{ route('admin.groups.update', $group) }}',
+        imageUploadUrl: '{{ route('admin.groups.image', $group) }}',
 
         setReply(msg) {
             this.replyTo = { id: msg.id, body: msg.body, sender_type: msg.sender_type, sender_name: msg.sender_name, attachment_name: msg.attachment_name };
@@ -364,6 +396,41 @@ function groupChat(groupId) {
                 method: 'DELETE',
                 headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
             }).then(() => { window.location = this.indexUrl; });
+        },
+
+        openEditGroup() {
+            this.editForm = { name: {!! json_encode($group->name) !!}, description: {!! json_encode($group->description) !!} };
+            this.showEditModal = true;
+        },
+
+        saveGroupEdit() {
+            fetch(this.updateUrl, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                },
+                body: JSON.stringify(this.editForm),
+            })
+            .then(r => r.json().then(data => ({ status: r.status, data })))
+            .then(({ status, data }) => {
+                if (status === 422) {
+                    alert(Object.values(data.errors).flat().join('\n'));
+                    return;
+                }
+                location.reload();
+            });
+        },
+
+        uploadGroupImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
+            fetch(this.imageUploadUrl, { method: 'POST', body: formData })
+                .then(() => location.reload());
         },
 
         startPolling() {

@@ -170,6 +170,11 @@ class SettingsController extends Controller
         return back()->with('success', 'Pusher settings updated.');
     }
 
+    public function profile()
+    {
+        return view('admin.settings.profile');
+    }
+
     public function updateProfile(Request $request)
     {
         $request->validate([
@@ -181,19 +186,19 @@ class SettingsController extends Controller
         $user->name = $request->name;
 
         if ($request->hasFile('avatar')) {
-            $uploadDir = public_path('uploads/avatars');
+            $uploadDir = public_path('attachments/avatars');
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
-            // Delete old avatar if it's in our uploads folder
-            if ($user->avatar && str_starts_with($user->avatar, 'public/uploads/')) {
-                $oldPath = base_path($user->avatar);
+            // Delete old avatar if it's in our attachments folder
+            if ($user->avatar) {
+                $oldPath = public_path('attachments/' . $user->avatar);
                 if (file_exists($oldPath)) @unlink($oldPath);
             }
 
             $file     = $request->file('avatar');
             $filename = 'avatar_' . $user->id . '_' . time() . '.' . $file->getClientOriginalExtension();
             $file->move($uploadDir, $filename);
-            $user->avatar = 'public/uploads/avatars/' . $filename;
+            $user->avatar = 'avatars/' . $filename;
         }
 
         $user->save();

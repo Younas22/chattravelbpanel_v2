@@ -73,6 +73,8 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     Route::get('/groups', [AdminGroupController::class, 'index'])->name('groups.index');
     Route::post('/groups', [AdminGroupController::class, 'store'])->name('groups.store');
     Route::get('/groups/{group}', [AdminGroupController::class, 'show'])->name('groups.show');
+    Route::patch('/groups/{group}', [AdminGroupController::class, 'update'])->name('groups.update');
+    Route::post('/groups/{group}/image', [AdminGroupController::class, 'updateImage'])->name('groups.image');
     Route::get('/groups/{group}/messages', [AdminGroupController::class, 'pollMessages'])->name('groups.poll');
     Route::post('/groups/{group}/message', [AdminGroupController::class, 'sendMessage'])->name('groups.message');
     Route::post('/groups/{group}/members', [AdminGroupController::class, 'addMember'])->name('groups.members.add');
@@ -125,6 +127,7 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     Route::post('/settings/general', [SettingsController::class, 'updateGeneral'])->name('settings.general.update');
     Route::get('/settings/pusher', [SettingsController::class, 'pusher'])->name('settings.pusher');
     Route::post('/settings/pusher', [SettingsController::class, 'updatePusher'])->name('settings.pusher.update');
+    Route::get('/settings/profile', [SettingsController::class, 'profile'])->name('settings.profile');
     Route::post('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile.update');
 });
 

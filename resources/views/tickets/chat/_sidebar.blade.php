@@ -32,7 +32,7 @@
         @forelse($groups as $g)
         <a href="{{ route('tickets.chat.show', $g) }}"
            class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors {{ $activeType === 'group' && $activeId === $g->id ? 'bg-blue-50 border-l-2 border-blue-500' : '' }}">
-            <x-avatar :name="$g->name" />
+            <x-avatar :name="$g->name" :image="$g->profileImageUrl()" />
             <div class="flex-1 min-w-0">
                 <div class="flex items-center justify-between gap-1">
                     <span class="text-sm font-semibold text-slate-900 truncate">{{ $g->name }}</span>

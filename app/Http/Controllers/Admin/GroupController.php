@@ -66,6 +66,37 @@ class GroupController extends Controller
         return view('admin.groups.show', compact('group', 'availableUsers', 'groups'));
     }
 
+    public function update(Request $request, Group $group)
+    {
+        $request->validate([
+            'name'        => 'required|string|max:150',
+            'description' => 'nullable|string|max:500',
+        ]);
+
+        $group->update([
+            'name'        => $request->name,
+            'description' => $request->description,
+        ]);
+
+        return response()->json(['success' => true]);
+    }
+
+    public function updateImage(Request $request, Group $group)
+    {
+        $request->validate([
+            'image' => 'required|image|max:2048',
+        ]);
+
+        if ($group->profile_image) {
+            Storage::disk('public_direct')->delete($group->profile_image);
+        }
+
+        $path = $request->file('image')->store('group-avatars', 'public_direct');
+        $group->update(['profile_image' => $path]);
+
+        return response()->json(['success' => true]);
+    }
+
     public function sendMessage(Request $request, Group $group)
     {
         $request->validate([

@@ -28,9 +28,7 @@
                 @foreach($groups as $group)
                 <a href="{{ route('admin.groups.show', $group) }}" class="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors">
                     <div class="relative shrink-0">
-                        <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold">
-                            {{ strtoupper(substr($group->name, 0, 1)) }}
-                        </div>
+                        <x-avatar :name="$group->name" :image="$group->profileImageUrl()" size-class="w-10 h-10" />
                         @if($group->unread_admin > 0)
                             <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] rounded-full flex items-center justify-center font-bold">{{ $group->unread_admin > 9 ? '9+' : $group->unread_admin }}</span>
                         @endif

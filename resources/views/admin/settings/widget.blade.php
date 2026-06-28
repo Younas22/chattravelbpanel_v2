@@ -297,6 +297,7 @@
 <div class="flex items-center gap-4 mt-4">
     <a href="{{ route('admin.settings.general') }}" class="btn-secondary cursor-pointer">SMTP Settings</a>
     <a href="{{ route('admin.settings.pusher') }}" class="btn-secondary cursor-pointer">Pusher Settings</a>
+    <a href="{{ route('admin.settings.profile') }}" class="btn-secondary cursor-pointer">Profile</a>
 </div>
 @endsection
 

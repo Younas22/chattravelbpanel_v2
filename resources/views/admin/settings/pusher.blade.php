@@ -8,6 +8,7 @@
         <a href="{{ route('admin.settings.widget') }}" class="btn-secondary">Widget</a>
         <a href="{{ route('admin.settings.general') }}" class="btn-secondary">SMTP</a>
         <span class="btn-primary">Pusher</span>
+        <a href="{{ route('admin.settings.profile') }}" class="btn-secondary">Profile</a>
     </div>
 
     <div class="card">

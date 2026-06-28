@@ -10,9 +10,7 @@
 
         <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold">
-                    {{ strtoupper(substr($group->name, 0, 1)) }}
-                </div>
+                <x-avatar :name="$group->name" :image="$group->profileImageUrl()" size-class="w-10 h-10" />
                 <div>
                     <p class="font-semibold text-slate-900 text-sm">{{ $group->name }}</p>
                     <p class="text-xs text-slate-500">{{ $group->members->count() }} member{{ $group->members->count() !== 1 ? 's' : '' }}</p>

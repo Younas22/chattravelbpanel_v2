@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Group extends Model
 {
     protected $fillable = [
-        'name', 'description', 'created_by', 'unread_admin',
+        'name', 'description', 'profile_image', 'created_by', 'unread_admin',
     ];
 
     public function members(): BelongsToMany
@@ -34,5 +34,11 @@ class Group extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function profileImageUrl(): ?string
+    {
+        if (!$this->profile_image) return null;
+        return rtrim(config('app.url'), '/') . '/attachments/' . $this->profile_image;
     }
 }
