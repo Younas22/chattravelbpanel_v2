@@ -40,7 +40,7 @@ class GroupChatController extends Controller
             return redirect()->route('tickets.chat.index')->with('error', 'You do not have access to this group.');
         }
 
-        $group->load(['members', 'messages']);
+        $group->load(['members', 'messages.replyTo']);
         $group->members()->updateExistingPivot($user->id, ['last_read_at' => now()]);
 
         $groups = $this->sidebarGroups($user);
@@ -73,6 +73,7 @@ class GroupChatController extends Controller
 
         $data = [
             'group_id'    => $group->id,
+            'reply_to_id' => $request->integer('reply_to_id') ?: null,
             'sender_type' => 'ticket_user',
             'sender_id'   => $user->id,
             'body'        => $request->body,
@@ -120,11 +121,13 @@ class GroupChatController extends Controller
         $afterId = $request->integer('after_id', 0);
 
         $messages = $group->messages()
+            ->with('replyTo')
             ->when($afterId, fn($q) => $q->where('id', '>', $afterId))
             ->get()
             ->map(fn($m) => [
                 'id'              => $m->id,
                 'sender_type'     => $m->sender_type,
+                'sender_id'       => $m->sender_id,
                 'sender_name'     => $m->sender_name,
                 'sender_avatar'   => $m->sender_avatar,
                 'body'            => $m->body,
@@ -132,6 +135,14 @@ class GroupChatController extends Controller
                 'attachment_name' => $m->attachment_name,
                 'attachment_type' => $m->attachment_type,
                 'created_at'      => $m->created_at->toISOString(),
+                'reply_to'        => $m->replyTo ? [
+                    'id'              => $m->replyTo->id,
+                    'body'            => $m->replyTo->body,
+                    'sender_type'     => $m->replyTo->sender_type,
+                    'sender_id'       => $m->replyTo->sender_id,
+                    'sender_name'     => $m->replyTo->sender_name,
+                    'attachment_name' => $m->replyTo->attachment_name,
+                ] : null,
             ]);
 
         if ($messages->isNotEmpty()) {

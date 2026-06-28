@@ -54,7 +54,7 @@ class GroupController extends Controller
 
     public function show(Group $group)
     {
-        $group->load(['members', 'messages']);
+        $group->load(['members', 'messages.replyTo']);
         $group->update(['unread_admin' => 0]);
 
         $availableUsers = TicketUser::whereNotIn('id', $group->members->pluck('id'))
@@ -79,6 +79,7 @@ class GroupController extends Controller
 
         $data = [
             'group_id'    => $group->id,
+            'reply_to_id' => $request->integer('reply_to_id') ?: null,
             'sender_type' => 'admin',
             'sender_id'   => auth()->id(),
             'body'        => $request->body,
@@ -114,6 +115,7 @@ class GroupController extends Controller
         $afterId = $request->integer('after_id', 0);
 
         $messages = $group->messages()
+            ->with('replyTo')
             ->when($afterId, fn($q) => $q->where('id', '>', $afterId))
             ->get()
             ->map(fn($m) => [
@@ -126,6 +128,13 @@ class GroupController extends Controller
                 'attachment_name' => $m->attachment_name,
                 'attachment_type' => $m->attachment_type,
                 'created_at'      => $m->created_at->toISOString(),
+                'reply_to'        => $m->replyTo ? [
+                    'id'              => $m->replyTo->id,
+                    'body'            => $m->replyTo->body,
+                    'sender_type'     => $m->replyTo->sender_type,
+                    'sender_name'     => $m->replyTo->sender_name,
+                    'attachment_name' => $m->replyTo->attachment_name,
+                ] : null,
             ]);
 
         if ($messages->isNotEmpty()) {

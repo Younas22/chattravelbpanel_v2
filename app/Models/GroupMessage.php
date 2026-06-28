@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class GroupMessage extends Model
 {
     protected $fillable = [
-        'group_id', 'sender_type', 'sender_id', 'body',
+        'group_id', 'reply_to_id', 'sender_type', 'sender_id', 'body',
         'attachment_path', 'attachment_name', 'attachment_mime',
         'attachment_size', 'attachment_type',
     ];
@@ -18,6 +18,11 @@ class GroupMessage extends Model
     public function group(): BelongsTo
     {
         return $this->belongsTo(Group::class);
+    }
+
+    public function replyTo(): BelongsTo
+    {
+        return $this->belongsTo(GroupMessage::class, 'reply_to_id');
     }
 
     public function getAttachmentUrlAttribute(): ?string

@@ -19,7 +19,7 @@ class DirectMessageController extends Controller
 
     public function show(Request $request, TicketUser $ticketUser)
     {
-        $messages = DirectMessage::betweenAdminAndTicketUser($ticketUser->id)->orderBy('created_at')->get();
+        $messages = DirectMessage::betweenAdminAndTicketUser($ticketUser->id)->with('replyTo')->orderBy('created_at')->get();
 
         DirectMessage::where('sender_type', 'ticket_user')->where('sender_id', $ticketUser->id)
             ->where('recipient_type', 'admin')
@@ -43,6 +43,7 @@ class DirectMessageController extends Controller
         }
 
         $data = [
+            'reply_to_id'    => $request->integer('reply_to_id') ?: null,
             'sender_type'    => 'admin',
             'sender_id'      => auth()->id(),
             'recipient_type' => 'ticket_user',
@@ -73,6 +74,7 @@ class DirectMessageController extends Controller
         $afterId = $request->integer('after_id', 0);
 
         $messages = DirectMessage::betweenAdminAndTicketUser($ticketUser->id)
+            ->with('replyTo')
             ->when($afterId, fn($q) => $q->where('id', '>', $afterId))
             ->orderBy('created_at')
             ->get()
@@ -85,6 +87,13 @@ class DirectMessageController extends Controller
                 'attachment_name' => $m->attachment_name,
                 'attachment_type' => $m->attachment_type,
                 'created_at'      => $m->created_at->toISOString(),
+                'reply_to'        => $m->replyTo ? [
+                    'id'              => $m->replyTo->id,
+                    'body'            => $m->replyTo->body,
+                    'sender_type'     => $m->replyTo->sender_type,
+                    'sender_name'     => $m->replyTo->sender_name,
+                    'attachment_name' => $m->replyTo->attachment_name,
+                ] : null,
             ]);
 
         if ($messages->isNotEmpty()) {

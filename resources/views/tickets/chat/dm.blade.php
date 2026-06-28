@@ -22,10 +22,29 @@
 
         <div class="flex-1 overflow-y-auto p-5 space-y-3" id="messages-container">
             @forelse($messages as $msg)
-            <div class="flex {{ $msg->sender_id === auth('ticket_user')->id() ? 'justify-start' : 'justify-end' }}">
+            @php $isMine = $msg->sender_id === auth('ticket_user')->id(); @endphp
+            <div class="group flex items-start gap-2 {{ $isMine ? 'justify-start' : 'justify-end' }}">
+                @if(!$isMine)
+                <button onclick="dmSetReply({{ $msg->id }}, {{ json_encode($msg->body ?: ($msg->attachment_name ?? '')) }}, false)"
+                    class="opacity-0 group-hover:opacity-100 transition-opacity mt-2 p-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 cursor-pointer shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                </button>
+                @endif
                 <div class="max-w-[70%]">
+                    @if($msg->replyTo)
+                    @php $replyIsMine = $msg->replyTo->sender_id === auth('ticket_user')->id(); @endphp
+                    <div class="mb-1 px-3 py-1.5 rounded-xl border-l-4 {{ $isMine ? 'border-white/50 bg-blue-500/30' : 'border-blue-400 bg-slate-100' }} text-xs text-slate-500 truncate">
+                        <span class="font-semibold {{ $isMine ? 'text-white/80' : 'text-blue-600' }}">
+                            {{ $replyIsMine ? 'You' : $contact->full_name }}
+                        </span>
+                        <span class="{{ $isMine ? 'text-white/70' : 'text-slate-500' }}">
+                            {{ $msg->replyTo->body ? Str::limit($msg->replyTo->body, 60) : ($msg->replyTo->attachment_name ?? '📎 Attachment') }}
+                        </span>
+                    </div>
+                    @endif
+
                     @if($msg->body)
-                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_id === auth('ticket_user')->id() ? 'bg-blue-600 text-white rounded-bl-sm' : 'bg-slate-100 text-slate-900 rounded-br-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
+                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $isMine ? 'bg-blue-600 text-white rounded-bl-sm' : 'bg-slate-100 text-slate-900 rounded-br-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
                             {!! nl2br(e($msg->body)) !!}
                         </div>
                     @endif
@@ -48,16 +67,33 @@
                         </div>
                     @endif
 
-                    <p class="text-[10px] text-slate-400 mt-1 {{ $msg->sender_id === auth('ticket_user')->id() ? '' : 'text-right' }}">{{ $msg->created_at->format('M j, H:i') }}</p>
+                    <p class="text-[10px] text-slate-400 mt-1 {{ $isMine ? '' : 'text-right' }}">{{ $msg->created_at->format('M j, H:i') }}</p>
                 </div>
+                @if($isMine)
+                <button onclick="dmSetReply({{ $msg->id }}, {{ json_encode($msg->body ?: ($msg->attachment_name ?? '')) }}, true)"
+                    class="opacity-0 group-hover:opacity-100 transition-opacity mt-2 p-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 cursor-pointer shrink-0">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                </button>
+                @endif
             </div>
             @empty
             <div class="py-10 text-center text-slate-400 text-sm">No messages yet. Say hello to {{ $contact->full_name }}!</div>
             @endforelse
 
             <template x-for="msg in newMessages" :key="msg.id">
-                <div class="flex" :class="msg.is_mine ? 'justify-start' : 'justify-end'">
+                <div class="group flex items-start gap-2" :class="msg.is_mine ? 'justify-start' : 'justify-end'">
+                    <template x-if="!msg.is_mine">
+                        <button @click="setReply(msg)"
+                            class="opacity-0 group-hover:opacity-100 transition-opacity mt-2 p-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 cursor-pointer shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                        </button>
+                    </template>
                     <div class="max-w-[70%]">
+                        <div x-show="msg.reply_to" class="mb-1 px-3 py-1.5 rounded-xl border-l-4 text-xs truncate"
+                             :class="msg.is_mine ? 'border-white/50 bg-blue-500/30 text-white/70' : 'border-blue-400 bg-slate-100 text-slate-500'">
+                            <span class="font-semibold" x-text="msg.reply_to?.is_mine ? 'You' : '{{ $contact->full_name }}'"></span>
+                            <span x-text="msg.reply_to?.body ? msg.reply_to.body.slice(0,60) : (msg.reply_to?.attachment_name || '📎 Attachment')"></span>
+                        </div>
                         <div x-show="msg.body"
                             :class="msg.is_mine ? 'bg-blue-600 text-white rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-br-sm px-4 py-2.5 text-sm'"
                             style="overflow-wrap:break-word;word-break:break-word;"
@@ -76,11 +112,28 @@
                         </div>
                         <p class="text-[10px] text-slate-400 mt-1" :class="msg.is_mine ? '' : 'text-right'" x-text="formatTime(msg.created_at)"></p>
                     </div>
+                    <template x-if="msg.is_mine">
+                        <button @click="setReply(msg)"
+                            class="opacity-0 group-hover:opacity-100 transition-opacity mt-2 p-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 cursor-pointer shrink-0">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>
+                        </button>
+                    </template>
                 </div>
             </template>
         </div>
 
         <div class="border-t border-slate-100 px-4 pt-3 pb-4">
+            {{-- Reply-to preview --}}
+            <div x-show="replyTo" x-cloak class="mb-2 flex items-center gap-2 pl-3 pr-2 py-2 bg-blue-50 border-l-4 border-blue-500 rounded-xl">
+                <div class="flex-1 min-w-0">
+                    <p class="text-[11px] font-semibold text-blue-600" x-text="replyTo?.is_mine ? 'Replying to yourself' : 'Replying to {{ $contact->full_name }}'"></p>
+                    <p class="text-xs text-slate-600 truncate" x-text="replyTo?.body ? replyTo.body.slice(0,80) : (replyTo?.attachment_name || '📎 Attachment')"></p>
+                </div>
+                <button @click="clearReply()" class="text-slate-400 hover:text-red-500 transition-colors cursor-pointer shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
             <div x-show="filePreview" x-cloak class="mb-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-2">
                 <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                 <span class="text-xs text-slate-700 truncate flex-1" x-text="filePreview"></span>
@@ -126,6 +179,11 @@
 
 @push('scripts')
 <script>
+// Bridge so static Blade reply buttons can call Alpine's setReply
+function dmSetReply(id, body, isMine) {
+    if (window._dmChatInstance) window._dmChatInstance.setReply({ id, body, is_mine: isMine });
+}
+
 function dmChat(contactId) {
     return {
         message: '',
@@ -135,8 +193,18 @@ function dmChat(contactId) {
         selectedFile: null,
         filePreview: '',
         showEmoji: false,
+        replyTo: null,
         pollUrl: '{{ route('tickets.chat.dm.poll', $contact) }}',
         sendUrl: '{{ route('tickets.chat.dm.message', $contact) }}',
+
+        setReply(msg) {
+            this.replyTo = { id: msg.id, body: msg.body, is_mine: msg.is_mine, attachment_name: msg.attachment_name };
+            this.$nextTick(() => this.$refs.msgInput?.focus());
+        },
+
+        clearReply() {
+            this.replyTo = null;
+        },
 
         insertEmoji(emoji) {
             const ta = this.$refs.msgInput;
@@ -151,6 +219,7 @@ function dmChat(contactId) {
         },
 
         init() {
+            window._dmChatInstance = this;
             this.$nextTick(() => this.scrollToBottom());
             this.startPolling();
         },
@@ -185,6 +254,7 @@ function dmChat(contactId) {
             const formData = new FormData();
             if (this.message.trim()) formData.append('body', this.message.trim());
             if (this.selectedFile) formData.append('attachment', this.selectedFile);
+            if (this.replyTo) formData.append('reply_to_id', this.replyTo.id);
             formData.append('_token', document.querySelector('meta[name="csrf-token"]').content);
 
             const self = this;
@@ -200,12 +270,14 @@ function dmChat(contactId) {
                             attachment_name: data.message.attachment_name,
                             attachment_type: data.message.attachment_type,
                             created_at: data.message.created_at,
+                            reply_to: self.replyTo ? { id: self.replyTo.id, body: self.replyTo.body, is_mine: self.replyTo.is_mine, attachment_name: self.replyTo.attachment_name } : null,
                         });
                         self.lastMessageId = Math.max(self.lastMessageId, data.message.id);
                         self.$nextTick(() => self.scrollToBottom());
                     }
                     self.sending = false;
                     self.message = '';
+                    self.clearReply();
                     self.clearFile();
                 })
                 .catch(() => { self.sending = false; });

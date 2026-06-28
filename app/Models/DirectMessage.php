@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DirectMessage extends Model
 {
     protected $fillable = [
-        'sender_type', 'sender_id', 'recipient_type', 'recipient_id', 'body',
+        'reply_to_id', 'sender_type', 'sender_id', 'recipient_type', 'recipient_id', 'body',
         'attachment_path', 'attachment_name', 'attachment_mime',
         'attachment_size', 'attachment_type', 'is_read',
     ];
@@ -67,5 +68,10 @@ class DirectMessage extends Model
             return optional(User::find($this->sender_id))->name ?? 'Support Team';
         }
         return optional(TicketUser::find($this->sender_id))->full_name ?? 'Member';
+    }
+
+    public function replyTo(): BelongsTo
+    {
+        return $this->belongsTo(DirectMessage::class, 'reply_to_id');
     }
 }
