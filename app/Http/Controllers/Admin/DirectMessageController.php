@@ -23,6 +23,7 @@ class DirectMessageController extends Controller
                     'profile_image_url' => $t->profileImageUrl(),
                     'last_message'      => $t->last_message?->body,
                     'unread_count'      => $t->unread_count,
+                    'is_online'         => $t->isOnline(),
                 ]),
             ]);
         }
@@ -46,6 +47,7 @@ class DirectMessageController extends Controller
                     'full_name'         => $ticketUser->full_name,
                     'email'             => $ticketUser->email,
                     'profile_image_url' => $ticketUser->profileImageUrl(),
+                    'is_online'         => $ticketUser->isOnline(),
                 ],
                 'messages' => $messages->map(fn($m) => $m->toApiArray()),
             ]);

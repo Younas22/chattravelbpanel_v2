@@ -44,6 +44,7 @@ class GroupChatController extends Controller
                     'profile_image_url' => $c->profileImageUrl(),
                     'unread_count'      => $c->unread_count,
                     'last_message'      => $c->last_message?->body,
+                    'is_online'         => $c->is_online,
                 ]),
                 'support_unread' => $supportUnread,
             ]);
@@ -84,6 +85,7 @@ class GroupChatController extends Controller
                     'full_name'         => $m->full_name,
                     'email'             => $m->email,
                     'profile_image_url' => $m->profileImageUrl(),
+                    'is_online'         => $m->isOnline(),
                 ]),
                 'messages' => $group->messages->map(fn($m) => $m->toApiArray()),
             ]);

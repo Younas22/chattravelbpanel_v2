@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'admin.auth' => \App\Http\Middleware\AdminAuth::class,
             'track.visitor' => \App\Http\Middleware\TrackVisitor::class,
+            'track.ticket_user' => \App\Http\Middleware\TrackTicketUserActivity::class,
         ]);
 
         // Allow CORS for chat API

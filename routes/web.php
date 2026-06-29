@@ -135,7 +135,7 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
 // =========================
 // Public Ticket System (clean URLs)
 // =========================
-Route::name('tickets.')->group(function () {
+Route::name('tickets.')->middleware('track.ticket_user')->group(function () {
     Route::get('/login',    [TicketController::class, 'loginForm'])->name('login');
     Route::post('/login',   [TicketController::class, 'login'])->name('login.post');
     Route::get('/register', [TicketController::class, 'registerForm'])->name('register');

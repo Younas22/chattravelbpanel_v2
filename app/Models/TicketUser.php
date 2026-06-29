@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasPresence;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,11 +10,11 @@ use Illuminate\Notifications\Notifiable;
 
 class TicketUser extends Authenticatable
 {
-    use Notifiable;
+    use Notifiable, HasPresence;
 
     protected $fillable = [
         'full_name', 'email', 'phone', 'company_name', 'password',
-        'widget_token', 'profile_image', 'social_links',
+        'widget_token', 'profile_image', 'social_links', 'last_seen_at',
     ];
 
     protected $hidden = ['password', 'remember_token'];
@@ -22,6 +23,7 @@ class TicketUser extends Authenticatable
         'email_verified_at' => 'datetime',
         'password'          => 'hashed',
         'social_links'      => 'array',
+        'last_seen_at'      => 'datetime',
     ];
 
     public function tickets(): HasMany

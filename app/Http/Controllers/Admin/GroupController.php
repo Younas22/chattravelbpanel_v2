@@ -91,6 +91,7 @@ class GroupController extends Controller
                     'full_name'         => $m->full_name,
                     'email'             => $m->email,
                     'profile_image_url' => $m->profileImageUrl(),
+                    'is_online'         => $m->isOnline(),
                 ]),
                 'messages' => $group->messages->map(fn($m) => $m->toApiArray()),
             ]);

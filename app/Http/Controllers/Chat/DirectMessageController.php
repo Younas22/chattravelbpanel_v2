@@ -41,6 +41,7 @@ class DirectMessageController extends Controller
                     'id'                => $contact->id,
                     'full_name'         => $contact->full_name,
                     'profile_image_url' => $contact->profileImageUrl(),
+                    'is_online'         => $contact->isOnline(),
                 ],
                 'messages' => $messages->map(fn($m) => $m->toApiArray($user->id, 'ticket_user')),
             ]);

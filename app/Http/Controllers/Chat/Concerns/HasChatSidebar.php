@@ -40,6 +40,7 @@ trait HasChatSidebar
                     ->where('recipient_type', 'ticket_user')->where('recipient_id', $user->id)
                     ->where('is_read', false)
                     ->count();
+                $contact->is_online = $contact->isOnline();
                 return $contact;
             });
     }
