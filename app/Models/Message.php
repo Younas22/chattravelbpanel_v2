@@ -9,7 +9,7 @@ class Message extends Model
 {
     protected $fillable = [
         'conversation_id', 'sender_type', 'sender_id', 'body',
-        'reply_to_id',
+        'reply_to_id', 'idempotency_key',
         'attachment_path', 'attachment_name', 'attachment_mime',
         'attachment_size', 'attachment_type', 'is_read', 'read_at',
     ];

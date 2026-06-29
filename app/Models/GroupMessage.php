@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class GroupMessage extends Model
 {
     protected $fillable = [
-        'group_id', 'reply_to_id', 'sender_type', 'sender_id', 'body',
+        'group_id', 'reply_to_id', 'sender_type', 'sender_id', 'body', 'idempotency_key',
         'attachment_path', 'attachment_name', 'attachment_mime',
         'attachment_size', 'attachment_type',
     ];

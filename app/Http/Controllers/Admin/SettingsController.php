@@ -7,6 +7,7 @@ use App\Models\WidgetSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Hash;
 class SettingsController extends Controller
 {
     public function widget()
@@ -170,8 +171,15 @@ class SettingsController extends Controller
         return back()->with('success', 'Pusher settings updated.');
     }
 
-    public function profile()
+    public function profile(Request $request)
     {
+        if ($request->wantsJson()) {
+            return response()->json([
+                'name'       => auth()->user()->name,
+                'avatar_url' => auth()->user()->avatar_url,
+            ]);
+        }
+
         return view('admin.settings.profile');
     }
 
@@ -203,7 +211,41 @@ class SettingsController extends Controller
 
         $user->save();
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success'    => true,
+                'name'       => $user->name,
+                'avatar_url' => $user->avatar_url,
+            ]);
+        }
+
         return back()->with('success', 'Profile updated successfully.');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'password'         => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = auth()->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'Current password is incorrect.'], 422);
+            }
+            return back()->withErrors(['current_password' => 'Current password is incorrect.']);
+        }
+
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', 'Password updated successfully.');
     }
 
     private function updateEnv(array $data): void

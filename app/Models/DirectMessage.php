@@ -10,7 +10,7 @@ class DirectMessage extends Model
 {
     protected $fillable = [
         'reply_to_id', 'sender_type', 'sender_id', 'recipient_type', 'recipient_id', 'body',
-        'attachment_path', 'attachment_name', 'attachment_mime',
+        'idempotency_key', 'attachment_path', 'attachment_name', 'attachment_mime',
         'attachment_size', 'attachment_type', 'is_read',
     ];
 

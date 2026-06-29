@@ -139,20 +139,36 @@ class GroupController extends Controller
     public function sendMessage(Request $request, Group $group)
     {
         $request->validate([
-            'body'       => 'nullable|string|max:5000',
-            'attachment' => 'nullable|file|max:20480|mimes:jpg,jpeg,png,gif,webp,pdf,xml,zip,mp4,txt',
+            'body'            => 'nullable|string|max:5000',
+            'attachment'      => 'nullable|file|max:20480|mimes:jpg,jpeg,png,gif,webp,pdf,xml,zip,mp4,txt',
+            'idempotency_key' => 'nullable|string|max:64',
         ]);
 
         if (!$request->body && !$request->hasFile('attachment')) {
             return response()->json(['error' => 'Message or attachment required.'], 422);
         }
 
+        // Idempotency: a retried send (e.g. the desktop app's offline queue
+        // replaying after a dropped connection) reuses the same key, so a
+        // request that actually went through but lost its response returns
+        // the original message here instead of creating a duplicate.
+        if ($request->idempotency_key) {
+            $existing = GroupMessage::where('idempotency_key', $request->idempotency_key)->first();
+            if ($existing) {
+                return response()->json([
+                    'message'        => $existing,
+                    'attachment_url' => $existing->attachment_url,
+                ]);
+            }
+        }
+
         $data = [
-            'group_id'    => $group->id,
-            'reply_to_id' => $request->integer('reply_to_id') ?: null,
-            'sender_type' => 'admin',
-            'sender_id'   => auth()->id(),
-            'body'        => $request->body,
+            'group_id'        => $group->id,
+            'reply_to_id'     => $request->integer('reply_to_id') ?: null,
+            'sender_type'     => 'admin',
+            'sender_id'       => auth()->id(),
+            'body'            => $request->body,
+            'idempotency_key' => $request->idempotency_key,
         ];
 
         if ($request->hasFile('attachment')) {

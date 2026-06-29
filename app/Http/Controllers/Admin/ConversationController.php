@@ -77,12 +77,23 @@ class ConversationController extends Controller
     public function sendMessage(Request $request, Conversation $conversation)
     {
         $request->validate([
-            'body'       => 'nullable|string|max:5000',
-            'attachment' => 'nullable|file|max:20480|mimes:jpg,jpeg,png,gif,webp,pdf,xml,zip,mp4,txt',
+            'body'            => 'nullable|string|max:5000',
+            'attachment'      => 'nullable|file|max:20480|mimes:jpg,jpeg,png,gif,webp,pdf,xml,zip,mp4,txt',
+            'idempotency_key' => 'nullable|string|max:64',
         ]);
 
         if (!$request->body && !$request->hasFile('attachment')) {
             return response()->json(['error' => 'Message or attachment required.'], 422);
+        }
+
+        if ($request->idempotency_key) {
+            $existing = Message::where('idempotency_key', $request->idempotency_key)->first();
+            if ($existing) {
+                return response()->json([
+                    'message'        => $existing,
+                    'attachment_url' => $existing->attachment_url,
+                ]);
+            }
         }
 
         $data = [
@@ -91,6 +102,7 @@ class ConversationController extends Controller
             'sender_id'       => auth()->id(),
             'body'            => $request->body,
             'reply_to_id'     => $request->integer('reply_to_id') ?: null,
+            'idempotency_key' => $request->idempotency_key,
         ];
 
         if ($request->hasFile('attachment')) {

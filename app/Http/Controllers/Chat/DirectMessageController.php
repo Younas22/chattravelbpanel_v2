@@ -66,21 +66,33 @@ class DirectMessageController extends Controller
         }
 
         $request->validate([
-            'body'       => 'nullable|string|max:5000',
-            'attachment' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,zip,txt',
+            'body'            => 'nullable|string|max:5000',
+            'attachment'      => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,zip,txt',
+            'idempotency_key' => 'nullable|string|max:64',
         ]);
 
         if (!$request->body && !$request->hasFile('attachment')) {
             return response()->json(['error' => 'Message or attachment required.'], 422);
         }
 
+        if ($request->idempotency_key) {
+            $existing = DirectMessage::where('idempotency_key', $request->idempotency_key)->first();
+            if ($existing) {
+                return response()->json([
+                    'message'        => $existing,
+                    'attachment_url' => $existing->attachment_url,
+                ]);
+            }
+        }
+
         $data = [
-            'reply_to_id'    => $request->integer('reply_to_id') ?: null,
-            'sender_type'    => 'ticket_user',
-            'sender_id'      => $user->id,
-            'recipient_type' => 'ticket_user',
-            'recipient_id'   => $contact->id,
-            'body'           => $request->body,
+            'reply_to_id'     => $request->integer('reply_to_id') ?: null,
+            'sender_type'     => 'ticket_user',
+            'sender_id'       => $user->id,
+            'recipient_type'  => 'ticket_user',
+            'recipient_id'    => $contact->id,
+            'body'            => $request->body,
+            'idempotency_key' => $request->idempotency_key,
         ];
 
         if ($request->hasFile('attachment')) {
@@ -173,21 +185,33 @@ class DirectMessageController extends Controller
         $user = auth('ticket_user')->user();
 
         $request->validate([
-            'body'       => 'nullable|string|max:5000',
-            'attachment' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,zip,txt',
+            'body'            => 'nullable|string|max:5000',
+            'attachment'      => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,zip,txt',
+            'idempotency_key' => 'nullable|string|max:64',
         ]);
 
         if (!$request->body && !$request->hasFile('attachment')) {
             return response()->json(['error' => 'Message or attachment required.'], 422);
         }
 
+        if ($request->idempotency_key) {
+            $existing = DirectMessage::where('idempotency_key', $request->idempotency_key)->first();
+            if ($existing) {
+                return response()->json([
+                    'message'        => $existing,
+                    'attachment_url' => $existing->attachment_url,
+                ]);
+            }
+        }
+
         $data = [
-            'reply_to_id'    => $request->integer('reply_to_id') ?: null,
-            'sender_type'    => 'ticket_user',
-            'sender_id'      => $user->id,
-            'recipient_type' => 'admin',
-            'recipient_id'   => 0,
-            'body'           => $request->body,
+            'reply_to_id'     => $request->integer('reply_to_id') ?: null,
+            'sender_type'     => 'ticket_user',
+            'sender_id'       => $user->id,
+            'recipient_type'  => 'admin',
+            'recipient_id'    => 0,
+            'body'            => $request->body,
+            'idempotency_key' => $request->idempotency_key,
         ];
 
         if ($request->hasFile('attachment')) {

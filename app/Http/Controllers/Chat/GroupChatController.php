@@ -109,20 +109,32 @@ class GroupChatController extends Controller
         }
 
         $request->validate([
-            'body'       => 'nullable|string|max:5000',
-            'attachment' => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,zip,txt',
+            'body'            => 'nullable|string|max:5000',
+            'attachment'      => 'nullable|file|max:10240|mimes:jpg,jpeg,png,gif,webp,pdf,zip,txt',
+            'idempotency_key' => 'nullable|string|max:64',
         ]);
 
         if (!$request->body && !$request->hasFile('attachment')) {
             return response()->json(['error' => 'Message or attachment required.'], 422);
         }
 
+        if ($request->idempotency_key) {
+            $existing = GroupMessage::where('idempotency_key', $request->idempotency_key)->first();
+            if ($existing) {
+                return response()->json([
+                    'message'        => $existing,
+                    'attachment_url' => $existing->attachment_url,
+                ]);
+            }
+        }
+
         $data = [
-            'group_id'    => $group->id,
-            'reply_to_id' => $request->integer('reply_to_id') ?: null,
-            'sender_type' => 'ticket_user',
-            'sender_id'   => $user->id,
-            'body'        => $request->body,
+            'group_id'        => $group->id,
+            'reply_to_id'     => $request->integer('reply_to_id') ?: null,
+            'sender_type'     => 'ticket_user',
+            'sender_id'       => $user->id,
+            'body'            => $request->body,
+            'idempotency_key' => $request->idempotency_key,
         ];
 
         if ($request->hasFile('attachment')) {

@@ -129,6 +129,7 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     Route::post('/settings/pusher', [SettingsController::class, 'updatePusher'])->name('settings.pusher.update');
     Route::get('/settings/profile', [SettingsController::class, 'profile'])->name('settings.profile');
     Route::post('/settings/profile', [SettingsController::class, 'updateProfile'])->name('settings.profile.update');
+    Route::post('/settings/profile/password', [SettingsController::class, 'updatePassword'])->name('settings.profile.password');
 });
 
 // =========================
