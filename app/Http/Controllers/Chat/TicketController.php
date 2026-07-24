@@ -182,19 +182,50 @@ class TicketController extends Controller
         return redirect()->route('tickets.login');
     }
 
-    public function profileForm()
+    public function profileForm(Request $request)
     {
         if (!auth('ticket_user')->check()) {
-            return redirect()->route('tickets.login');
+            return $request->wantsJson()
+                ? response()->json(['error' => 'Unauthenticated.'], 401)
+                : redirect()->route('tickets.login');
         }
+
         $user = auth('ticket_user')->user();
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'name'       => $user->full_name,
+                'avatar_url' => $user->profileImageUrl(),
+            ]);
+        }
+
         return view('tickets.profile', compact('user'));
     }
 
     public function updateProfile(Request $request)
     {
         if (!auth('ticket_user')->check()) {
-            return redirect()->route('tickets.login');
+            return $request->wantsJson()
+                ? response()->json(['error' => 'Unauthenticated.'], 401)
+                : redirect()->route('tickets.login');
+        }
+
+        // The desktop app's JSON form only ever edits the name (mirrors the
+        // admin desktop profile form) - it must not touch phone/social_links,
+        // since defaulting those to null/[] here would silently wipe out
+        // values the customer already set via the web profile page.
+        if ($request->wantsJson()) {
+            $request->validate([
+                'full_name' => 'required|string|max:200',
+            ]);
+
+            $user = auth('ticket_user')->user();
+            $user->update(['full_name' => $request->full_name]);
+
+            return response()->json([
+                'name'       => $user->full_name,
+                'avatar_url' => $user->profileImageUrl(),
+            ]);
         }
 
         $request->validate([
@@ -218,7 +249,9 @@ class TicketController extends Controller
     public function updatePassword(Request $request)
     {
         if (!auth('ticket_user')->check()) {
-            return redirect()->route('tickets.login');
+            return $request->wantsJson()
+                ? response()->json(['error' => 'Unauthenticated.'], 401)
+                : redirect()->route('tickets.login');
         }
 
         $request->validate([
@@ -229,10 +262,17 @@ class TicketController extends Controller
         $user = auth('ticket_user')->user();
 
         if (!Hash::check($request->current_password, $user->password)) {
+            if ($request->wantsJson()) {
+                return response()->json(['error' => 'Current password is incorrect.'], 422);
+            }
             return back()->withErrors(['current_password' => 'Current password is incorrect.'])->withInput();
         }
 
         $user->update(['password' => Hash::make($request->password)]);
+
+        if ($request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
 
         return back()->with('success', 'Password updated successfully.');
     }
@@ -240,7 +280,9 @@ class TicketController extends Controller
     public function updateProfileImage(Request $request)
     {
         if (!auth('ticket_user')->check()) {
-            return redirect()->route('tickets.login');
+            return $request->wantsJson()
+                ? response()->json(['error' => 'Unauthenticated.'], 401)
+                : redirect()->route('tickets.login');
         }
 
         $request->validate([
@@ -255,6 +297,13 @@ class TicketController extends Controller
 
         $path = $request->file('image')->store('ticket-avatars', 'public_direct');
         $user->update(['profile_image' => $path]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'name'       => $user->full_name,
+                'avatar_url' => $user->profileImageUrl(),
+            ]);
+        }
 
         return back()->with('success', 'Profile image updated.');
     }

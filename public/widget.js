@@ -116,8 +116,11 @@
       #tbp-close, #tbp-expand { background: rgba(255,255,255,0.2); border: none; border-radius: 8px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: ${t}; transition: background 0.2s; flex-shrink: 0; }
       #tbp-close:hover, #tbp-expand:hover { background: rgba(255,255,255,0.3); }
       #tbp-header-actions { display: flex; align-items: center; gap: 6px; }
-      /* WhatsApp chat message */
-      .tbp-wa-chat-bubble { background: ${dark ? '#1a2e1a' : '#f0fdf4'}; border: 1px solid ${dark ? '#166534' : '#bbf7d0'}; border-radius: 14px; border-top-left-radius: 4px; padding: 8px 10px; display: flex; flex-direction: column; gap: 5px; }
+      #tbp-header-wa { background: ${dark ? '#0f172a' : '#f8fafc'}; border-bottom: 1px solid ${dark ? '#334155' : '#e5e7eb'}; padding: 8px 16px; flex-shrink: 0; }
+      #tbp-header-wa-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: ${dark ? '#94a3b8' : '#9ca3af'}; margin-bottom: 6px; }
+      #tbp-header-wa-list { display: flex; gap: 6px; overflow-x: auto; }
+      #tbp-header-wa-list .tbp-wa-chat-btn { flex-shrink: 0; }
+      /* WhatsApp contacts */
       .tbp-wa-chat-btn { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px 5px 5px; border-radius: 20px; background: #25d366; text-decoration: none; transition: opacity 0.15s; }
       .tbp-wa-chat-btn:hover { opacity: 0.88; }
       .tbp-wa-chat-icon { width: 20px; height: 20px; border-radius: 50%; background: rgba(0,0,0,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -266,6 +269,8 @@
           </div>
         </div>
 
+        ${renderHeaderWhatsapp()}
+
         <div id="tbp-body">
           ${state.view === 'home' ? renderHome() : renderChat()}
         </div>
@@ -282,6 +287,24 @@
     if (state.view === 'chat' && state.isOpen) {
       scrollBottomDeferred();
     }
+  }
+
+  function renderHeaderWhatsapp() {
+    const waContacts = Array.isArray(settings.whatsapp_contacts) ? settings.whatsapp_contacts : [];
+    if (!waContacts.length) return '';
+    const waIconWhite = `<svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.116 1.528 5.85L.057 23.01a.75.75 0 00.932.933l5.16-1.471A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.846 0-3.575-.497-5.067-1.362l-.363-.214-3.763 1.073 1.073-3.763-.214-.363A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`;
+    const btns = waContacts.map(c => `
+      <a class="tbp-wa-chat-btn" href="https://wa.me/${esc(c.number)}?text=${encodeURIComponent('Hi! I am contacting from your website.')}" target="_blank" rel="noopener" data-wa-number="${esc(c.number)}" data-wa-label="${esc(c.label || '')}">
+        <div class="tbp-wa-chat-icon">${waIconWhite}</div>
+        <div class="tbp-wa-chat-info">
+          ${c.label ? `<span class="tbp-wa-chat-name">${esc(c.label)}</span>` : ''}
+          <span class="tbp-wa-chat-num">+${esc(c.number)}</span>
+        </div>
+      </a>`).join('');
+    return `<div id="tbp-header-wa">
+      <p id="tbp-header-wa-title">WhatsApp Contacts</p>
+      <div id="tbp-header-wa-list">${btns}</div>
+    </div>`;
   }
 
   function renderHome() {
@@ -310,25 +333,6 @@
         <div class="tbp-open-ticket-text"><h4>Open a Ticket</h4><p>Track your issue &amp; get a response</p></div>
       </a>
       ${settings.show_branding === 'true' ? '<div class="tbp-branding">Powered by <a href="https://travelbookingpanel.com" target="_blank">TravelBookingPanel</a></div>' : ''}
-    </div>`;
-  }
-
-  function renderWhatsappContactsMsg(m) {
-    const time = new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const waIconWhite = `<svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.116 1.528 5.85L.057 23.01a.75.75 0 00.932.933l5.16-1.471A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.846 0-3.575-.497-5.067-1.362l-.363-.214-3.763 1.073 1.073-3.763-.214-.363A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`;
-    const btns = (m.contacts || []).map(c => `
-      <a class="tbp-wa-chat-btn" href="https://wa.me/${esc(c.number)}?text=${encodeURIComponent('Hi! I am contacting from your website.')}" target="_blank" rel="noopener" data-wa-number="${esc(c.number)}" data-wa-label="${esc(c.label || '')}">
-        <div class="tbp-wa-chat-icon">${waIconWhite}</div>
-        <div class="tbp-wa-chat-info">
-          ${c.label ? `<span class="tbp-wa-chat-name">${esc(c.label)}</span>` : ''}
-          <span class="tbp-wa-chat-num">+${esc(c.number)}</span>
-        </div>
-      </a>`).join('');
-    return `<div class="tbp-msg-row admin">
-      <div class="tbp-msg admin">
-        <div class="tbp-wa-chat-bubble">${btns}</div>
-        <span class="tbp-time">${time}</span>
-      </div>
     </div>`;
   }
 
@@ -375,7 +379,6 @@
   function iconReply() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/></svg>`; }
 
   function renderMessage(m) {
-    if (m.msg_type === 'whatsapp_contacts') return renderWhatsappContactsMsg(m);
     const isVisitor = m.sender_type === 'visitor';
     const side = isVisitor ? 'visitor' : 'admin';
     const cls = isVisitor ? 'visitor' : (m.sender_type === 'bot' ? 'bot' : 'admin');
@@ -615,16 +618,6 @@
         body: settings.welcome_message,
         created_at: new Date().toISOString(),
       });
-      const waContacts = Array.isArray(settings.whatsapp_contacts) ? settings.whatsapp_contacts : [];
-      if (waContacts.length > 0) {
-        state.messages.push({
-          id: 'wa-contacts',
-          sender_type: 'bot',
-          msg_type: 'whatsapp_contacts',
-          contacts: waContacts,
-          created_at: new Date().toISOString(),
-        });
-      }
       render();
       startPolling();
     }

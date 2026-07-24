@@ -74,7 +74,7 @@ class DirectMessageController extends Controller
             $existing = DirectMessage::where('idempotency_key', $request->idempotency_key)->first();
             if ($existing) {
                 return response()->json([
-                    'message'        => $existing,
+                    'message'        => $existing->toApiArray(),
                     'attachment_url' => $existing->attachment_url,
                 ]);
             }
@@ -103,7 +103,7 @@ class DirectMessageController extends Controller
         $message = DirectMessage::create($data);
 
         return response()->json([
-            'message'        => $message,
+            'message'        => $message->toApiArray(),
             'attachment_url' => $message->attachment_url,
         ]);
     }
