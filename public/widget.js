@@ -120,9 +120,11 @@
       #tbp-header-actions { display: flex; align-items: center; gap: 6px; }
       #tbp-header-wa { display: flex; gap: 6px; margin-top: 6px; overflow-x: auto; }
       /* WhatsApp contacts */
-      .tbp-wa-chat-btn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px 4px 4px; border-radius: 20px; background: #25d366; text-decoration: none; box-shadow: 0 2px 6px rgba(0,0,0,0.18); transition: transform 0.15s, box-shadow 0.15s; flex-shrink: 0; }
-      .tbp-wa-chat-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
-      .tbp-wa-chat-icon { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      @keyframes tbp-wa-pulse { 0%, 100% { box-shadow: 0 2px 6px rgba(0,0,0,0.18), 0 0 0 0 rgba(37,211,102,0.55); } 70% { box-shadow: 0 2px 6px rgba(0,0,0,0.18), 0 0 0 7px rgba(37,211,102,0); } }
+      @keyframes tbp-wa-icon-bounce { 0%, 100% { transform: rotate(0deg); } 20% { transform: rotate(-12deg); } 40% { transform: rotate(10deg); } 60% { transform: rotate(-6deg); } 80% { transform: rotate(0deg); } }
+      .tbp-wa-chat-btn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px 4px 4px; border-radius: 20px; background: #25d366; text-decoration: none; box-shadow: 0 2px 6px rgba(0,0,0,0.18); transition: transform 0.15s, box-shadow 0.15s; flex-shrink: 0; animation: tbp-wa-pulse 2.2s ease-out infinite; }
+      .tbp-wa-chat-btn:hover { transform: translateY(-1px) scale(1.04); box-shadow: 0 4px 10px rgba(0,0,0,0.25); animation-play-state: paused; }
+      .tbp-wa-chat-icon { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: tbp-wa-icon-bounce 2.2s ease-in-out infinite; }
       .tbp-wa-chat-num { font-size: 10.5px; font-weight: 700; color: #fff; white-space: nowrap; }
       #tbp-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
       .tbp-screen { flex: 1; display: flex; flex-direction: column; }
