@@ -118,12 +118,12 @@
       #tbp-close, #tbp-expand { background: rgba(255,255,255,0.2); border: none; border-radius: 8px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: ${t}; transition: background 0.2s; flex-shrink: 0; }
       #tbp-close:hover, #tbp-expand:hover { background: rgba(255,255,255,0.3); }
       #tbp-header-actions { display: flex; align-items: center; gap: 6px; }
-      #tbp-header-wa { display: flex; gap: 5px; margin-top: 5px; overflow-x: auto; }
+      #tbp-header-wa { display: flex; gap: 6px; margin-top: 6px; overflow-x: auto; }
       /* WhatsApp contacts */
-      .tbp-wa-chat-btn { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px 3px 3px; border-radius: 20px; background: rgba(255,255,255,0.22); text-decoration: none; transition: background 0.15s; flex-shrink: 0; }
-      .tbp-wa-chat-btn:hover { background: rgba(255,255,255,0.34); }
-      .tbp-wa-chat-icon { width: 16px; height: 16px; border-radius: 50%; background: #25d366; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-      .tbp-wa-chat-num { font-size: 10px; font-weight: 600; color: ${t}; white-space: nowrap; }
+      .tbp-wa-chat-btn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px 4px 4px; border-radius: 20px; background: #25d366; text-decoration: none; box-shadow: 0 2px 6px rgba(0,0,0,0.18); transition: transform 0.15s, box-shadow 0.15s; flex-shrink: 0; }
+      .tbp-wa-chat-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 10px rgba(0,0,0,0.25); }
+      .tbp-wa-chat-icon { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .tbp-wa-chat-num { font-size: 10.5px; font-weight: 700; color: #fff; white-space: nowrap; }
       #tbp-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
       .tbp-screen { flex: 1; display: flex; flex-direction: column; }
 
@@ -293,7 +293,7 @@
     const btns = waContacts.map(c => `
       <a class="tbp-wa-chat-btn" href="https://wa.me/${esc(c.number)}?text=${encodeURIComponent('Hi! I am contacting from your website.')}" target="_blank" rel="noopener" data-wa-number="${esc(c.number)}" data-wa-label="${esc(c.label || '')}" title="${esc(c.label || c.number)}">
         <div class="tbp-wa-chat-icon">${waIconWhite}</div>
-        <span class="tbp-wa-chat-num">${c.label ? esc(c.label) : '+' + esc(c.number)}</span>
+        <span class="tbp-wa-chat-num">${c.label ? esc(c.label) + ' · ' : ''}+${esc(c.number)}</span>
       </a>`).join('');
     return `<div id="tbp-header-wa">${btns}</div>`;
   }
