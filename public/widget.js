@@ -118,27 +118,19 @@
       #tbp-close, #tbp-expand { background: rgba(255,255,255,0.2); border: none; border-radius: 8px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: ${t}; transition: background 0.2s; flex-shrink: 0; }
       #tbp-close:hover, #tbp-expand:hover { background: rgba(255,255,255,0.3); }
       #tbp-header-actions { display: flex; align-items: center; gap: 6px; }
-      #tbp-header-wa { display: flex; gap: 6px; margin-top: 6px; overflow-x: auto; }
-      /* WhatsApp contacts */
-      @keyframes tbp-wa-pulse { 0%, 100% { box-shadow: 0 2px 6px rgba(0,0,0,0.18), 0 0 0 0 rgba(37,211,102,0.55); } 70% { box-shadow: 0 2px 6px rgba(0,0,0,0.18), 0 0 0 7px rgba(37,211,102,0); } }
-      @keyframes tbp-wa-icon-bounce { 0%, 100% { transform: rotate(0deg); } 20% { transform: rotate(-12deg); } 40% { transform: rotate(10deg); } 60% { transform: rotate(-6deg); } 80% { transform: rotate(0deg); } }
-      .tbp-wa-chat-btn { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px 4px 4px; border-radius: 20px; background: #25d366; text-decoration: none; box-shadow: 0 2px 6px rgba(0,0,0,0.18); transition: transform 0.15s, box-shadow 0.15s; flex-shrink: 0; animation: tbp-wa-pulse 2.2s ease-out infinite; }
-      .tbp-wa-chat-btn:hover { transform: translateY(-1px) scale(1.04); box-shadow: 0 4px 10px rgba(0,0,0,0.25); animation-play-state: paused; }
-      .tbp-wa-chat-icon { width: 18px; height: 18px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; flex-shrink: 0; animation: tbp-wa-icon-bounce 2.2s ease-in-out infinite; }
-      .tbp-wa-chat-num { font-size: 10.5px; font-weight: 700; color: #fff; white-space: nowrap; }
       #tbp-body { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
       .tbp-screen { flex: 1; display: flex; flex-direction: column; }
 
       /* Home screen */
       .tbp-home { padding: 20px 16px; }
       .tbp-welcome-bubble { background: ${dark ? '#334155' : '#f1f5f9'}; border-radius: 16px; border-top-left-radius: 4px; padding: 12px 14px; font-size: 13px; color: ${dark ? '#e2e8f0' : '#374151'}; line-height: 1.5; margin-bottom: 16px; }
-      .tbp-home-wa-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
-      .tbp-home-wa-btn { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 16px; background: #25d366; text-decoration: none; box-shadow: 0 3px 10px rgba(0,0,0,0.15); transition: transform 0.15s, box-shadow 0.15s; }
-      .tbp-home-wa-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.22); }
-      .tbp-home-wa-icon { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-      .tbp-home-wa-info { display: flex; flex-direction: column; line-height: 1.35; }
-      .tbp-home-wa-label { font-size: 14px; font-weight: 700; color: #fff; }
-      .tbp-home-wa-num { font-size: 12.5px; color: rgba(255,255,255,0.9); }
+      .tbp-home-wa-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+      .tbp-home-wa-btn { display: flex; align-items: center; gap: 9px; padding: 8px 12px; border-radius: 13px; background: #25d366; text-decoration: none; box-shadow: 0 2px 7px rgba(0,0,0,0.15); transition: transform 0.15s, box-shadow 0.15s; }
+      .tbp-home-wa-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(0,0,0,0.22); }
+      .tbp-home-wa-icon { width: 26px; height: 26px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .tbp-home-wa-info { display: flex; flex-direction: column; line-height: 1.3; }
+      .tbp-home-wa-label { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.9); }
+      .tbp-home-wa-num { font-size: 16px; font-weight: 800; color: #fff; letter-spacing: 0.2px; }
       .tbp-faq-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: ${dark ? '#94a3b8' : '#9ca3af'}; margin-bottom: 8px; }
       .tbp-faq-btn { width: 100%; text-align: left; padding: 10px 14px; border-radius: 12px; border: 1px solid ${dark ? '#334155' : '#e5e7eb'}; background: ${dark ? '#1e293b' : '#fff'}; cursor: pointer; font-size: 13px; color: ${dark ? '#e2e8f0' : '#374151'}; transition: all 0.15s; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
       .tbp-faq-btn:hover { border-color: ${p}; background: ${p}11; }
@@ -268,7 +260,6 @@
             <div>
               <h3>${settings.widget_title}</h3>
               <p>${settings.widget_subtitle}</p>
-              ${renderHeaderWhatsapp()}
             </div>
           </div>
           <div id="tbp-header-actions">
@@ -295,21 +286,10 @@
     }
   }
 
-  function renderHeaderWhatsapp() {
-    const waContacts = Array.isArray(settings.whatsapp_contacts) ? settings.whatsapp_contacts : [];
-    if (!waContacts.length) return '';
-    const btns = waContacts.map(c => `
-      <a class="tbp-wa-chat-btn" href="https://wa.me/${esc(c.number)}?text=${encodeURIComponent(c.message || 'Hi! I am contacting from your website.')}" target="_blank" rel="noopener" data-wa-number="${esc(c.number)}" data-wa-label="${esc(c.label || '')}" title="${esc(c.label || c.number)}">
-        <div class="tbp-wa-chat-icon">${iconWhatsapp(11)}</div>
-        <span class="tbp-wa-chat-num">${c.label ? esc(c.label) + ' · ' : ''}+${esc(c.number)}</span>
-      </a>`).join('');
-    return `<div id="tbp-header-wa">${btns}</div>`;
-  }
-
   function renderHomeWhatsapp(waContacts) {
     const btns = waContacts.map(c => `
       <a class="tbp-home-wa-btn" href="https://wa.me/${esc(c.number)}?text=${encodeURIComponent(c.message || 'Hi! I am contacting from your website.')}" target="_blank" rel="noopener" data-wa-number="${esc(c.number)}" data-wa-label="${esc(c.label || '')}">
-        <div class="tbp-home-wa-icon">${iconWhatsapp(20)}</div>
+        <div class="tbp-home-wa-icon">${iconWhatsapp(15)}</div>
         <div class="tbp-home-wa-info">
           ${c.label ? `<span class="tbp-home-wa-label">${esc(c.label)}</span>` : ''}
           <span class="tbp-home-wa-num">+${esc(c.number)}</span>
@@ -515,7 +495,7 @@
     $id('tbp-reply-clear')?.addEventListener('click', clearReply);
 
     // WhatsApp click tracking
-    $all('.tbp-wa-chat-btn, .tbp-home-wa-btn').forEach(btn => {
+    $all('.tbp-home-wa-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         apiFetch('/whatsapp-click', 'POST', {
           number:     btn.dataset.waNumber,
