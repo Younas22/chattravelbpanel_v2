@@ -132,6 +132,13 @@
       /* Home screen */
       .tbp-home { padding: 20px 16px; }
       .tbp-welcome-bubble { background: ${dark ? '#334155' : '#f1f5f9'}; border-radius: 16px; border-top-left-radius: 4px; padding: 12px 14px; font-size: 13px; color: ${dark ? '#e2e8f0' : '#374151'}; line-height: 1.5; margin-bottom: 16px; }
+      .tbp-home-wa-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+      .tbp-home-wa-btn { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-radius: 16px; background: #25d366; text-decoration: none; box-shadow: 0 3px 10px rgba(0,0,0,0.15); transition: transform 0.15s, box-shadow 0.15s; }
+      .tbp-home-wa-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.22); }
+      .tbp-home-wa-icon { width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .tbp-home-wa-info { display: flex; flex-direction: column; line-height: 1.35; }
+      .tbp-home-wa-label { font-size: 14px; font-weight: 700; color: #fff; }
+      .tbp-home-wa-num { font-size: 12.5px; color: rgba(255,255,255,0.9); }
       .tbp-faq-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: ${dark ? '#94a3b8' : '#9ca3af'}; margin-bottom: 8px; }
       .tbp-faq-btn { width: 100%; text-align: left; padding: 10px 14px; border-radius: 12px; border: 1px solid ${dark ? '#334155' : '#e5e7eb'}; background: ${dark ? '#1e293b' : '#fff'}; cursor: pointer; font-size: 13px; color: ${dark ? '#e2e8f0' : '#374151'}; transition: all 0.15s; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
       .tbp-faq-btn:hover { border-color: ${p}; background: ${p}11; }
@@ -291,13 +298,24 @@
   function renderHeaderWhatsapp() {
     const waContacts = Array.isArray(settings.whatsapp_contacts) ? settings.whatsapp_contacts : [];
     if (!waContacts.length) return '';
-    const waIconWhite = `<svg width="11" height="11" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.116 1.528 5.85L.057 23.01a.75.75 0 00.932.933l5.16-1.471A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.846 0-3.575-.497-5.067-1.362l-.363-.214-3.763 1.073 1.073-3.763-.214-.363A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`;
     const btns = waContacts.map(c => `
       <a class="tbp-wa-chat-btn" href="https://wa.me/${esc(c.number)}?text=${encodeURIComponent(c.message || 'Hi! I am contacting from your website.')}" target="_blank" rel="noopener" data-wa-number="${esc(c.number)}" data-wa-label="${esc(c.label || '')}" title="${esc(c.label || c.number)}">
-        <div class="tbp-wa-chat-icon">${waIconWhite}</div>
+        <div class="tbp-wa-chat-icon">${iconWhatsapp(11)}</div>
         <span class="tbp-wa-chat-num">${c.label ? esc(c.label) + ' · ' : ''}+${esc(c.number)}</span>
       </a>`).join('');
     return `<div id="tbp-header-wa">${btns}</div>`;
+  }
+
+  function renderHomeWhatsapp(waContacts) {
+    const btns = waContacts.map(c => `
+      <a class="tbp-home-wa-btn" href="https://wa.me/${esc(c.number)}?text=${encodeURIComponent(c.message || 'Hi! I am contacting from your website.')}" target="_blank" rel="noopener" data-wa-number="${esc(c.number)}" data-wa-label="${esc(c.label || '')}">
+        <div class="tbp-home-wa-icon">${iconWhatsapp(20)}</div>
+        <div class="tbp-home-wa-info">
+          ${c.label ? `<span class="tbp-home-wa-label">${esc(c.label)}</span>` : ''}
+          <span class="tbp-home-wa-num">+${esc(c.number)}</span>
+        </div>
+      </a>`).join('');
+    return `<div class="tbp-home-wa-list">${btns}</div>`;
   }
 
   function renderHome() {
@@ -317,8 +335,11 @@
       </button>
     `).join('');
 
+    const waContacts = Array.isArray(settings.whatsapp_contacts) ? settings.whatsapp_contacts : [];
+    const homeTop = waContacts.length > 0 ? renderHomeWhatsapp(waContacts) : `<div class="tbp-welcome-bubble">${esc(settings.welcome_message)}</div>`;
+
     return `<div class="tbp-screen tbp-home">
-      <div class="tbp-welcome-bubble">${esc(settings.welcome_message)}</div>
+      ${homeTop}
       ${state.faqs.length > 0 ? `<p class="tbp-faq-title">Quick answers</p>${faqHtml}` : ''}
       <button class="tbp-start-chat" id="tbp-start-chat">${iconChat()} Start a conversation</button>
       <a class="tbp-open-ticket-btn" href="${BASE_URL}/login" target="_blank" rel="noopener">
@@ -494,7 +515,7 @@
     $id('tbp-reply-clear')?.addEventListener('click', clearReply);
 
     // WhatsApp click tracking
-    $all('.tbp-wa-chat-btn').forEach(btn => {
+    $all('.tbp-wa-chat-btn, .tbp-home-wa-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         apiFetch('/whatsapp-click', 'POST', {
           number:     btn.dataset.waNumber,
@@ -853,6 +874,7 @@
   }
 
   // ─── Icons ────────────────────────────────────────────────────────────────
+  function iconWhatsapp(size) { return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.555 4.116 1.528 5.85L.057 23.01a.75.75 0 00.932.933l5.16-1.471A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.846 0-3.575-.497-5.067-1.362l-.363-.214-3.763 1.073 1.073-3.763-.214-.363A9.953 9.953 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>`; }
   function iconChat() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="22" height="22"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>`; }
   function iconExpand() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>`; }
   function iconMinimize() { return `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="15" height="15"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 9V4H4m5 5L4 4m11 5h5V4m-5 5l5-5M9 15v5H4m5-5l-5 5m11-5h5v5m-5-5l5 5"/></svg>`; }
