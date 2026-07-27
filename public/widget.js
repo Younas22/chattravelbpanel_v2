@@ -131,11 +131,12 @@
       .tbp-home-wa-info { display: flex; flex-direction: column; line-height: 1.3; }
       .tbp-home-wa-label { font-size: 12.5px; font-weight: 600; color: rgba(255,255,255,0.9); }
       .tbp-home-wa-num { font-size: 16px; font-weight: 800; color: #fff; letter-spacing: 0.2px; }
-      .tbp-faq-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: ${dark ? '#94a3b8' : '#9ca3af'}; margin-bottom: 8px; }
-      .tbp-faq-btn { width: 100%; text-align: left; padding: 10px 14px; border-radius: 12px; border: 1px solid ${dark ? '#334155' : '#e5e7eb'}; background: ${dark ? '#1e293b' : '#fff'}; cursor: pointer; font-size: 13px; color: ${dark ? '#e2e8f0' : '#374151'}; transition: all 0.15s; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between; }
+      .tbp-faq-title { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: ${dark ? '#94a3b8' : '#9ca3af'}; margin-bottom: 6px; }
+      .tbp-faq-btn { width: 100%; text-align: left; padding: 8px 12px; border-radius: 11px; border: 1px solid ${dark ? '#334155' : '#e5e7eb'}; background: ${dark ? '#1e293b' : '#fff'}; cursor: pointer; font-size: 12px; color: ${dark ? '#e2e8f0' : '#374151'}; transition: all 0.15s; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between; }
       .tbp-faq-btn:hover { border-color: ${p}; background: ${p}11; }
-      .tbp-faq-btn svg { width: 14px; height: 14px; color: ${p}; flex-shrink: 0; }
-      .tbp-start-chat { width: 100%; padding: 11px; border-radius: 12px; border: none; background: ${p}; color: ${t}; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+      .tbp-faq-btn svg { width: 12px; height: 12px; color: ${p}; flex-shrink: 0; }
+      .tbp-start-chat { width: 100%; padding: 9px; border-radius: 11px; border: none; background: ${p}; color: ${t}; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+      .tbp-start-chat svg { width: 15px; height: 15px; }
       .tbp-start-chat:hover { opacity: 0.9; }
 
       /* FAQ answer */
@@ -221,11 +222,12 @@
 
 
       /* Open Ticket button */
-      .tbp-open-ticket-btn { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; border-radius: 14px; border: 1.5px solid ${dark ? '#334155' : '#e2e8f0'}; background: ${dark ? '#1e293b' : '#fff'}; cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; transition: all 0.15s; margin-top: 4px; text-decoration: none; }
+      .tbp-open-ticket-btn { display: flex; align-items: center; gap: 8px; width: 100%; padding: 9px 12px; border-radius: 12px; border: 1.5px solid ${dark ? '#334155' : '#e2e8f0'}; background: ${dark ? '#1e293b' : '#fff'}; cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; transition: all 0.15s; margin-top: 4px; text-decoration: none; }
       .tbp-open-ticket-btn:hover { background: ${dark ? '#334155' : '#f8fafc'}; border-color: ${p}; }
-      .tbp-open-ticket-icon { width: 36px; height: 36px; border-radius: 10px; background: ${p}20; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: ${p}; }
-      .tbp-open-ticket-text h4 { font-size: 13px; font-weight: 600; color: ${dark ? '#f1f5f9' : '#1e293b'}; margin: 0 0 2px; }
-      .tbp-open-ticket-text p { font-size: 11.5px; color: ${dark ? '#64748b' : '#94a3b8'}; margin: 0; }
+      .tbp-open-ticket-icon { width: 28px; height: 28px; border-radius: 8px; background: ${p}20; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: ${p}; }
+      .tbp-open-ticket-icon svg { width: 14px; height: 14px; }
+      .tbp-open-ticket-text h4 { font-size: 12px; font-weight: 600; color: ${dark ? '#f1f5f9' : '#1e293b'}; margin: 0 0 1px; }
+      .tbp-open-ticket-text p { font-size: 10.5px; color: ${dark ? '#64748b' : '#94a3b8'}; margin: 0; }
 
       /* Mobile: hide floating button when chat is open (it overlaps send button) */
       ${state.isMobile ? '#tbp-window:not(.hidden) ~ #tbp-btn { display: none !important; }' : ''}
