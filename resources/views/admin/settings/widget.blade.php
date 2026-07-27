@@ -170,20 +170,26 @@
                         $waContacts = json_decode($settings['whatsapp_contacts'] ?? '[]', true) ?: [];
                     @endphp
                     @forelse($waContacts as $i => $contact)
-                    <div class="wa-contact-row flex items-center gap-2">
-                        <input type="text" name="whatsapp_contacts[{{ $i }}][label]"
-                            value="{{ $contact['label'] ?? '' }}"
-                            placeholder="Label (e.g. Sales, Support)"
-                            class="w-40 flex-shrink-0 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <span class="text-slate-400 text-sm flex-shrink-0">wa.me/</span>
-                        <input type="text" name="whatsapp_contacts[{{ $i }}][number]"
-                            value="{{ $contact['number'] ?? '' }}"
-                            placeholder="923207560200"
-                            class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <button type="button" onclick="this.closest('.wa-contact-row').remove()"
-                            class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer">
-                            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
+                    <div class="wa-contact-row border border-slate-200 rounded-xl p-3 space-y-2">
+                        <div class="flex items-center gap-2">
+                            <input type="text" name="whatsapp_contacts[{{ $i }}][label]"
+                                value="{{ $contact['label'] ?? '' }}"
+                                placeholder="Label (e.g. Sales, Support)"
+                                class="w-40 flex-shrink-0 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <span class="text-slate-400 text-sm flex-shrink-0">wa.me/</span>
+                            <input type="text" name="whatsapp_contacts[{{ $i }}][number]"
+                                value="{{ $contact['number'] ?? '' }}"
+                                placeholder="923207560200"
+                                class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <button type="button" onclick="this.closest('.wa-contact-row').remove()"
+                                class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
+                        <input type="text" name="whatsapp_contacts[{{ $i }}][message]"
+                            value="{{ $contact['message'] ?? '' }}"
+                            placeholder="Prefilled WhatsApp message (optional)"
+                            class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                     </div>
                     @empty
                     {{-- empty — JS will add rows --}}
@@ -435,19 +441,24 @@
     function addWaRow() {
         const idx = waRowIndex();
         const row = document.createElement('div');
-        row.className = 'wa-contact-row flex items-center gap-2';
+        row.className = 'wa-contact-row border border-slate-200 rounded-xl p-3 space-y-2';
         row.innerHTML = `
-            <input type="text" name="whatsapp_contacts[${idx}][label]"
-                placeholder="Label (مثلاً: Sales, Support)"
-                class="w-36 flex-shrink-0 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-            <span class="text-slate-400 text-sm flex-shrink-0">wa.me/</span>
-            <input type="text" name="whatsapp_contacts[${idx}][number]"
-                placeholder="923207560200"
-                class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
-            <button type="button" onclick="this.closest('.wa-contact-row').remove()"
-                class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer">
-                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>`;
+            <div class="flex items-center gap-2">
+                <input type="text" name="whatsapp_contacts[${idx}][label]"
+                    placeholder="Label (مثلاً: Sales, Support)"
+                    class="w-36 flex-shrink-0 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                <span class="text-slate-400 text-sm flex-shrink-0">wa.me/</span>
+                <input type="text" name="whatsapp_contacts[${idx}][number]"
+                    placeholder="923207560200"
+                    class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                <button type="button" onclick="this.closest('.wa-contact-row').remove()"
+                    class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            <input type="text" name="whatsapp_contacts[${idx}][message]"
+                placeholder="Prefilled WhatsApp message (optional)"
+                class="w-full px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">`;
         waList.appendChild(row);
         row.querySelector('input').focus();
     }
@@ -462,6 +473,7 @@
                 const inputs = row.querySelectorAll('input[type="text"]');
                 if (inputs[0]) inputs[0].name = `whatsapp_contacts[${i}][label]`;
                 if (inputs[1]) inputs[1].name = `whatsapp_contacts[${i}][number]`;
+                if (inputs[2]) inputs[2].name = `whatsapp_contacts[${i}][message]`;
             });
         });
     }

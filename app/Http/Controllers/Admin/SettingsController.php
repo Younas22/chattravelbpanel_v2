@@ -43,6 +43,7 @@ class SettingsController extends Controller
             'whatsapp_contacts'              => 'nullable|array',
             'whatsapp_contacts.*.label'      => 'nullable|string|max:100',
             'whatsapp_contacts.*.number'     => 'nullable|string|max:30',
+            'whatsapp_contacts.*.message'    => 'nullable|string|max:300',
         ]);
 
         // Convert checkboxes
@@ -56,8 +57,9 @@ class SettingsController extends Controller
             $num = trim($c['number'] ?? '');
             if ($num !== '') {
                 $contacts[] = [
-                    'label'  => trim($c['label'] ?? ''),
-                    'number' => preg_replace('/[^0-9]/', '', $num),
+                    'label'   => trim($c['label'] ?? ''),
+                    'number'  => preg_replace('/[^0-9]/', '', $num),
+                    'message' => trim($c['message'] ?? ''),
                 ];
             }
         }
