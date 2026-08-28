@@ -78,6 +78,7 @@ class ConversationController extends Controller
             'session_id' => 'required|string|max:64',
             'name'       => 'nullable|string|max:100',
             'email'      => 'nullable|email|max:200',
+            'whatsapp'   => 'nullable|string|max:30',
         ]);
 
         $key = 'start_conversation_' . $request->session_id;
@@ -92,10 +93,11 @@ class ConversationController extends Controller
         }
 
         // Update visitor info if provided
-        if ($request->name || $request->email) {
+        if ($request->name || $request->email || $request->whatsapp) {
             $visitor->update(array_filter([
-                'name'  => $request->name,
-                'email' => $request->email,
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'whatsapp' => $request->whatsapp,
             ]));
         }
 

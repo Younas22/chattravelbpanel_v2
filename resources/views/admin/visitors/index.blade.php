@@ -39,6 +39,68 @@
         </div>
     </div>
 
+    {{-- Submitted Details (Leads) --}}
+    <div class="card !p-0 overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-100">
+            <h2 class="font-semibold text-slate-900">Submitted Details</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Visitors who shared their name, email or WhatsApp number before starting a chat</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50 border-b border-slate-100">
+                    <tr class="text-left text-xs text-slate-500 uppercase tracking-wider">
+                        <th class="px-5 py-3 font-medium">Name</th>
+                        <th class="px-5 py-3 font-medium">Email</th>
+                        <th class="px-5 py-3 font-medium">WhatsApp</th>
+                        <th class="px-5 py-3 font-medium">Submitted</th>
+                        <th class="px-5 py-3 font-medium">Status</th>
+                        <th class="px-5 py-3 font-medium"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-50">
+                    @forelse($leads as $lead)
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="px-5 py-3.5">
+                            <p class="font-medium text-slate-800">{{ $lead->display_name }}</p>
+                            <p class="text-xs text-slate-400 font-mono">{{ $lead->ip_address }}</p>
+                        </td>
+                        <td class="px-5 py-3.5 text-slate-600">{{ $lead->email ?: '—' }}</td>
+                        <td class="px-5 py-3.5">
+                            @if($lead->whatsapp)
+                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $lead->whatsapp) }}" target="_blank" rel="noopener"
+                                   class="text-green-600 hover:text-green-700 font-medium">{{ $lead->whatsapp }}</a>
+                            @else
+                                <span class="text-slate-300">—</span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-3.5 text-xs text-slate-500">{{ $lead->updated_at->diffForHumans() }}</td>
+                        <td class="px-5 py-3.5">
+                            @if($lead->is_online)
+                                <span class="flex items-center gap-1.5 text-green-600 text-xs font-medium">
+                                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                    Online
+                                </span>
+                            @else
+                                <span class="text-slate-400 text-xs">Offline</span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-3.5 text-right">
+                            @if($lead->latestConversation)
+                                <a href="{{ route('admin.conversations.show', $lead->latestConversation) }}" class="btn-secondary !py-1.5 !text-xs">Open Chat</a>
+                            @endif
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="px-5 py-10 text-center text-slate-400 text-sm">No visitors have submitted their details yet</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div class="px-5 py-4 border-t border-slate-100">{{ $leads->links() }}</div>
+    </div>
+
     {{-- All Visitors --}}
     <div class="card !p-0 overflow-hidden">
         <div class="px-5 py-4 border-b border-slate-100">

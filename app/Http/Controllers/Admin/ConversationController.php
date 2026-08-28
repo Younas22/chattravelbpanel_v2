@@ -26,6 +26,7 @@ class ConversationController extends Controller
             $query->whereHas('visitor', function ($q) use ($request) {
                 $q->where('name', 'like', "%{$request->search}%")
                   ->orWhere('email', 'like', "%{$request->search}%")
+                  ->orWhere('whatsapp', 'like', "%{$request->search}%")
                   ->orWhere('ip_address', 'like', "%{$request->search}%");
             });
         }

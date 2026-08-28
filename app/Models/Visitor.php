@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Visitor extends Model
 {
     protected $fillable = [
-        'session_id', 'name', 'email', 'ip_address', 'country',
+        'session_id', 'name', 'email', 'whatsapp', 'ip_address', 'country',
         'country_code', 'city', 'browser', 'os', 'device',
         'current_page', 'landing_page', 'referrer',
         'is_online', 'last_activity_at',
@@ -28,6 +28,16 @@ class Visitor extends Model
     public function activeConversation(): HasOne
     {
         return $this->hasOne(Conversation::class)->whereIn('status', ['active', 'pending'])->latest();
+    }
+
+    public function latestConversation(): HasOne
+    {
+        return $this->hasOne(Conversation::class)->latest();
+    }
+
+    public function hasSubmittedDetails(): bool
+    {
+        return (bool) ($this->name || $this->email || $this->whatsapp);
     }
 
     public function logs(): HasMany

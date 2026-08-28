@@ -15,6 +15,16 @@ class VisitorController extends Controller
         $visitors  = Visitor::orderByDesc('last_activity_at')->paginate(30);
         $liveCount = Visitor::where('is_online', true)->count();
 
+        // Visitors who submitted their name/email/whatsapp via the pre-chat form
+        $leads = Visitor::where(function ($q) {
+                $q->whereNotNull('name')
+                  ->orWhereNotNull('email')
+                  ->orWhereNotNull('whatsapp');
+            })
+            ->with(['latestConversation'])
+            ->orderByDesc('updated_at')
+            ->paginate(15, ['*'], 'leads_page');
+
         // Collect unique country_codes from current page
         $codes = $visitors->pluck('country_code')->filter()->unique()->values();
 
@@ -47,7 +57,7 @@ class VisitorController extends Controller
             }
         }
 
-        return view('admin.visitors.index', compact('visitors', 'liveCount', 'countryHolidays'));
+        return view('admin.visitors.index', compact('visitors', 'liveCount', 'countryHolidays', 'leads'));
     }
 
     public function live()

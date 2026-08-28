@@ -16,6 +16,7 @@
 
   const API = BASE_URL + '/api/chat';
   const STORAGE_KEY = 'tbp_chat_session';
+  const PROFILE_KEY = 'tbp_chat_profile';
   const FONT_URL = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap';
 
   let settings = {
@@ -62,7 +63,14 @@
     replyTo: null,
     uploadProgress: 0,
     isMobile: window.innerWidth < 640,
+    profile: null,
+    precallError: '',
   };
+
+  try {
+    const savedProfile = localStorage.getItem(PROFILE_KEY);
+    if (savedProfile) state.profile = JSON.parse(savedProfile);
+  } catch (e) {}
 
   // Shadow DOM root — set during init
   let shadow = null;
@@ -138,6 +146,20 @@
       .tbp-start-chat { width: 100%; padding: 9px; border-radius: 11px; border: none; background: ${p}; color: ${t}; font-size: 12px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 6px; }
       .tbp-start-chat svg { width: 15px; height: 15px; }
       .tbp-start-chat:hover { opacity: 0.9; }
+
+      /* Pre-chat form */
+      .tbp-precall { padding: 20px 16px; flex: 1; display: flex; flex-direction: column; }
+      .tbp-precall-title { font-size: 15px; font-weight: 700; color: ${dark ? '#f1f5f9' : '#111827'}; margin-bottom: 4px; }
+      .tbp-precall-sub { font-size: 12px; color: ${dark ? '#94a3b8' : '#6b7280'}; margin-bottom: 16px; line-height: 1.5; }
+      .tbp-precall-field { margin-bottom: 12px; }
+      .tbp-precall-field label { display: block; font-size: 11.5px; font-weight: 600; color: ${dark ? '#cbd5e1' : '#374151'}; margin-bottom: 5px; }
+      .tbp-precall-field input { width: 100%; padding: 9px 12px; border-radius: 11px; border: 1px solid ${dark ? '#475569' : '#e5e7eb'}; font-size: 13px; font-family: 'Inter', sans-serif; outline: none; color: ${dark ? '#f1f5f9' : '#111827'}; background: ${dark ? '#0f172a' : '#fff'}; transition: border-color 0.15s; }
+      .tbp-precall-field input:focus { border-color: ${p}; }
+      .tbp-precall-field input::placeholder { color: ${dark ? '#64748b' : '#9ca3af'}; }
+      .tbp-precall-error { font-size: 11.5px; color: #ef4444; margin: -4px 0 12px; }
+      .tbp-precall-submit { width: 100%; padding: 10px; border-radius: 11px; border: none; background: ${p}; color: ${t}; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; margin-top: 4px; }
+      .tbp-precall-submit:hover { opacity: 0.9; }
+      .tbp-precall-back { background: none; border: none; font-size: 13px; color: ${p}; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0; margin-bottom: 14px; font-weight: 500; }
 
       /* FAQ answer */
       .tbp-faq-answer { padding: 16px; flex: 1; }
@@ -271,7 +293,7 @@
         </div>
 
         <div id="tbp-body">
-          ${state.view === 'home' ? renderHome() : renderChat()}
+          ${state.view === 'home' ? renderHome() : (state.view === 'precall' ? renderPrecall() : renderChat())}
         </div>
       </div>
 
@@ -329,6 +351,29 @@
         <div class="tbp-open-ticket-text"><h4>Open a Ticket</h4><p>Track your issue &amp; get a response</p></div>
       </a>
       ${settings.show_branding === 'true' ? '<div class="tbp-branding">Powered by <a href="https://travelbookingpanel.com" target="_blank">TravelBookingPanel</a></div>' : ''}
+    </div>`;
+  }
+
+  function renderPrecall() {
+    const p = state.profile || {};
+    return `<div class="tbp-screen tbp-precall">
+      <button class="tbp-precall-back" id="tbp-precall-back">← Back</button>
+      <p class="tbp-precall-title">Let's get started</p>
+      <p class="tbp-precall-sub">Please share a few details so our team can assist you better.</p>
+      <div class="tbp-precall-field">
+        <label for="tbp-precall-name">Name</label>
+        <input type="text" id="tbp-precall-name" placeholder="Your full name" value="${esc(p.name || '')}" autocomplete="name">
+      </div>
+      <div class="tbp-precall-field">
+        <label for="tbp-precall-email">Email</label>
+        <input type="email" id="tbp-precall-email" placeholder="you@example.com" value="${esc(p.email || '')}" autocomplete="email">
+      </div>
+      <div class="tbp-precall-field">
+        <label for="tbp-precall-whatsapp">WhatsApp Number</label>
+        <input type="tel" id="tbp-precall-whatsapp" placeholder="e.g. 923001234567" value="${esc(p.whatsapp || '')}" autocomplete="tel">
+      </div>
+      ${state.precallError ? `<p class="tbp-precall-error">${esc(state.precallError)}</p>` : ''}
+      <button class="tbp-precall-submit" id="tbp-precall-submit">Start Chat</button>
     </div>`;
   }
 
@@ -419,6 +464,12 @@
     $id('tbp-start-chat')?.addEventListener('click', startChat);
     $id('tbp-start-from-faq')?.addEventListener('click', startChat);
     $id('tbp-back')?.addEventListener('click', () => { state.selectedFaq = null; render(); });
+
+    $id('tbp-precall-back')?.addEventListener('click', () => { state.view = 'home'; state.precallError = ''; render(); });
+    $id('tbp-precall-submit')?.addEventListener('click', submitPrecallForm);
+    ['tbp-precall-name', 'tbp-precall-email', 'tbp-precall-whatsapp'].forEach(id => {
+      $id(id)?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); submitPrecallForm(); } });
+    });
 
 
     $all('[data-faq-id]').forEach(btn => {
@@ -586,15 +637,55 @@
   }
 
   // ─── Start Chat ───────────────────────────────────────────────────────────
-  function startChat() {
-    if (!state.sessionId) {
-      identifyVisitor().then(() => startConversation());
-    } else {
-      startConversation();
-    }
+  function hasValidProfile(p) {
+    return !!(p && p.name && p.email && p.whatsapp);
   }
 
-  async function startConversation() {
+  function startChat() {
+    if (state.conversationId) {
+      startConversation();
+      return;
+    }
+    if (hasValidProfile(state.profile)) {
+      beginConversation(state.profile);
+      return;
+    }
+    state.precallError = '';
+    state.view = 'precall';
+    render();
+  }
+
+  function submitPrecallForm() {
+    const name = $id('tbp-precall-name')?.value.trim() || '';
+    const email = $id('tbp-precall-email')?.value.trim() || '';
+    const whatsapp = $id('tbp-precall-whatsapp')?.value.trim() || '';
+
+    if (!name || !email || !whatsapp) {
+      state.precallError = 'Please fill in your name, email and WhatsApp number.';
+      render();
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      state.precallError = 'Please enter a valid email address.';
+      render();
+      return;
+    }
+
+    const profile = { name, email, whatsapp };
+    state.profile = profile;
+    try { localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); } catch (e) {}
+    state.precallError = '';
+    beginConversation(profile);
+  }
+
+  async function beginConversation(profile) {
+    if (!state.sessionId) {
+      await identifyVisitor();
+    }
+    await startConversation(profile);
+  }
+
+  async function startConversation(profile) {
     if (state.conversationId) {
       state.view = 'chat';
       render();
@@ -603,7 +694,14 @@
       return;
     }
 
-    const res = await apiFetch('/conversation/start', 'POST', { session_id: state.sessionId });
+    const payload = { session_id: state.sessionId };
+    if (profile) {
+      payload.name = profile.name;
+      payload.email = profile.email;
+      payload.whatsapp = profile.whatsapp;
+    }
+
+    const res = await apiFetch('/conversation/start', 'POST', payload);
     if (res.conversation_id) {
       state.conversationId = res.conversation_id;
       state.view = 'chat';

@@ -356,6 +356,16 @@
                     <span class="font-medium text-slate-800 break-all text-right">{{ $conversation->visitor->email }}</span>
                 </div>
                 @endif
+
+                @if($conversation->visitor->whatsapp)
+                <div class="flex justify-between items-center">
+                    <span class="text-slate-500">WhatsApp</span>
+                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $conversation->visitor->whatsapp) }}" target="_blank" rel="noopener"
+                       class="font-medium text-green-600 hover:text-green-700 text-right">
+                        {{ $conversation->visitor->whatsapp }}
+                    </a>
+                </div>
+                @endif
             </div>
         </div>
 
