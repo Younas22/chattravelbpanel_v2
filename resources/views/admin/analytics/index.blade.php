@@ -14,9 +14,12 @@
     {{-- Charts row --}}
     <div class="grid lg:grid-cols-3 gap-6">
 
-        <div class="lg:col-span-2 card">
+        <div class="lg:col-span-2 card relative">
             <h2 class="font-semibold text-slate-900 mb-4">Conversations & Messages</h2>
             <canvas id="mainChart" height="100"></canvas>
+            <div id="mainChartEmpty" class="hidden absolute inset-0 flex items-center justify-center pt-8">
+                <p class="text-slate-400 text-sm">No conversations or messages in this period yet</p>
+            </div>
         </div>
 
         <div class="card">
@@ -72,6 +75,27 @@
             @endif
         </div>
     </div>
+
+    {{-- Traffic Sources (UTM) --}}
+    <div class="card">
+        <h2 class="font-semibold text-slate-900 mb-1">Traffic Sources</h2>
+        <p class="text-xs text-slate-400 mb-4">Where visitors came from, based on <code class="bg-slate-100 px-1 py-0.5 rounded">utm_source</code> in the landing page URL (e.g. <code class="bg-slate-100 px-1 py-0.5 rounded">?utm_source=facebook</code>)</p>
+        @if($trafficSources->isEmpty())
+            <p class="text-slate-400 text-sm text-center py-8">No data yet</p>
+        @else
+        <div class="space-y-3">
+            @foreach($trafficSources as $row)
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-slate-700 flex-1 truncate">{{ $row->source }}</span>
+                <div class="flex-1 bg-slate-100 rounded-full h-2">
+                    <div class="bg-purple-600 h-2 rounded-full" style="width: {{ ($row->count / $trafficSources->max('count')) * 100 }}%"></div>
+                </div>
+                <span class="text-sm font-semibold text-slate-800 w-10 text-right">{{ $row->count }}</span>
+            </div>
+            @endforeach
+        </div>
+        @endif
+    </div>
 </div>
 @endsection
 
@@ -91,6 +115,9 @@ for (let i = period - 1; i >= 0; i--) {
     convData.push({{ json_encode($conversations) }}[key] || 0);
     msgData.push({{ json_encode($messages) }}[key] || 0);
 }
+
+const hasMainData = convData.some(v => v > 0) || msgData.some(v => v > 0);
+document.getElementById('mainChartEmpty').classList.toggle('hidden', hasMainData);
 
 new Chart(document.getElementById('mainChart'), {
     type: 'line',

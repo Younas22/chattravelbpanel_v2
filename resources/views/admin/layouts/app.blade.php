@@ -115,6 +115,22 @@
                 <span class="sidebar-tooltip" x-show="!sidebarOpen">Visitors</span>
             </a>
 
+            <a href="{{ route('admin.leads.index') }}" class="sidebar-link {{ request()->routeIs('admin.leads*') ? 'active' : '' }}">
+                <div class="relative shrink-0">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 8v6m3-3h-6"/></svg>
+                    @php
+                        $pendingLeads = \App\Models\Visitor::where('lead_status', 'pending')
+                            ->where(function ($q) { $q->whereNotNull('name')->orWhereNotNull('email')->orWhereNotNull('whatsapp'); })
+                            ->count();
+                    @endphp
+                    @if($pendingLeads > 0)
+                        <span class="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{{ $pendingLeads > 9 ? '9+' : $pendingLeads }}</span>
+                    @endif
+                </div>
+                <span x-show="sidebarOpen" class="whitespace-nowrap">Leads</span>
+                <span class="sidebar-tooltip" x-show="!sidebarOpen">Leads</span>
+            </a>
+
             <a href="{{ route('admin.ticket-users.index') }}" class="sidebar-link {{ request()->routeIs('admin.ticket-users*') ? 'active' : '' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                 <span x-show="sidebarOpen" class="whitespace-nowrap">Ticket Users</span>

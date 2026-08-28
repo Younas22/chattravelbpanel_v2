@@ -7,98 +7,12 @@
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-2 text-sm text-slate-600">
             <span class="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></span>
-            <span x-text="liveCount"></span> online now
+            <span x-text="liveTotal"></span> online now
         </div>
         <button @click="refresh()" class="btn-secondary cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
             Refresh
         </button>
-    </div>
-
-    {{-- Live Visitors --}}
-    <div class="card">
-        <h2 class="font-semibold text-slate-900 mb-4">Live Visitors</h2>
-        <div class="space-y-2" id="live-visitors">
-            <template x-for="v in liveVisitors" :key="v.id">
-                <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                    <span class="w-2.5 h-2.5 bg-green-500 rounded-full shrink-0 animate-pulse"></span>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium text-slate-800" x-text="v.display_name || ('Visitor #' + v.id)"></p>
-                        <p class="text-xs text-slate-500 truncate" x-text="v.current_page"></p>
-                    </div>
-                    <div class="text-right shrink-0 text-xs">
-                        <span class="text-slate-600" x-text="v.country_code"></span>
-                        <span class="mx-1 text-slate-300">•</span>
-                        <span class="text-slate-400" x-text="v.browser"></span>
-                    </div>
-                </div>
-            </template>
-            <div x-show="liveVisitors.length === 0" class="py-8 text-center text-slate-400 text-sm">
-                No visitors online right now
-            </div>
-        </div>
-    </div>
-
-    {{-- Submitted Details (Leads) --}}
-    <div class="card !p-0 overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-100">
-            <h2 class="font-semibold text-slate-900">Submitted Details</h2>
-            <p class="text-xs text-slate-400 mt-0.5">Visitors who shared their name, email or WhatsApp number before starting a chat</p>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-                <thead class="bg-slate-50 border-b border-slate-100">
-                    <tr class="text-left text-xs text-slate-500 uppercase tracking-wider">
-                        <th class="px-5 py-3 font-medium">Name</th>
-                        <th class="px-5 py-3 font-medium">Email</th>
-                        <th class="px-5 py-3 font-medium">WhatsApp</th>
-                        <th class="px-5 py-3 font-medium">Submitted</th>
-                        <th class="px-5 py-3 font-medium">Status</th>
-                        <th class="px-5 py-3 font-medium"></th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-50">
-                    @forelse($leads as $lead)
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-5 py-3.5">
-                            <p class="font-medium text-slate-800">{{ $lead->display_name }}</p>
-                            <p class="text-xs text-slate-400 font-mono">{{ $lead->ip_address }}</p>
-                        </td>
-                        <td class="px-5 py-3.5 text-slate-600">{{ $lead->email ?: '—' }}</td>
-                        <td class="px-5 py-3.5">
-                            @if($lead->whatsapp)
-                                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $lead->whatsapp) }}" target="_blank" rel="noopener"
-                                   class="text-green-600 hover:text-green-700 font-medium">{{ $lead->whatsapp }}</a>
-                            @else
-                                <span class="text-slate-300">—</span>
-                            @endif
-                        </td>
-                        <td class="px-5 py-3.5 text-xs text-slate-500">{{ $lead->updated_at->diffForHumans() }}</td>
-                        <td class="px-5 py-3.5">
-                            @if($lead->is_online)
-                                <span class="flex items-center gap-1.5 text-green-600 text-xs font-medium">
-                                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                                    Online
-                                </span>
-                            @else
-                                <span class="text-slate-400 text-xs">Offline</span>
-                            @endif
-                        </td>
-                        <td class="px-5 py-3.5 text-right">
-                            @if($lead->latestConversation)
-                                <a href="{{ route('admin.conversations.show', $lead->latestConversation) }}" class="btn-secondary !py-1.5 !text-xs">Open Chat</a>
-                            @endif
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="6" class="px-5 py-10 text-center text-slate-400 text-sm">No visitors have submitted their details yet</td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="px-5 py-4 border-t border-slate-100">{{ $leads->links() }}</div>
     </div>
 
     {{-- All Visitors --}}
@@ -169,6 +83,41 @@
         </div>
         <div class="px-5 py-4 border-t border-slate-100">{{ $visitors->links() }}</div>
     </div>
+
+    {{-- Live Visitors --}}
+    <div class="card">
+        <h2 class="font-semibold text-slate-900 mb-4">Live Visitors</h2>
+        <div class="space-y-2" id="live-visitors">
+            <template x-for="v in liveVisitors" :key="v.id">
+                <div class="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors">
+                    <span class="w-2.5 h-2.5 bg-green-500 rounded-full shrink-0 animate-pulse"></span>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-medium text-slate-800" x-text="v.display_name || ('Visitor #' + v.id)"></p>
+                        <p class="text-xs text-slate-500 truncate" x-text="v.current_page"></p>
+                    </div>
+                    <div class="text-right shrink-0 text-xs">
+                        <span class="text-slate-600" x-text="v.country_code"></span>
+                        <span class="mx-1 text-slate-300">•</span>
+                        <span class="text-slate-400" x-text="v.browser"></span>
+                    </div>
+                </div>
+            </template>
+            <div x-show="liveVisitors.length === 0" class="py-8 text-center text-slate-400 text-sm">
+                No visitors online right now
+            </div>
+        </div>
+
+        {{-- Live visitors pagination --}}
+        <div x-show="liveLastPage > 1" class="flex items-center justify-between pt-4 mt-2 border-t border-slate-100">
+            <span class="text-xs text-slate-400">Page <span x-text="livePage"></span> of <span x-text="liveLastPage"></span></span>
+            <div class="flex items-center gap-2">
+                <button @click="prevPage()" :disabled="livePage <= 1"
+                    class="btn-secondary !py-1.5 !text-xs disabled:opacity-40 disabled:cursor-not-allowed">← Prev</button>
+                <button @click="nextPage()" :disabled="livePage >= liveLastPage"
+                    class="btn-secondary !py-1.5 !text-xs disabled:opacity-40 disabled:cursor-not-allowed">Next →</button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -177,7 +126,9 @@
 function visitorsPage() {
     return {
         liveVisitors: [],
-        liveCount: {{ $liveCount }},
+        liveTotal: {{ $liveCount }},
+        livePage: 1,
+        liveLastPage: 1,
 
         init() {
             this.refresh();
@@ -185,12 +136,28 @@ function visitorsPage() {
         },
 
         refresh() {
-            fetch('{{ route('admin.visitors.live') }}')
+            fetch(`{{ route('admin.visitors.live') }}?page=${this.livePage}`)
                 .then(r => r.json())
                 .then(data => {
-                    this.liveVisitors = data;
-                    this.liveCount = data.length;
+                    this.liveVisitors = data.data;
+                    this.liveTotal = data.total;
+                    this.livePage = data.current_page;
+                    this.liveLastPage = data.last_page;
                 });
+        },
+
+        nextPage() {
+            if (this.livePage < this.liveLastPage) {
+                this.livePage++;
+                this.refresh();
+            }
+        },
+
+        prevPage() {
+            if (this.livePage > 1) {
+                this.livePage--;
+                this.refresh();
+            }
         }
     }
 }

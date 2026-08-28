@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DirectMessageController as AdminDirectMessageCont
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\GlobalOfferController;
 use App\Http\Controllers\Admin\GroupController as AdminGroupController;
+use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use App\Http\Controllers\Admin\VisitorController;
@@ -92,6 +93,10 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     Route::get('/visitors/live', [VisitorController::class, 'live'])->name('visitors.live');
     Route::get('/visitors/{visitor}', [VisitorController::class, 'show'])->name('visitors.show');
     Route::post('/visitors/cleanup', [VisitorController::class, 'cleanup'])->name('visitors.cleanup');
+
+    // Leads (visitors who submitted name/email/whatsapp)
+    Route::get('/leads', [LeadController::class, 'index'])->name('leads.index');
+    Route::patch('/leads/{visitor}/status', [LeadController::class, 'updateStatus'])->name('leads.status');
 
     // Canned Replies (search must be before parameterized routes)
     Route::get('/canned-replies/search', [CannedReplyController::class, 'search'])->name('canned-replies.search');

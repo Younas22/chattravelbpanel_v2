@@ -92,6 +92,16 @@ class ConversationController extends Controller
             return response()->json(['error' => 'Visitor not found.'], 404);
         }
 
+        // Name, email and WhatsApp are mandatory before a chat can start — unless this
+        // visitor already provided all three on a previous visit. This blocks bots/direct
+        // API calls that skip the widget's pre-chat form from creating empty conversations.
+        $alreadyIdentified = $visitor->name && $visitor->email && $visitor->whatsapp;
+        $providedNow       = $request->name && $request->email && $request->whatsapp;
+
+        if (!$alreadyIdentified && !$providedNow) {
+            return response()->json(['error' => 'Name, email and WhatsApp number are required to start a chat.'], 422);
+        }
+
         // Update visitor info if provided
         if ($request->name || $request->email || $request->whatsapp) {
             $visitor->update(array_filter([

@@ -15,16 +15,6 @@ class VisitorController extends Controller
         $visitors  = Visitor::orderByDesc('last_activity_at')->paginate(30);
         $liveCount = Visitor::where('is_online', true)->count();
 
-        // Visitors who submitted their name/email/whatsapp via the pre-chat form
-        $leads = Visitor::where(function ($q) {
-                $q->whereNotNull('name')
-                  ->orWhereNotNull('email')
-                  ->orWhereNotNull('whatsapp');
-            })
-            ->with(['latestConversation'])
-            ->orderByDesc('updated_at')
-            ->paginate(15, ['*'], 'leads_page');
-
         // Collect unique country_codes from current page
         $codes = $visitors->pluck('country_code')->filter()->unique()->values();
 
@@ -57,15 +47,32 @@ class VisitorController extends Controller
             }
         }
 
-        return view('admin.visitors.index', compact('visitors', 'liveCount', 'countryHolidays', 'leads'));
+        return view('admin.visitors.index', compact('visitors', 'liveCount', 'countryHolidays'));
     }
 
-    public function live()
+    public function live(Request $request)
     {
-        $visitors = Visitor::where('is_online', true)
-            ->orderByDesc('last_activity_at')
+        $perPage = 10;
+        $page    = max(1, (int) $request->get('page', 1));
+
+        $query = Visitor::where('is_online', true)->orderByDesc('last_activity_at');
+
+        $total   = $query->count();
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $page     = min($page, $lastPage);
+
+        $visitors = $query
+            ->skip(($page - 1) * $perPage)
+            ->take($perPage)
             ->get(['id', 'session_id', 'name', 'country', 'country_code', 'browser', 'os', 'device', 'current_page', 'last_activity_at', 'is_online']);
-        return response()->json($visitors);
+
+        return response()->json([
+            'data'         => $visitors,
+            'total'        => $total,
+            'current_page' => $page,
+            'last_page'    => $lastPage,
+            'per_page'     => $perPage,
+        ]);
     }
 
     public function show(Visitor $visitor)

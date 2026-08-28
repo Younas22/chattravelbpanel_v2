@@ -8,16 +8,27 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Visitor extends Model
 {
+    public const LEAD_STATUSES = [
+        'pending'    => 'Pending',
+        'contacted'  => 'Contacted',
+        'follow_up'  => 'Follow Up',
+        'converted'  => 'Converted',
+        'closed'     => 'Closed',
+    ];
+
     protected $fillable = [
         'session_id', 'name', 'email', 'whatsapp', 'ip_address', 'country',
         'country_code', 'city', 'browser', 'os', 'device',
         'current_page', 'landing_page', 'referrer',
+        'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content',
         'is_online', 'last_activity_at',
+        'lead_status', 'lead_status_updated_at',
     ];
 
     protected $casts = [
         'is_online' => 'boolean',
         'last_activity_at' => 'datetime',
+        'lead_status_updated_at' => 'datetime',
     ];
 
     public function conversations(): HasMany
@@ -38,6 +49,11 @@ class Visitor extends Model
     public function hasSubmittedDetails(): bool
     {
         return (bool) ($this->name || $this->email || $this->whatsapp);
+    }
+
+    public function getLeadStatusLabelAttribute(): string
+    {
+        return self::LEAD_STATUSES[$this->lead_status] ?? ucfirst($this->lead_status ?? 'pending');
     }
 
     public function logs(): HasMany

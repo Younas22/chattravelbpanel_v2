@@ -44,6 +44,14 @@ class VisitorController extends Controller
             $visitor->country      = $geo['country'] ?? null;
             $visitor->country_code = $geo['country_code'] ?? null;
             $visitor->city         = $geo['city'] ?? null;
+
+            // Capture UTM params from the very first landing page (ad/campaign tracking)
+            $utm = $this->getUtmParams($request->page_url);
+            $visitor->utm_source   = $utm['utm_source'] ?? null;
+            $visitor->utm_medium   = $utm['utm_medium'] ?? null;
+            $visitor->utm_campaign = $utm['utm_campaign'] ?? null;
+            $visitor->utm_term     = $utm['utm_term'] ?? null;
+            $visitor->utm_content  = $utm['utm_content'] ?? null;
         }
 
         $visitor->save();
@@ -112,6 +120,28 @@ class VisitorController extends Controller
         if (str_contains($ua, 'Mobile') || str_contains($ua, 'Android')) return 'mobile';
         if (str_contains($ua, 'Tablet') || str_contains($ua, 'iPad')) return 'tablet';
         return 'desktop';
+    }
+
+    private function getUtmParams(?string $pageUrl): array
+    {
+        if (!$pageUrl) {
+            return [];
+        }
+
+        $query = parse_url($pageUrl, PHP_URL_QUERY);
+        if (!$query) {
+            return [];
+        }
+
+        parse_str($query, $params);
+
+        return array_filter([
+            'utm_source'   => $params['utm_source'] ?? null,
+            'utm_medium'   => $params['utm_medium'] ?? null,
+            'utm_campaign' => $params['utm_campaign'] ?? null,
+            'utm_term'     => $params['utm_term'] ?? null,
+            'utm_content'  => $params['utm_content'] ?? null,
+        ]);
     }
 
     private function getGeoInfo(string $ip): array

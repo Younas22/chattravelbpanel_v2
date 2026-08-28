@@ -13,7 +13,10 @@ class AnalyticsController extends Controller
 {
     public function index()
     {
-        $period = request('period', '7');
+        $period = (int) request('period', 7);
+        if (!in_array($period, [7, 30, 90], true)) {
+            $period = 7;
+        }
 
         $conversations = Conversation::selectRaw('DATE(created_at) as date, COUNT(*) as count')
             ->whereBetween('created_at', [now()->subDays($period - 1)->startOfDay(), now()->endOfDay()])
@@ -49,9 +52,17 @@ class AnalyticsController extends Controller
             ->get()
             ->pluck('count', 'device');
 
+        // Traffic sources — visitors grouped by UTM source (falls back to "Direct / Other")
+        $trafficSources = Visitor::selectRaw('COALESCE(NULLIF(utm_source, \'\'), \'Direct / Other\') as source, COUNT(*) as count')
+            ->whereBetween('created_at', [now()->subDays($period - 1)->startOfDay(), now()->endOfDay()])
+            ->groupBy('source')
+            ->orderByDesc('count')
+            ->limit(10)
+            ->get();
+
         return view('admin.analytics.index', compact(
             'conversations', 'messages', 'visitors',
-            'topCountries', 'topPages', 'devices', 'period'
+            'topCountries', 'topPages', 'devices', 'period', 'trafficSources'
         ));
     }
 }
