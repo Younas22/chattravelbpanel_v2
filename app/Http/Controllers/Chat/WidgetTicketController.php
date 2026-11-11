@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Chat;
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
+use App\Services\PushNotifier;
 use App\Models\TicketUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -121,6 +122,13 @@ class WidgetTicketController extends Controller
             'sender_id'   => $user->id,
             'body'        => $request->description,
         ]);
+
+        PushNotifier::notifyAdmins(
+            '🎫 New ticket: ' . $ticket->subject,
+            $user->full_name . ': ' . $request->description,
+            route('admin.tickets.show', $ticket),
+            'ticket-' . $ticket->id
+        );
 
         return response()->json([
             'ok'            => true,

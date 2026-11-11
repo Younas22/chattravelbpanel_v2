@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Chat;
 
 use App\Http\Controllers\Controller;
 use App\Models\DirectMessage;
+use App\Services\PushNotifier;
 use Illuminate\Http\Request;
 
 class DirectMessageController extends Controller
@@ -84,6 +85,13 @@ class DirectMessageController extends Controller
         }
 
         $message = DirectMessage::create($data);
+
+        PushNotifier::notifyAdmins(
+            '✉️ ' . $user->full_name,
+            $message->body ?: '📎 ' . ($message->attachment_name ?: 'Attachment'),
+            route('admin.messages.show', $user),
+            'dm-' . $user->id
+        );
 
         return response()->json([
             'message'        => $message->toApiArray($user->id, 'ticket_user'),

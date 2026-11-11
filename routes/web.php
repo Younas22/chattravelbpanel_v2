@@ -15,6 +15,8 @@ use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use App\Http\Controllers\Admin\VisitorController;
 use App\Http\Controllers\Chat\DirectMessageController;
 use App\Http\Controllers\Chat\TicketController;
+use App\Http\Controllers\Admin\PushSubscriptionController;
+use App\Http\Controllers\PwaController;
 use App\Http\Controllers\WidgetScriptController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +28,10 @@ Route::get('/offer-popup.js', function () {
         'Cache-Control' => 'public, max-age=300',
     ]);
 })->name('offer-popup.js');
+
+// Installable admin app (PWA)
+Route::get('/manifest.webmanifest', [PwaController::class, 'manifest'])->name('pwa.manifest');
+Route::get('/sw.js', [PwaController::class, 'serviceWorker'])->name('pwa.sw');
 
 // Redirect root to admin
 Route::get('/', fn() => redirect()->route('admin.dashboard'));
@@ -45,6 +51,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
 Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/stats', [DashboardController::class, 'stats'])->name('stats');
+
+    // Web Push (new-message alerts on installed devices)
+    Route::post('/push/subscribe', [PushSubscriptionController::class, 'store'])->name('push.subscribe');
+    Route::post('/push/unsubscribe', [PushSubscriptionController::class, 'destroy'])->name('push.unsubscribe');
+    Route::post('/push/test', [PushSubscriptionController::class, 'test'])->name('push.test');
 
     // Conversations
     Route::get('/conversations/list', [ConversationController::class, 'listJson'])->name('conversations.list');

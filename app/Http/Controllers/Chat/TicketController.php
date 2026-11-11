@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Chat;
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use App\Models\TicketMessage;
+use App\Services\PushNotifier;
 use App\Models\TicketUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -70,6 +71,13 @@ class TicketController extends Controller
 
         TicketMessage::create($msgData);
 
+        PushNotifier::notifyAdmins(
+            '🎫 New ticket: ' . $ticket->subject,
+            auth('ticket_user')->user()->full_name . ': ' . $request->description,
+            route('admin.tickets.show', $ticket),
+            'ticket-' . $ticket->id
+        );
+
         return redirect()->route('tickets.show', $ticket)->with('success', 'Ticket created successfully!');
     }
 
@@ -122,6 +130,13 @@ class TicketController extends Controller
         TicketMessage::create($data);
         $ticket->increment('unread_admin');
         $ticket->update(['status' => 'open']);
+
+        PushNotifier::notifyAdmins(
+            '🎫 Reply on: ' . $ticket->subject,
+            auth('ticket_user')->user()->full_name . ': ' . ($data['body'] ?? '📎 Attachment'),
+            route('admin.tickets.show', $ticket),
+            'ticket-' . $ticket->id
+        );
 
         return redirect()->route('tickets.show', $ticket)->with('success', 'Reply sent.');
     }

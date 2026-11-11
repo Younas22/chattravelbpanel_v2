@@ -12,6 +12,7 @@ use App\Models\QuickFaq;
 use App\Models\Visitor;
 use App\Models\WhatsappClick;
 use App\Models\WidgetSetting;
+use App\Services\PushNotifier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -230,6 +231,13 @@ class ConversationController extends Controller
 
         $conversation->increment('unread_admin');
         $conversation->touch();
+
+        PushNotifier::notifyAdmins(
+            '💬 ' . $visitor->display_name,
+            $message->body ?: '📎 ' . ($message->attachment_name ?: 'Attachment'),
+            route('admin.conversations.show', $conversation),
+            'conv-' . $conversation->id
+        );
 
         broadcast(new MessageSent($message))->toOthers();
 

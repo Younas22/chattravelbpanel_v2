@@ -10,6 +10,9 @@
     # Serve voice files from public/voice/
     RewriteRule ^voice/(.*)$ public/voice/$1 [L]
 
+    # Serve PWA icons from public/pwa/
+    RewriteRule ^pwa/(.*)$ public/pwa/$1 [L]
+
     # Serve other public static files
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
