@@ -61,6 +61,9 @@ class DashboardController extends Controller
             'active_chats'    => Conversation::whereIn('status', ['active', 'pending'])->count(),
             'unread_messages' => Conversation::sum('unread_admin'),
             'open_tickets'    => Ticket::where('status', 'open')->count(),
+            // everything that should ring the admin bell
+            'dm_unread'       => \App\Models\DirectMessage::where('sender_type', 'ticket_user')->where('recipient_type', 'admin')->where('is_read', false)->count(),
+            'ticket_unread'   => (int) Ticket::sum('unread_admin'),
         ]);
     }
 }

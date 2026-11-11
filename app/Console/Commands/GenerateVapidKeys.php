@@ -24,7 +24,14 @@ class GenerateVapidKeys extends Command
             return self::FAILURE;
         }
 
-        $keys = VAPID::createVapidKeys();
+        try {
+            $keys = VAPID::createVapidKeys();
+        } catch (\Throwable $e) {
+            $this->error('Could not create keys: ' . $e->getMessage());
+            $this->line('On Windows/XAMPP, point OpenSSL at its config first, e.g.:');
+            $this->line('  set OPENSSL_CONF=C:\xampp\apache\conf\openssl.cnf');
+            return self::FAILURE;
+        }
 
         if ($this->option('show')) {
             $this->line('VAPID_PUBLIC_KEY=' . $keys['publicKey']);

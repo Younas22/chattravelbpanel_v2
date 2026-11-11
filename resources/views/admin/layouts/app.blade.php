@@ -2,7 +2,7 @@
 <html lang="en" x-data="{ sidebarOpen: window.innerWidth >= 1024 }" :class="{ 'dark': false }">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @php
         $systemName    = \App\Models\WidgetSetting::get('system_name', 'TBP Chat');
@@ -21,9 +21,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @include('partials.theme-head')
+    @include('partials.pwa-head')
     @stack('styles')
 </head>
-<body class="bg-slate-50 antialiased">
+<body class="bg-slate-50 antialiased overscroll-none [-webkit-tap-highlight-color:transparent]">
 
 <div class="flex h-dvh overflow-hidden">
 
@@ -295,6 +296,7 @@ document.addEventListener('mouseover', function (e) {
 (function () {
     let prevVisitors = null;
     let prevUnread = null;
+    let lastRing = 0;
     const soundEnabled = {{ $soundEnabled === 'true' ? 'true' : 'false' }};
 
     function playBell(file) {
@@ -343,12 +345,12 @@ document.addEventListener('mouseover', function (e) {
                 }
                 prevVisitors = data.active_visitors;
 
-                const unread = data.unread_messages || 0;
-                if (prevUnread !== null && unread > prevUnread) {
-                    if (!document.getElementById('messages-container')) {
-                        playBell('chat.wav');
-                        showToast('New message received', '💬');
-                    }
+                // live chats + customer messages + ticket replies
+                const unread = (data.unread_messages || 0) + (data.dm_unread || 0) + (data.ticket_unread || 0);
+                if (prevUnread !== null && unread > prevUnread && Date.now() - lastRing > 8000) {
+                    lastRing = Date.now();
+                    playBell('chat.wav');
+                    showToast('New message received', '💬');
                 }
                 prevUnread = unread;
                 updateBellBadge(unread);
@@ -356,9 +358,21 @@ document.addEventListener('mouseover', function (e) {
             .catch(() => {});
     }
 
+    // Called when a push notification arrives while the app is open.
+    window.tbpRingBell = function (payload) {
+        if (Date.now() - lastRing < 3000) return;
+        lastRing = Date.now();
+        playBell('chat.wav');
+        const t = document.createElement('span');
+        t.textContent = (payload && (payload.title + (payload.body ? ': ' + payload.body : ''))) || 'New message received';
+        showToast(t.innerHTML, '💬');
+        updateStats();
+    };
+
     updateStats();
     setInterval(updateStats, 10000);
 })();
 </script>
+@include('partials.pwa-admin')
 </body>
 </html>
