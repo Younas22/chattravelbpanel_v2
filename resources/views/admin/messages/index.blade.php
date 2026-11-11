@@ -7,7 +7,7 @@
     <div class="card !p-4 flex flex-wrap items-center gap-3">
         <form method="GET" class="flex flex-wrap gap-3 flex-1">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search conversations…"
-                class="flex-1 min-w-[200px] px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                class="flex-1 min-w-[200px] px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
             <button type="submit" class="btn-primary cursor-pointer">Search</button>
         </form>
         <a href="{{ route('admin.ticket-users.index') }}" class="btn-secondary cursor-pointer">Start a new conversation →</a>
@@ -33,7 +33,7 @@
                         <p class="text-xs text-slate-500 truncate">{{ $thread->last_message?->body ?: '📎 Attachment' }}</p>
                     </div>
                     @if($thread->unread_count > 0)
-                        <span class="shrink-0 w-5 h-5 bg-blue-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{{ $thread->unread_count > 9 ? '9+' : $thread->unread_count }}</span>
+                        <span class="shrink-0 w-5 h-5 bg-brand-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{{ $thread->unread_count > 9 ? '9+' : $thread->unread_count }}</span>
                     @endif
                 </a>
                 @endforeach

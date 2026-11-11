@@ -13,7 +13,7 @@
     @vite(['resources/css/app.css'])
     <style>* { font-family: 'Inter', sans-serif; }</style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center p-4">
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-brand-950 to-slate-900 flex items-center justify-center p-4">
     <div class="w-full max-w-sm">
 
         {{-- Logo --}}
@@ -23,7 +23,7 @@
                     <img src="{{ url($systemLogo) }}" alt="{{ $systemName }}" class="w-full h-full object-cover">
                 </div>
             @else
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-xl mb-4">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-brand-600 rounded-2xl shadow-xl mb-4">
                     <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                 </div>
             @endif
@@ -45,26 +45,26 @@
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
                     <input type="email" name="email" value="{{ old('email') }}" required autofocus
-                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm transition-all"
                         placeholder="admin@example.com">
                 </div>
 
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
                     <input type="password" name="password" required
-                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
+                        class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm transition-all"
                         placeholder="••••••••">
                 </div>
 
                 <div class="flex items-center justify-between">
                     <label class="flex items-center gap-2 text-sm text-slate-600 cursor-pointer">
-                        <input type="checkbox" name="remember" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500">
+                        <input type="checkbox" name="remember" class="rounded border-slate-300 text-brand-600 focus:ring-brand-500">
                         Remember me
                     </label>
                 </div>
 
                 <button type="submit"
-                    class="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all duration-200 text-sm shadow-sm shadow-blue-200 mt-2 cursor-pointer">
+                    class="w-full py-2.5 px-4 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl transition-all duration-200 text-sm shadow-sm shadow-brand-200 mt-2 cursor-pointer">
                     Sign in to Dashboard
                 </button>
             </form>

@@ -7,7 +7,7 @@
     {{-- Period picker --}}
     <div class="flex items-center gap-3">
         @foreach([['7', '7 Days'], ['30', '30 Days'], ['90', '90 Days']] as [$val, $label])
-        <a href="?period={{ $val }}" class="px-4 py-2 rounded-xl text-sm font-medium transition-colors {{ $period == $val ? 'bg-blue-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' }}">{{ $label }}</a>
+        <a href="?period={{ $val }}" class="px-4 py-2 rounded-xl text-sm font-medium transition-colors {{ $period == $val ? 'bg-brand-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50' }}">{{ $label }}</a>
         @endforeach
     </div>
 
@@ -49,7 +49,7 @@
                 <div class="flex items-center gap-3">
                     <span class="text-sm text-slate-700 flex-1">{{ $row->country }}</span>
                     <div class="flex-1 bg-slate-100 rounded-full h-2">
-                        <div class="bg-blue-600 h-2 rounded-full" style="width: {{ ($row->count / $topCountries->max('count')) * 100 }}%"></div>
+                        <div class="bg-brand-600 h-2 rounded-full" style="width: {{ ($row->count / $topCountries->max('count')) * 100 }}%"></div>
                     </div>
                     <span class="text-sm font-semibold text-slate-800 w-10 text-right">{{ $row->count }}</span>
                 </div>
@@ -119,12 +119,13 @@ for (let i = period - 1; i >= 0; i--) {
 const hasMainData = convData.some(v => v > 0) || msgData.some(v => v > 0);
 document.getElementById('mainChartEmpty').classList.toggle('hidden', hasMainData);
 
+const brandColor = getComputedStyle(document.documentElement).getPropertyValue('--color-brand-600').trim() || '#2563eb';
 new Chart(document.getElementById('mainChart'), {
     type: 'line',
     data: {
         labels: chartDays,
         datasets: [
-            { label: 'Conversations', data: convData, borderColor: '#2563eb', backgroundColor: '#2563eb20', tension: 0.4, fill: true },
+            { label: 'Conversations', data: convData, borderColor: brandColor, backgroundColor: brandColor + '20', tension: 0.4, fill: true },
             { label: 'Messages', data: msgData, borderColor: '#7c3aed', backgroundColor: '#7c3aed20', tension: 0.4, fill: true },
         ]
     },
@@ -136,7 +137,7 @@ new Chart(document.getElementById('deviceChart'), {
     type: 'doughnut',
     data: {
         labels: Object.keys(deviceData).map(k => k.charAt(0).toUpperCase() + k.slice(1)),
-        datasets: [{ data: Object.values(deviceData), backgroundColor: ['#2563eb', '#7c3aed', '#10b981'], borderWidth: 0 }]
+        datasets: [{ data: Object.values(deviceData), backgroundColor: [brandColor, '#7c3aed', '#10b981'], borderWidth: 0 }]
     },
     options: { responsive: true, plugins: { legend: { display: false } }, cutout: '70%' }
 });

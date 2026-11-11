@@ -70,13 +70,13 @@
                         <td class="px-5 py-3.5">
                             <input type="number" value="{{ date('Y') }}" min="2020" max="2030"
                                 id="year-{{ $country->id }}"
-                                class="w-20 text-xs border border-slate-200 rounded-lg px-2 py-1 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                                class="w-20 text-xs border border-slate-200 rounded-lg px-2 py-1 text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-400">
                         </td>
                         <td class="px-5 py-3.5 flex items-center gap-2">
                             <button
                                 @click="fetchHolidays({{ $country->id }}, '{{ addslashes($country->name) }}')"
                                 :disabled="loading[{{ $country->id }}]"
-                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
+                                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-50 hover:bg-brand-100 text-brand-600 text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                                 <svg x-show="!loading[{{ $country->id }}]" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                                 </svg>
@@ -194,7 +194,7 @@
                             <div class="flex items-center justify-between px-4 py-2.5 bg-slate-50 border-b border-slate-100">
                                 <div class="flex items-center gap-2">
                                     <span class="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold text-white"
-                                        :class="['bg-red-500','bg-blue-500','bg-violet-500','bg-green-500','bg-orange-500','bg-teal-500','bg-pink-500'][group.dayIndex]"
+                                        :class="['bg-red-500','bg-brand-500','bg-violet-500','bg-green-500','bg-orange-500','bg-teal-500','bg-pink-500'][group.dayIndex]"
                                         x-text="group.dayShort"></span>
                                     <span class="text-sm font-semibold text-slate-700" x-text="group.day"></span>
                                 </div>
@@ -355,7 +355,7 @@
                                 <p class="text-xs text-slate-500 mt-1 line-clamp-2" x-text="h.description"></p>
                             </div>
                             {{-- Type tag --}}
-                            <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-50 text-blue-600 capitalize" x-text="h.type"></span>
+                            <span class="shrink-0 px-2 py-0.5 rounded-full text-[10px] font-medium bg-brand-50 text-brand-600 capitalize" x-text="h.type"></span>
                         </div>
                     </div>
                 </template>

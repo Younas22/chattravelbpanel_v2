@@ -7,7 +7,7 @@
     <div class="flex items-center justify-between mb-6">
         <div>
             <div class="flex items-center gap-2 mb-1">
-                <span class="font-mono text-sm text-blue-600">{{ $ticket->ticket_number }}</span>
+                <span class="font-mono text-sm text-brand-600">{{ $ticket->ticket_number }}</span>
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $ticket->status === 'open' ? 'bg-green-100 text-green-700' : ($ticket->status === 'pending' ? 'bg-yellow-100 text-yellow-700' : 'bg-slate-100 text-slate-500') }}">
                     {{ ucfirst($ticket->status) }}
                 </span>
@@ -20,9 +20,9 @@
     {{-- Messages --}}
     <div class="space-y-4 mb-6">
         @foreach($ticket->messages as $msg)
-        <div class="bg-white rounded-2xl border border-slate-100 p-5 {{ $msg->sender_type === 'admin' ? 'border-l-4 border-l-blue-500' : '' }}">
+        <div class="bg-white rounded-2xl border border-slate-100 p-5 {{ $msg->sender_type === 'admin' ? 'border-l-4 border-l-brand-500' : '' }}">
             <div class="flex items-center gap-3 mb-3">
-                <div class="w-8 h-8 rounded-full {{ $msg->sender_type === 'admin' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600' }} flex items-center justify-center text-sm font-bold">
+                <div class="w-8 h-8 rounded-full {{ $msg->sender_type === 'admin' ? 'bg-brand-100 text-brand-700' : 'bg-slate-100 text-slate-600' }} flex items-center justify-center text-sm font-bold">
                     {{ $msg->sender_type === 'admin' ? 'S' : strtoupper(substr(auth('ticket_user')->user()->full_name, 0, 1)) }}
                 </div>
                 <div>
@@ -36,7 +36,7 @@
             <div class="mt-3">
                 <a href="{{ $msg->attachment_url }}" target="_blank"
                     class="inline-flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm hover:bg-slate-100 transition-colors">
-                    <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                    <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                     {{ $msg->attachment_name }}
                 </a>
             </div>
@@ -55,16 +55,16 @@
                 <div class="p-3 bg-red-50 border border-red-100 text-red-600 text-sm rounded-xl">{{ $errors->first() }}</div>
             @endif
             <textarea name="body" rows="4" required placeholder="Your reply…"
-                class="w-full resize-none px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ old('body') }}</textarea>
+                class="w-full resize-none px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">{{ old('body') }}</textarea>
             <div class="flex items-center justify-between">
                 <input type="file" name="attachment" class="text-sm text-slate-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-slate-100 file:text-slate-600 file:text-xs hover:file:bg-slate-200 transition-colors">
-                <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors text-sm cursor-pointer">Send Reply</button>
+                <button type="submit" class="px-5 py-2 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition-colors text-sm cursor-pointer">Send Reply</button>
             </div>
         </form>
     </div>
     @else
     <div class="bg-slate-50 rounded-2xl border border-slate-200 p-5 text-center text-sm text-slate-500">
-        This ticket is closed. <a href="{{ route('tickets.create') }}" class="text-blue-600 hover:underline">Open a new ticket</a> for further support.
+        This ticket is closed. <a href="{{ route('tickets.create') }}" class="text-brand-600 hover:underline">Open a new ticket</a> for further support.
     </div>
     @endif
 </div>

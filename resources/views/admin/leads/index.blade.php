@@ -7,12 +7,12 @@
     {{-- Status filter tabs --}}
     <div class="card !p-3 flex flex-wrap items-center gap-2">
         <a href="{{ route('admin.leads.index') }}"
-            class="px-3.5 py-1.5 rounded-xl text-sm font-medium transition-colors {{ $status === 'all' ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100' }}">
+            class="px-3.5 py-1.5 rounded-xl text-sm font-medium transition-colors {{ $status === 'all' ? 'bg-brand-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100' }}">
             All <span class="opacity-70">({{ $total }})</span>
         </a>
         @foreach(\App\Models\Visitor::LEAD_STATUSES as $key => $label)
         <a href="{{ route('admin.leads.index', ['status' => $key]) }}"
-            class="px-3.5 py-1.5 rounded-xl text-sm font-medium transition-colors {{ $status === $key ? 'bg-blue-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100' }}">
+            class="px-3.5 py-1.5 rounded-xl text-sm font-medium transition-colors {{ $status === $key ? 'bg-brand-600 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100' }}">
             {{ $label }} <span class="opacity-70">({{ $counts[$key] ?? 0 }})</span>
         </a>
         @endforeach
@@ -55,7 +55,7 @@
                         <td class="px-5 py-3.5">
                             <select
                                 onchange="updateLeadStatus({{ $lead->id }}, this.value)"
-                                class="text-xs font-semibold rounded-lg border-0 py-1.5 pl-2.5 pr-7 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                class="text-xs font-semibold rounded-lg border-0 py-1.5 pl-2.5 pr-7 cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-500"
                                 data-status-select="{{ $lead->id }}">
                                 @foreach(\App\Models\Visitor::LEAD_STATUSES as $key => $label)
                                     <option value="{{ $key }}" {{ $lead->lead_status === $key ? 'selected' : '' }}>{{ $label }}</option>
@@ -91,14 +91,14 @@
 <script>
 const LEAD_STATUS_COLORS = {
     pending:   'bg-yellow-100 text-yellow-700',
-    contacted: 'bg-blue-100 text-blue-700',
+    contacted: 'bg-brand-100 text-brand-700',
     follow_up: 'bg-purple-100 text-purple-700',
     converted: 'bg-green-100 text-green-700',
     closed:    'bg-slate-200 text-slate-600',
 };
 
 function leadStatusSelectClass(status) {
-    return 'text-xs font-semibold rounded-lg border-0 py-1.5 pl-2.5 pr-7 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 '
+    return 'text-xs font-semibold rounded-lg border-0 py-1.5 pl-2.5 pr-7 cursor-pointer focus:outline-none focus:ring-2 focus:ring-brand-500 '
         + (LEAD_STATUS_COLORS[status] || 'bg-slate-100 text-slate-600');
 }
 

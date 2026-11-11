@@ -7,7 +7,7 @@
     <div class="card !p-4 flex flex-wrap items-center gap-3">
         <form method="GET" class="flex flex-wrap gap-3 flex-1">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by name, email or phone…"
-                class="flex-1 min-w-[200px] px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                class="flex-1 min-w-[200px] px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
             <button type="submit" class="btn-primary cursor-pointer">Search</button>
         </form>
         <div class="text-sm text-slate-500">Total: <span class="font-semibold text-slate-800">{{ $users->total() }}</span> users</div>
@@ -45,12 +45,12 @@
                                         <img src="{{ $user->profileImageUrl() }}"
                                              class="w-9 h-9 rounded-full object-cover ring-2 ring-slate-100"
                                              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                                        <div class="w-9 h-9 bg-blue-100 rounded-full items-center justify-center" style="display:none">
-                                            <span class="text-blue-600 font-bold text-sm">{{ strtoupper(substr($user->full_name,0,1)) }}</span>
+                                        <div class="w-9 h-9 bg-brand-100 rounded-full items-center justify-center" style="display:none">
+                                            <span class="text-brand-600 font-bold text-sm">{{ strtoupper(substr($user->full_name,0,1)) }}</span>
                                         </div>
                                     @else
-                                        <div class="w-9 h-9 bg-blue-100 rounded-full flex items-center justify-center">
-                                            <span class="text-blue-600 font-bold text-sm">{{ strtoupper(substr($user->full_name,0,1)) }}</span>
+                                        <div class="w-9 h-9 bg-brand-100 rounded-full flex items-center justify-center">
+                                            <span class="text-brand-600 font-bold text-sm">{{ strtoupper(substr($user->full_name,0,1)) }}</span>
                                         </div>
                                     @endif
                                     <div>
@@ -62,7 +62,7 @@
                             <td class="px-5 py-4 text-slate-600">{{ $user->phone ?: '—' }}</td>
                             <td class="px-5 py-4">
                                 <a href="{{ route('admin.tickets.index', ['search' => $user->email]) }}"
-                                   class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors">
+                                   class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-50 text-brand-700 text-xs font-semibold hover:bg-brand-100 transition-colors">
                                     {{ $user->tickets_count }} ticket{{ $user->tickets_count !== 1 ? 's' : '' }}
                                 </a>
                             </td>
@@ -75,7 +75,7 @@
                                         </a>
                                     @endif
                                     @if(!empty($links['facebook']))
-                                        <a href="{{ $links['facebook'] }}" target="_blank" class="text-blue-600 hover:text-blue-700" title="Facebook">
+                                        <a href="{{ $links['facebook'] }}" target="_blank" class="text-brand-600 hover:text-brand-700" title="Facebook">
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
                                         </a>
                                     @endif
@@ -85,7 +85,7 @@
                                         </a>
                                     @endif
                                     @if(!empty($links['linkedin']))
-                                        <a href="{{ $links['linkedin'] }}" target="_blank" class="text-blue-700 hover:text-blue-800" title="LinkedIn">
+                                        <a href="{{ $links['linkedin'] }}" target="_blank" class="text-brand-700 hover:text-brand-800" title="LinkedIn">
                                             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
                                         </a>
                                     @endif
@@ -96,7 +96,7 @@
                             </td>
                             <td class="px-5 py-4 text-slate-500 text-xs">{{ $user->created_at->format('M j, Y') }}</td>
                             <td class="px-5 py-4">
-                                <a href="{{ route('admin.messages.show', $user) }}" title="Message" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-xs font-semibold hover:bg-blue-100 transition-colors">
+                                <a href="{{ route('admin.messages.show', $user) }}" title="Message" class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-brand-50 text-brand-700 text-xs font-semibold hover:bg-brand-100 transition-colors">
                                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                                     Message
                                 </a>
@@ -119,25 +119,25 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Full Name</label>
-                    <input type="text" x-model="form.full_name" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="e.g. John Smith">
+                    <input type="text" x-model="form.full_name" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="e.g. John Smith">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Email</label>
-                    <input type="email" x-model="form.email" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="john@example.com">
+                    <input type="email" x-model="form.email" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="john@example.com">
                 </div>
                 <div class="grid sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Phone <span class="text-slate-400 font-normal">(optional)</span></label>
-                        <input type="text" x-model="form.phone" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" x-model="form.phone" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Company <span class="text-slate-400 font-normal">(optional)</span></label>
-                        <input type="text" x-model="form.company_name" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="text" x-model="form.company_name" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Password</label>
-                    <input type="password" x-model="form.password" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Min. 8 characters">
+                    <input type="password" x-model="form.password" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" placeholder="Min. 8 characters">
                 </div>
             </div>
 

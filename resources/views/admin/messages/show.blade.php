@@ -8,18 +8,18 @@
     <div class="w-72 shrink-0 flex flex-col bg-white border border-slate-100 rounded-2xl overflow-hidden mr-4">
         <div class="flex items-center justify-between px-4 py-3 border-b border-slate-100 shrink-0">
             <span class="font-semibold text-slate-900 text-sm">Messages</span>
-            <a href="{{ route('admin.messages.index') }}" class="text-xs text-blue-600 hover:underline">All</a>
+            <a href="{{ route('admin.messages.index') }}" class="text-xs text-brand-600 hover:underline">All</a>
         </div>
         <div class="flex-1 overflow-y-auto divide-y divide-slate-50">
             @foreach($threads as $thread)
             <a href="{{ route('admin.messages.show', $thread) }}"
-               class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors {{ $thread->id === $ticketUser->id ? 'bg-blue-50 border-l-2 border-blue-500' : '' }}">
+               class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors {{ $thread->id === $ticketUser->id ? 'bg-brand-50 border-l-2 border-brand-500' : '' }}">
                 <x-avatar :name="$thread->full_name" :image="$thread->profileImageUrl()" size-class="w-9 h-9" />
                 <div class="flex-1 min-w-0">
                     <div class="flex items-center justify-between gap-1">
                         <span class="text-sm font-semibold text-slate-900 truncate">{{ $thread->full_name }}</span>
                         @if($thread->unread_count > 0)
-                            <span class="shrink-0 w-4 h-4 bg-blue-600 text-white text-[9px] rounded-full flex items-center justify-center font-bold">{{ $thread->unread_count > 9 ? '9+' : $thread->unread_count }}</span>
+                            <span class="shrink-0 w-4 h-4 bg-brand-600 text-white text-[9px] rounded-full flex items-center justify-center font-bold">{{ $thread->unread_count > 9 ? '9+' : $thread->unread_count }}</span>
                         @endif
                     </div>
                     <p class="text-xs text-slate-500 truncate">{{ $thread->last_message?->body ?: '📎 Attachment' }}</p>
@@ -58,8 +58,8 @@
                     <p class="text-[11px] font-medium text-slate-400 mb-1 {{ $msg->sender_type === 'admin' ? '' : 'text-right' }}">{{ $msg->sender_type === 'admin' ? $msg->sender_name : $ticketUser->full_name }}</p>
 
                     @if($msg->replyTo)
-                    <div class="mb-1 px-3 py-1.5 rounded-xl border-l-4 {{ $msg->sender_type === 'admin' ? 'border-white/50 bg-blue-500/30' : 'border-blue-400 bg-slate-100' }} text-xs text-slate-500 truncate">
-                        <span class="font-semibold {{ $msg->sender_type === 'admin' ? 'text-white/80' : 'text-blue-600' }}">
+                    <div class="mb-1 px-3 py-1.5 rounded-xl border-l-4 {{ $msg->sender_type === 'admin' ? 'border-white/50 bg-brand-500/30' : 'border-brand-400 bg-slate-100' }} text-xs text-slate-500 truncate">
+                        <span class="font-semibold {{ $msg->sender_type === 'admin' ? 'text-white/80' : 'text-brand-600' }}">
                             {{ $msg->replyTo->sender_type === 'admin' ? 'You' : $ticketUser->full_name }}
                         </span>
                         <span class="{{ $msg->sender_type === 'admin' ? 'text-white/70' : 'text-slate-500' }}">
@@ -69,7 +69,7 @@
                     @endif
 
                     @if($msg->body)
-                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_type === 'admin' ? 'bg-blue-600 text-white rounded-bl-sm' : 'bg-slate-100 text-slate-900 rounded-br-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
+                        <div class="px-4 py-2.5 rounded-2xl text-sm break-words {{ $msg->sender_type === 'admin' ? 'bg-brand-600 text-white rounded-bl-sm' : 'bg-slate-100 text-slate-900 rounded-br-sm' }}" style="overflow-wrap:break-word;word-break:break-word;">
                             {!! nl2br(e($msg->body)) !!}
                         </div>
                     @endif
@@ -85,7 +85,7 @@
                             @else
                                 <a href="{{ $msg->attachment_url }}" target="_blank"
                                     class="flex items-center gap-2 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
-                                    <svg class="w-5 h-5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                                    <svg class="w-5 h-5 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
                                     <span class="truncate text-slate-700">{{ $msg->attachment_name }}</span>
                                 </a>
                             @endif
@@ -116,12 +116,12 @@
                     <div class="max-w-[70%]">
                         <p class="text-[11px] font-medium text-slate-400 mb-1" :class="msg.sender_type === 'admin' ? '' : 'text-right'" x-text="msg.sender_name"></p>
                         <div x-show="msg.reply_to" class="mb-1 px-3 py-1.5 rounded-xl border-l-4 text-xs truncate"
-                             :class="msg.sender_type === 'admin' ? 'border-white/50 bg-blue-500/30 text-white/70' : 'border-blue-400 bg-slate-100 text-slate-500'">
+                             :class="msg.sender_type === 'admin' ? 'border-white/50 bg-brand-500/30 text-white/70' : 'border-brand-400 bg-slate-100 text-slate-500'">
                             <span class="font-semibold" x-text="msg.reply_to?.sender_type === 'admin' ? 'You' : '{{ $ticketUser->full_name }}'"></span>
                             <span x-text="msg.reply_to?.body ? msg.reply_to.body.slice(0,60) : (msg.reply_to?.attachment_name || '📎 Attachment')"></span>
                         </div>
                         <div x-show="msg.body"
-                            :class="msg.sender_type === 'admin' ? 'bg-blue-600 text-white rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-br-sm px-4 py-2.5 text-sm'"
+                            :class="msg.sender_type === 'admin' ? 'bg-brand-600 text-white rounded-2xl rounded-bl-sm px-4 py-2.5 text-sm' : 'bg-slate-100 text-slate-900 rounded-2xl rounded-br-sm px-4 py-2.5 text-sm'"
                             style="overflow-wrap:break-word;word-break:break-word;"
                             x-text="msg.body"></div>
                         <div x-show="msg.attachment_url && msg.attachment_type === 'image'" class="mt-1.5">
@@ -132,7 +132,7 @@
                         </div>
                         <div x-show="msg.attachment_url && msg.attachment_type !== 'image' && msg.attachment_type !== 'video'" class="mt-1.5">
                             <a :href="msg.attachment_url" target="_blank" class="flex items-center gap-2 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-colors text-sm">
-                                <svg class="w-5 h-5 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 002 2v14a2 2 0 002 2z"/></svg>
+                                <svg class="w-5 h-5 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 002 2v14a2 2 0 002 2z"/></svg>
                                 <span class="truncate text-slate-700" x-text="msg.attachment_name || 'Attachment'"></span>
                             </a>
                         </div>
@@ -150,9 +150,9 @@
 
         <div class="border-t border-slate-100 px-4 pt-3 pb-4">
             {{-- Reply-to preview --}}
-            <div x-show="replyTo" x-cloak class="mb-2 flex items-center gap-2 pl-3 pr-2 py-2 bg-blue-50 border-l-4 border-blue-500 rounded-xl">
+            <div x-show="replyTo" x-cloak class="mb-2 flex items-center gap-2 pl-3 pr-2 py-2 bg-brand-50 border-l-4 border-brand-500 rounded-xl">
                 <div class="flex-1 min-w-0">
-                    <p class="text-[11px] font-semibold text-blue-600" x-text="replyTo?.sender_type === 'admin' ? 'Replying to yourself' : 'Replying to {{ $ticketUser->full_name }}'"></p>
+                    <p class="text-[11px] font-semibold text-brand-600" x-text="replyTo?.sender_type === 'admin' ? 'Replying to yourself' : 'Replying to {{ $ticketUser->full_name }}'"></p>
                     <p class="text-xs text-slate-600 truncate" x-text="replyTo?.body ? replyTo.body.slice(0,80) : (replyTo?.attachment_name || '📎 Attachment')"></p>
                 </div>
                 <button @click="clearReply()" class="text-slate-400 hover:text-red-500 transition-colors cursor-pointer shrink-0">
@@ -161,14 +161,14 @@
             </div>
 
             <div x-show="filePreview" x-cloak class="mb-2 p-2.5 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-2">
-                <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
+                <svg class="w-4 h-4 text-brand-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                 <span class="text-xs text-slate-700 truncate flex-1" x-text="filePreview"></span>
                 <button @click="clearFile()" class="text-slate-400 hover:text-red-500 transition-colors cursor-pointer shrink-0">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
 
-            <div class="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
+            <div class="flex items-end gap-2 rounded-2xl border border-slate-200 bg-white px-3 py-2 focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-brand-500 transition-all">
                 <textarea x-model="message" x-ref="msgInput"
                     @keydown.enter.prevent="if(!$event.shiftKey) send()"
                     rows="1" placeholder="Message {{ $ticketUser->full_name }}…"
@@ -179,7 +179,7 @@
                 <div class="flex items-center gap-0.5 shrink-0 pb-0.5">
                     <div class="relative">
                         <button @click="showEmoji = !showEmoji" type="button"
-                            :class="showEmoji ? 'bg-blue-50 text-blue-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'"
+                            :class="showEmoji ? 'bg-brand-50 text-brand-600' : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'"
                             class="p-1.5 rounded-lg transition-colors text-lg leading-none cursor-pointer">😊</button>
                         <div x-show="showEmoji" x-cloak @click.outside="showEmoji = false"
                             class="absolute z-50" style="bottom:calc(100% + 6px);right:0;">
@@ -193,7 +193,7 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                     </button>
                     <button @click="send()" :disabled="sending" type="button"
-                        class="ml-1 p-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors disabled:opacity-50 cursor-pointer">
+                        class="ml-1 p-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white transition-colors disabled:opacity-50 cursor-pointer">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                     </button>
                 </div>

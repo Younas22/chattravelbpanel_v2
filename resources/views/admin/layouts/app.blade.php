@@ -20,49 +20,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        * { font-family: 'Inter', sans-serif; }
-        [x-cloak] { display: none !important; }
-
-        /* Sidebar tooltip when collapsed */
-        .sidebar-tooltip {
-            position: absolute;
-            left: calc(100% + 10px);
-            top: 50%;
-            transform: translateY(-50%);
-            background: #1e293b;
-            color: #f1f5f9;
-            font-size: 12px;
-            font-weight: 500;
-            padding: 5px 10px;
-            border-radius: 8px;
-            white-space: nowrap;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity 0.15s;
-            z-index: 9999;
-        }
-        .sidebar-tooltip::before {
-            content: '';
-            position: absolute;
-            right: 100%;
-            top: 50%;
-            transform: translateY(-50%);
-            border: 5px solid transparent;
-            border-right-color: #1e293b;
-        }
-        .sidebar-link { position: relative; }
-        .sidebar-link:hover .sidebar-tooltip { opacity: 1; }
-    </style>
+    @include('partials.theme-head')
     @stack('styles')
 </head>
 <body class="bg-slate-50 antialiased">
 
-<div class="flex h-screen overflow-hidden">
+<div class="flex h-dvh overflow-hidden">
+
+    {{-- Mobile backdrop for the off-canvas sidebar --}}
+    <div x-show="sidebarOpen" x-cloak @click="sidebarOpen = false"
+         x-transition:enter="transition-opacity duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+         x-transition:leave="transition-opacity duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+         class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-[1px] lg:hidden"></div>
 
     {{-- Sidebar --}}
     <aside
-        class="fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-100 shadow-sm transition-all duration-300"
+        class="fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-100 shadow-xl lg:shadow-sm transition-all duration-300"
         :class="sidebarOpen ? 'w-64' : 'w-0 lg:w-16'"
         :style="(!sidebarOpen && window.innerWidth >= 1024) ? 'overflow:visible' : 'overflow:hidden'"
         x-cloak
@@ -72,7 +45,7 @@
             @if($systemLogo)
                 <img src="{{ url($systemLogo) }}" class="w-8 h-8 rounded-xl object-cover shrink-0" alt="{{ $systemName }}">
             @else
-                <div class="w-8 h-8 bg-blue-600 rounded-xl flex items-center justify-center shrink-0">
+                <div class="w-8 h-8 bg-brand-600 rounded-xl flex items-center justify-center shrink-0">
                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                 </div>
             @endif
@@ -83,7 +56,7 @@
         </div>
 
         {{-- Nav --}}
-        <nav class="flex-1 overflow-y-auto p-3 space-y-1">
+        <nav class="flex-1 overflow-y-auto thin-scroll p-3 space-y-1" @click="if ($event.target.closest('a') && window.innerWidth < 1024) sidebarOpen = false">
 
             <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
@@ -204,13 +177,13 @@
                 <div class="relative shrink-0">
                     @if($widgetAvatar)
                         <img src="{{ url($widgetAvatar) }}" alt="{{ $authUser->name }}"
-                             class="w-9 h-9 rounded-full ring-2 ring-blue-100 object-cover"
+                             class="w-9 h-9 rounded-full ring-2 ring-brand-100 object-cover"
                              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                        <div class="w-9 h-9 bg-blue-600 rounded-full ring-2 ring-blue-100 items-center justify-center" style="display:none">
+                        <div class="w-9 h-9 bg-brand-600 rounded-full ring-2 ring-brand-100 items-center justify-center" style="display:none">
                             <span class="text-white text-sm font-bold">{{ $userInitial }}</span>
                         </div>
                     @else
-                        <div class="w-9 h-9 bg-blue-600 rounded-full ring-2 ring-blue-100 flex items-center justify-center">
+                        <div class="w-9 h-9 bg-brand-600 rounded-full ring-2 ring-brand-100 flex items-center justify-center">
                             <span class="text-white text-sm font-bold">{{ $userInitial }}</span>
                         </div>
                     @endif
@@ -234,13 +207,13 @@
                 <div class="relative">
                     @if($widgetAvatar)
                         <img src="{{ url($widgetAvatar) }}" alt="{{ $authUser->name }}"
-                             class="w-8 h-8 rounded-full ring-2 ring-blue-100 object-cover cursor-pointer"
+                             class="w-8 h-8 rounded-full ring-2 ring-brand-100 object-cover cursor-pointer"
                              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                        <div class="w-8 h-8 bg-blue-600 rounded-full ring-2 ring-blue-100 items-center justify-center cursor-pointer" style="display:none">
+                        <div class="w-8 h-8 bg-brand-600 rounded-full ring-2 ring-brand-100 items-center justify-center cursor-pointer" style="display:none">
                             <span class="text-white text-xs font-bold">{{ $userInitial }}</span>
                         </div>
                     @else
-                        <div class="w-8 h-8 bg-blue-600 rounded-full ring-2 ring-blue-100 flex items-center justify-center cursor-pointer">
+                        <div class="w-8 h-8 bg-brand-600 rounded-full ring-2 ring-brand-100 flex items-center justify-center cursor-pointer">
                             <span class="text-white text-xs font-bold">{{ $userInitial }}</span>
                         </div>
                     @endif
@@ -251,37 +224,41 @@
     </aside>
 
     {{-- Main Content --}}
-    <div class="flex-1 flex flex-col min-w-0 transition-all duration-300" :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-16'">
+    <div class="flex-1 flex flex-col min-w-0 min-h-0 transition-all duration-300" :class="sidebarOpen ? 'lg:ml-64' : 'lg:ml-16'">
 
         {{-- Top Header --}}
-        <header class="flex items-center gap-4 h-16 px-4 lg:px-6 bg-white border-b border-slate-100 sticky top-0 z-40">
-            <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors cursor-pointer">
+        {{-- Chat detail pages hide this bar on mobile and show their own chat header instead --}}
+        <header class="@hasSection('chat') hidden lg:flex @else flex @endif shrink-0 items-center gap-2 sm:gap-3 h-14 lg:h-16 px-3 lg:px-6 bg-white/90 backdrop-blur border-b border-slate-100 sticky top-0 z-30">
+            <button @click="sidebarOpen = !sidebarOpen" class="icon-btn" aria-label="Toggle menu">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
             </button>
 
-            <div class="flex-1">
-                <h1 class="text-lg font-semibold text-slate-900">@yield('title', 'Dashboard')</h1>
+            <div class="flex-1 min-w-0">
+                <h1 class="text-base lg:text-lg font-semibold text-slate-900 truncate">@yield('title', 'Dashboard')</h1>
             </div>
 
             {{-- Online indicator --}}
-            <div class="flex items-center gap-2 text-xs text-slate-500">
+            <div class="flex items-center gap-1.5 rounded-full bg-green-50 px-2.5 py-1 text-xs font-medium text-green-700" title="Visitors online">
                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span id="live-visitors-count">—</span> online
+                <span id="live-visitors-count">—</span><span class="hidden sm:inline">online</span>
             </div>
 
             {{-- Bell notification button --}}
             <button id="admin-bell-btn" onclick="window.location='{{ route('admin.conversations.index') }}'"
-                class="p-2 rounded-xl hover:bg-slate-100 text-slate-500 transition-colors relative cursor-pointer">
+                class="icon-btn relative" aria-label="Live chats">
                 <svg id="admin-bell-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
                 <span id="admin-bell-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-content-center leading-none" style="display:none!important;align-items:center;justify-content:center;"></span>
             </button>
 
-            {{-- Toast container --}}
-            <div id="admin-toast-container" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none;"></div>
+            {{-- Theme picker --}}
+            @include('partials.theme-picker')
         </header>
 
+        {{-- Toast container --}}
+        <div id="admin-toast-container" class="fixed top-4 right-4 left-4 sm:left-auto z-[9999] flex flex-col items-end gap-2 pointer-events-none"></div>
+
         {{-- Page Content --}}
-        <main class="flex-1 overflow-y-auto p-4 lg:p-6">
+        <main class="flex-1 min-h-0 @hasSection('chat') overflow-hidden lg:p-4 @else overflow-y-auto p-3 sm:p-4 lg:p-6 @endif">
             @if(session('success'))
                 <div class="mb-4 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm flex items-center gap-2">
                     <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>

@@ -18,38 +18,38 @@
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Full Name <span class="text-red-500">*</span></label>
                 <input type="text" name="full_name" value="{{ old('full_name') }}" required
-                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Email <span class="text-red-500">*</span></label>
                 <input type="email" name="email" value="{{ old('email') }}" required
-                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Phone</label>
                 <input type="tel" name="phone" value="{{ old('phone') }}"
-                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Company</label>
                 <input type="text" name="company_name" value="{{ old('company_name') }}"
-                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Password <span class="text-red-500">*</span></label>
                 <input type="password" name="password" required minlength="8"
-                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
             </div>
             <div>
                 <label class="block text-sm font-medium text-slate-700 mb-1.5">Confirm Password <span class="text-red-500">*</span></label>
                 <input type="password" name="password_confirmation" required
-                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
             </div>
-            <button type="submit" class="w-full py-2.5 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-colors text-sm cursor-pointer">Create Account</button>
+            <button type="submit" class="w-full py-2.5 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition-colors text-sm cursor-pointer">Create Account</button>
         </form>
 
         <p class="text-center text-sm text-slate-500 mt-4">
-            Already have an account? <a href="{{ route('tickets.login') }}" class="text-blue-600 hover:underline font-medium">Sign in</a>
+            Already have an account? <a href="{{ route('tickets.login') }}" class="text-brand-600 hover:underline font-medium">Sign in</a>
         </p>
     </div>
 </div>

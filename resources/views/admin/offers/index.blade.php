@@ -35,7 +35,7 @@
                 {{ $offer?->is_active ? 'Offer is ON' : 'Offer is OFF' }}
             </span>
             <button type="submit"
-                class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                class="relative inline-flex h-8 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
                 style="{{ $offer?->is_active ? 'background-color:#16a34a' : 'background-color:#cbd5e1' }}">
                 <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-200 mt-0.5"
                     style="{{ $offer?->is_active ? 'transform:translateX(26px)' : 'transform:translateX(2px)' }}">
@@ -58,7 +58,7 @@
                 <input type="text" name="label"
                     value="{{ old('label', $offer?->label) }}"
                     placeholder="e.g. Eid Special, Summer Sale, Black Friday…"
-                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                    class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
                 @error('label')
                     <p class="text-xs text-red-500 mt-1.5">{{ $message }}</p>
                 @enderror
@@ -69,7 +69,7 @@
                 {{-- Original Price --}}
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Original Price</label>
-                    <div class="flex rounded-xl border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
+                    <div class="flex rounded-xl border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-transparent">
                         <span class="flex items-center px-3 bg-slate-50 border-r border-slate-200 text-slate-500 text-sm font-semibold select-none">$</span>
                         <input type="number" name="original_price" step="0.01" min="0"
                             x-model="originalPrice"
@@ -85,7 +85,7 @@
                 {{-- Discount Price --}}
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Discount Price</label>
-                    <div class="flex rounded-xl border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent">
+                    <div class="flex rounded-xl border border-slate-200 overflow-hidden focus-within:ring-2 focus-within:ring-brand-500 focus-within:border-transparent">
                         <span class="flex items-center px-3 bg-slate-50 border-r border-slate-200 text-slate-500 text-sm font-semibold select-none">$</span>
                         <input type="number" name="discount_price" step="0.01" min="0"
                             x-model="discountPrice"
@@ -122,8 +122,8 @@
                 <input type="hidden" name="is_active" value="0">
                 {{-- toggle --}}
                 <button type="button" @click="isActive = !isActive" role="switch" :aria-checked="isActive"
-                    class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    :style="isActive ? 'background-color:#2563eb' : 'background-color:#cbd5e1'">
+                    class="relative inline-flex h-7 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
+                    :style="isActive ? 'background-color:var(--color-brand-600)' : 'background-color:#cbd5e1'">
                     <span
                         class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-200"
                         :style="isActive ? 'transform:translateX(20px)' : 'transform:translateX(1px)'">
@@ -211,12 +211,12 @@
         {{-- Full widget (chat + offer popup) --}}
         <div>
             <p class="text-xs font-semibold text-slate-600 mb-2 flex items-center gap-1.5">
-                <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                <span class="w-2 h-2 bg-brand-500 rounded-full"></span>
                 Full widget — Chat + Offer Popup
             </p>
             @php $chatCode = '<script src="' . url('widget.js') . '"></script>'; @endphp
             <div class="relative">
-                <pre class="bg-slate-900 text-blue-300 text-xs rounded-xl px-4 py-3 overflow-x-auto font-mono leading-relaxed select-all">{{ $chatCode }}</pre>
+                <pre class="bg-slate-900 text-brand-300 text-xs rounded-xl px-4 py-3 overflow-x-auto font-mono leading-relaxed select-all">{{ $chatCode }}</pre>
                 <button onclick="copyCode(this, {{ json_encode($chatCode) }})"
                     class="absolute top-2 right-2 px-2.5 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs rounded-lg transition-colors cursor-pointer">
                     Copy

@@ -9,10 +9,10 @@
         <form method="GET" class="flex flex-wrap gap-3 flex-1">
             <input type="text" name="search" value="{{ request('search') }}"
                 placeholder="Search visitor, email, IP…"
-                class="flex-1 min-w-[200px] px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                class="flex-1 min-w-[200px] px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
 
             <select name="status" onchange="this.form.submit()"
-                class="px-3.5 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                class="px-3.5 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
                 <option value="all" {{ request('status','all') === 'all' ? 'selected' : '' }}>All Status</option>
                 <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
                 <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Active</option>
@@ -35,11 +35,11 @@
             <div class="divide-y divide-slate-50">
                 @foreach($conversations as $conv)
                 <a href="{{ route('admin.conversations.show', $conv) }}"
-                    class="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors {{ $conv->unread_admin > 0 ? 'bg-blue-50/40' : '' }}">
+                    class="flex items-center gap-4 px-5 py-4 hover:bg-slate-50 transition-colors {{ $conv->unread_admin > 0 ? 'bg-brand-50/40' : '' }}">
 
                     {{-- Avatar --}}
                     <div class="relative shrink-0">
-                        <div class="w-10 h-10 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center font-semibold text-sm">
+                        <div class="w-10 h-10 bg-brand-100 text-brand-700 rounded-full flex items-center justify-center font-semibold text-sm">
                             {{ strtoupper(substr($conv->visitor->display_name, 0, 1)) }}
                         </div>
                         @if($conv->visitor->is_online)
@@ -52,7 +52,7 @@
                         <div class="flex items-center gap-2">
                             <p class="font-semibold text-sm text-slate-900">{{ $conv->visitor->display_name }}</p>
                             @if($conv->unread_admin > 0)
-                                <span class="w-5 h-5 bg-blue-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{{ $conv->unread_admin }}</span>
+                                <span class="w-5 h-5 bg-brand-600 text-white text-[10px] rounded-full flex items-center justify-center font-bold">{{ $conv->unread_admin }}</span>
                             @endif
                         </div>
                         <p class="text-sm text-slate-500 truncate">{{ $conv->latestMessage?->body ?: 'No messages yet' }}</p>

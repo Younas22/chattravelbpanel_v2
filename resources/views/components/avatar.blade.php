@@ -1,4 +1,4 @@
-@props(['name', 'image' => null, 'sizeClass' => 'w-9 h-9', 'colorClass' => 'bg-blue-100 text-blue-700'])
+@props(['name', 'image' => null, 'sizeClass' => 'w-9 h-9', 'colorClass' => 'bg-brand-100 text-brand-700'])
 @if($image)
     <div class="relative shrink-0 {{ $sizeClass }}">
         <img src="{{ $image }}" alt="{{ $name }}"

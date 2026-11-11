@@ -18,18 +18,18 @@
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">System Name</label>
                         <input type="text" name="system_name" id="system_name" value="{{ $settings['system_name'] }}"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">System Logo</label>
                         <div class="flex items-center gap-3">
                             @if($settings['system_logo'])
                                 <img src="{{ url($settings['system_logo']) }}" class="w-10 h-10 rounded-xl object-cover border border-slate-200" id="system_logo_preview">
-                                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shrink-0 hidden" id="system_logo_placeholder">
+                                <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center shrink-0 hidden" id="system_logo_placeholder">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                                 </div>
                             @else
-                                <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center shrink-0" id="system_logo_placeholder">
+                                <div class="w-10 h-10 rounded-xl bg-brand-600 flex items-center justify-center shrink-0" id="system_logo_placeholder">
                                     <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
                                 </div>
                                 <img src="" class="w-10 h-10 rounded-xl object-cover border border-slate-200 hidden" id="system_logo_preview">
@@ -46,11 +46,11 @@
                         <div class="flex items-center gap-3">
                             @if($settings['company_image'])
                                 <img src="{{ url($settings['company_image']) }}" class="w-10 h-10 rounded-full object-cover border border-slate-200" id="company_image_preview">
-                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-blue-600 font-bold text-sm hidden" id="company_image_placeholder">
+                                <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center shrink-0 text-brand-600 font-bold text-sm hidden" id="company_image_placeholder">
                                     {{ strtoupper(substr($settings['agent_name'], 0, 1)) }}
                                 </div>
                             @else
-                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-blue-600 font-bold text-sm" id="company_image_placeholder">
+                                <div class="w-10 h-10 rounded-full bg-brand-100 flex items-center justify-center shrink-0 text-brand-600 font-bold text-sm" id="company_image_placeholder">
                                     {{ strtoupper(substr($settings['agent_name'], 0, 1)) }}
                                 </div>
                                 <img src="" class="w-10 h-10 rounded-full object-cover border border-slate-200 hidden" id="company_image_preview">
@@ -95,7 +95,7 @@
                             <input type="color" name="primary_color" id="primary_color" value="{{ $settings['primary_color'] }}"
                                 class="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer p-1">
                             <input type="text" id="primary_color_text" value="{{ $settings['primary_color'] }}"
-                                class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
                     </div>
                     <div>
@@ -109,7 +109,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Position</label>
-                        <select name="position" id="position" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                        <select name="position" id="position" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
                             <option value="bottom-right" {{ $settings['position'] === 'bottom-right' ? 'selected' : '' }}>Bottom Right</option>
                             <option value="bottom-left" {{ $settings['position'] === 'bottom-left' ? 'selected' : '' }}>Bottom Left</option>
                         </select>
@@ -117,12 +117,12 @@
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Border Radius (px)</label>
                         <input type="number" name="border_radius" id="border_radius" value="{{ $settings['border_radius'] }}" min="0" max="50"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                 </div>
                 <div class="flex items-center gap-6 mt-4">
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="checkbox" name="dark_mode" id="dark_mode" {{ $settings['dark_mode'] === 'true' ? 'checked' : '' }} class="rounded border-slate-300 text-blue-600">
+                        <input type="checkbox" name="dark_mode" id="dark_mode" {{ $settings['dark_mode'] === 'true' ? 'checked' : '' }} class="rounded border-slate-300 text-brand-600">
                         <span class="text-slate-700">Dark Mode</span>
                     </label>
                 </div>
@@ -135,27 +135,27 @@
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Widget Title</label>
                         <input type="text" name="widget_title" id="widget_title" value="{{ $settings['widget_title'] }}"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Subtitle</label>
                         <input type="text" name="widget_subtitle" id="widget_subtitle" value="{{ $settings['widget_subtitle'] }}"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Agent / Team Name</label>
                         <input type="text" name="agent_name" id="agent_name" value="{{ $settings['agent_name'] }}"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Welcome Message (when online)</label>
                         <textarea name="welcome_message" id="welcome_message" rows="2"
-                            class="w-full resize-none px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ $settings['welcome_message'] }}</textarea>
+                            class="w-full resize-none px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">{{ $settings['welcome_message'] }}</textarea>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Offline Message</label>
                         <textarea name="offline_message" rows="2"
-                            class="w-full resize-none px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">{{ $settings['offline_message'] }}</textarea>
+                            class="w-full resize-none px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">{{ $settings['offline_message'] }}</textarea>
                     </div>
                 </div>
             </div>
@@ -214,7 +214,7 @@
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Auto Popup Delay (seconds)</label>
                         <input type="number" name="popup_delay" value="{{ $settings['popup_delay'] }}" min="0" max="60"
-                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     </div>
                 </div>
                 <div class="flex flex-wrap items-center gap-6 mt-4">
@@ -225,7 +225,7 @@
                         ['show_branding', 'Show Branding'],
                     ] as [$key, $label])
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
-                        <input type="checkbox" name="{{ $key }}" {{ $settings[$key] === 'true' ? 'checked' : '' }} class="rounded border-slate-300 text-blue-600">
+                        <input type="checkbox" name="{{ $key }}" {{ $settings[$key] === 'true' ? 'checked' : '' }} class="rounded border-slate-300 text-brand-600">
                         <span class="text-slate-700">{{ $label }}</span>
                     </label>
                     @endforeach

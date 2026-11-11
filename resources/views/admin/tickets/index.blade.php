@@ -7,16 +7,16 @@
     <div class="card !p-4 flex flex-wrap items-center gap-3">
         <form method="GET" class="flex flex-wrap gap-3 flex-1">
             <input type="text" name="search" value="{{ request('search') }}" placeholder="Search tickets, users…"
-                class="flex-1 min-w-[200px] px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                class="flex-1 min-w-[200px] px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
 
-            <select name="status" onchange="this.form.submit()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+            <select name="status" onchange="this.form.submit()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
                 <option value="all">All Status</option>
                 <option value="open" {{ request('status') === 'open' ? 'selected' : '' }}>Open</option>
                 <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
                 <option value="closed" {{ request('status') === 'closed' ? 'selected' : '' }}>Closed</option>
             </select>
 
-            <select name="priority" onchange="this.form.submit()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+            <select name="priority" onchange="this.form.submit()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
                 <option value="all">All Priority</option>
                 <option value="urgent" {{ request('priority') === 'urgent' ? 'selected' : '' }}>Urgent</option>
                 <option value="high" {{ request('priority') === 'high' ? 'selected' : '' }}>High</option>
@@ -48,17 +48,17 @@
                     </thead>
                     <tbody class="divide-y divide-slate-50">
                         @foreach($tickets as $ticket)
-                        <tr class="hover:bg-slate-50 transition-colors {{ $ticket->unread_admin > 0 ? 'bg-blue-50/30' : '' }}">
+                        <tr class="hover:bg-slate-50 transition-colors {{ $ticket->unread_admin > 0 ? 'bg-brand-50/30' : '' }}">
                             <td class="px-5 py-4">
                                 <a href="{{ route('admin.tickets.show', $ticket) }}" class="flex items-center gap-2">
                                     <div>
                                         <div class="flex items-center gap-2">
-                                            <span class="font-mono text-xs text-blue-600">{{ $ticket->ticket_number }}</span>
+                                            <span class="font-mono text-xs text-brand-600">{{ $ticket->ticket_number }}</span>
                                             @if($ticket->unread_admin > 0)
-                                                <span class="badge bg-blue-600 text-white">{{ $ticket->unread_admin }}</span>
+                                                <span class="badge bg-brand-600 text-white">{{ $ticket->unread_admin }}</span>
                                             @endif
                                         </div>
-                                        <p class="font-medium text-slate-800 hover:text-blue-600">{{ Str::limit($ticket->subject, 50) }}</p>
+                                        <p class="font-medium text-slate-800 hover:text-brand-600">{{ Str::limit($ticket->subject, 50) }}</p>
                                     </div>
                                 </a>
                             </td>
