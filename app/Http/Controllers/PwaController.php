@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\WidgetSetting;
+use App\Services\PwaIcons;
 use Illuminate\Http\Response;
 
 /**
@@ -30,15 +31,16 @@ class PwaController extends Controller
             'orientation'      => 'portrait',
             'background_color' => '#ffffff',
             'theme_color'      => '#2563eb',
+            // Built from the favicon in Widget Settings (falls back to the default icons)
             'icons' => [
-                ['src' => 'pwa/icon-192.png',     'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],
-                ['src' => 'pwa/icon-512.png',     'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any'],
-                ['src' => 'pwa/maskable-512.png', 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable'],
+                ['src' => PwaIcons::url('icon-192.png', true),     'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any'],
+                ['src' => PwaIcons::url('icon-512.png', true),     'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'any'],
+                ['src' => PwaIcons::url('maskable-512.png', true), 'sizes' => '512x512', 'type' => 'image/png', 'purpose' => 'maskable'],
             ],
             'shortcuts' => [
-                ['name' => 'Live Chats', 'url' => 'admin/conversations', 'icons' => [['src' => 'pwa/icon-192.png', 'sizes' => '192x192']]],
-                ['name' => 'Messages',   'url' => 'admin/messages',      'icons' => [['src' => 'pwa/icon-192.png', 'sizes' => '192x192']]],
-                ['name' => 'Tickets',    'url' => 'admin/tickets',       'icons' => [['src' => 'pwa/icon-192.png', 'sizes' => '192x192']]],
+                ['name' => 'Live Chats', 'url' => 'admin/conversations', 'icons' => [['src' => PwaIcons::url('icon-192.png', true), 'sizes' => '192x192']]],
+                ['name' => 'Messages',   'url' => 'admin/messages',      'icons' => [['src' => PwaIcons::url('icon-192.png', true), 'sizes' => '192x192']]],
+                ['name' => 'Tickets',    'url' => 'admin/tickets',       'icons' => [['src' => PwaIcons::url('icon-192.png', true), 'sizes' => '192x192']]],
             ],
         ], 200, [
             'Content-Type'  => 'application/manifest+json',

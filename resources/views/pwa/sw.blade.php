@@ -1,5 +1,6 @@
 /* Service worker for the installable admin app. Served by PwaController@serviceWorker. */
 const BASE = @json(rtrim(url('/'), '/'));
+const APP_ICON = @json(\App\Services\PwaIcons::url('icon-192.png'));
 
 const OFFLINE_HTML = `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -44,7 +45,7 @@ self.addEventListener('push', (event) => {
     const title = data.title || 'New message';
     const options = {
         body: data.body || '',
-        icon: BASE + '/pwa/icon-192.png',
+        icon: APP_ICON,
         badge: BASE + '/pwa/badge-96.png',
         tag: data.tag || 'tbp-message',
         renotify: true,                 // ring again even if a notification with this tag is showing

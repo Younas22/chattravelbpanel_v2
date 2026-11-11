@@ -108,6 +108,11 @@ class SettingsController extends Controller
             WidgetSetting::set($key, $value);
         }
 
+        // New favicon -> rebuild the installed-app (PWA) icons from it
+        if (isset($data['favicon'])) {
+            \App\Services\PwaIcons::generate($data['favicon']);
+        }
+
         Cache::forget('widget_settings_all');
 
         return back()->with('success', 'Widget settings updated successfully.');

@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="{{ $pwaName }}">
 <meta name="application-name" content="{{ $pwaName }}">
-<link rel="apple-touch-icon" href="{{ asset('pwa/apple-touch-icon.png') }}">
+<link rel="apple-touch-icon" href="{{ \App\Services\PwaIcons::url('apple-touch-icon.png') }}">
 <script>
     window.TBP_PWA = {
         swUrl: @json(route('pwa.sw')),

@@ -63,7 +63,14 @@ function tbpUrlB64ToUint8(base64) {
 }
 
 // Save this device's subscription on the server (also refreshes it on every visit).
-async function tbpSyncPush(sendTest) {
+// Calls are serialised so two callers can't create two different subscriptions.
+let tbpPushChain = Promise.resolve();
+function tbpSyncPush(sendTest) {
+    const run = tbpPushChain.then(() => tbpSyncPushNow(sendTest));
+    tbpPushChain = run.catch(() => {});
+    return run;
+}
+async function tbpSyncPushNow(sendTest) {
     const P = window.TBP_PUSH;
     if (!P.vapidKey || !('serviceWorker' in navigator) || !('PushManager' in window)) return false;
     if (Notification.permission !== 'granted') return false;

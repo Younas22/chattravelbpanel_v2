@@ -74,7 +74,7 @@
         {{-- Get the app --}}
         <div id="app-install" class="hidden mt-5 rounded-2xl bg-white/10 backdrop-blur ring-1 ring-white/15 p-4 text-white">
             <div class="flex items-center gap-3">
-                <img src="{{ asset('pwa/icon-192.png') }}" alt="" class="w-11 h-11 rounded-xl shadow-lg shrink-0">
+                <img src="{{ \App\Services\PwaIcons::url('icon-192.png') }}" alt="" class="w-11 h-11 rounded-xl shadow-lg shrink-0 bg-white object-cover">
                 <div class="min-w-0 flex-1">
                     <p class="text-sm font-semibold">Get the {{ $systemName }} app</p>
                     <p class="text-xs text-slate-300">Install on your phone · instant alerts for new messages</p>
@@ -117,6 +117,7 @@
 
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault();
+        if (isIOS) return;                                             // iOS installs via Share → Add to Home Screen only
         deferred = e;
         document.getElementById('app-install-other').classList.add('hidden');
         show('app-install-btn');

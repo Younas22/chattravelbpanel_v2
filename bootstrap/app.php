@@ -23,6 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(append: [
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
+
+        // Let the client finish before defer() work (push notifications) runs
+        $middleware->web(append: [\App\Http\Middleware\FinishResponseBeforeDeferredWork::class]);
+        $middleware->api(append: [\App\Http\Middleware\FinishResponseBeforeDeferredWork::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
