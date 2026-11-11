@@ -251,8 +251,34 @@
       .tbp-open-ticket-text h4 { font-size: 12px; font-weight: 600; color: ${dark ? '#f1f5f9' : '#1e293b'}; margin: 0 0 1px; }
       .tbp-open-ticket-text p { font-size: 10.5px; color: ${dark ? '#64748b' : '#94a3b8'}; margin: 0; }
 
-      /* Mobile: hide floating button when chat is open (it overlaps send button) */
-      ${state.isMobile ? '#tbp-window:not(.hidden) ~ #tbp-btn { display: none !important; }' : ''}
+      /* ── Mobile (phones): full-screen chat that follows the on-screen keyboard ── */
+      @media (max-width: 639px) {
+        #tbp-widget { ${settings.position === 'bottom-right' ? 'right: 16px; left: auto;' : 'left: 16px; right: auto;'} bottom: calc(16px + env(safe-area-inset-bottom)); }
+        #tbp-window {
+          position: fixed !important; left: 0 !important; right: 0 !important; bottom: auto !important;
+          top: var(--tbp-vv-top, 0px) !important;
+          width: 100vw !important; height: var(--tbp-vv-h, 100dvh) !important;
+          border-radius: 0 !important; box-shadow: none; transform-origin: bottom center;
+        }
+        #tbp-window.hidden { transform: translateY(24px); }
+        /* floating button would sit on top of the send button */
+        #tbp-window:not(.hidden) ~ #tbp-btn { display: none !important; }
+        #tbp-header { padding: calc(12px + env(safe-area-inset-top)) 14px 12px; }
+        #tbp-close { width: 36px; height: 36px; border-radius: 10px; }
+        #tbp-expand { display: none !important; }
+        #tbp-input-area { padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); }
+        /* >=16px stops iOS Safari from zooming the page when an input is focused */
+        #tbp-textarea, .tbp-precall-field input, #tbp-window input, #tbp-window textarea, #tbp-window select { font-size: 16px !important; }
+        #tbp-attach-btn, #tbp-send-btn, #tbp-emoji-btn { width: 40px; height: 40px; }
+        .tbp-msg { max-width: 82%; }
+        .tbp-bubble { font-size: 14px; }
+        .tbp-img-attach, .tbp-video-attach { max-width: min(240px, 65vw); }
+        #tbp-emoji-panel { width: auto; left: 10px; right: 10px; }
+        .tbp-emoji-grid { grid-template-columns: repeat(8, 1fr); }
+        .tbp-faq-btn, .tbp-start-chat, .tbp-precall-submit { padding-top: 11px; padding-bottom: 11px; font-size: 13.5px; }
+      }
+      /* Touch screens have no hover: keep the reply arrow faintly visible */
+      @media (hover: none) { .tbp-reply-btn { opacity: 0.55; } }
     `;
 
     let style = shadow.getElementById('tbp-styles');
@@ -626,6 +652,7 @@
     state.isOpen = true;
     state.unread = 0;
     render();
+    syncMobileLayout();
     if (withSound) playSound();
     if (state.view === 'chat' && state.conversationId) { startPolling(); }
   }
@@ -634,6 +661,48 @@
     state.isOpen = false;
     stopPolling();
     render();
+    syncMobileLayout();
+  }
+
+  // ─── Mobile helpers ───────────────────────────────────────────────────────
+  const PHONE_MQ = window.matchMedia('(max-width: 639px)');
+  function isPhone() { return PHONE_MQ.matches; }
+
+  // Size the full-screen chat to the *visible* viewport so the on-screen
+  // keyboard never covers the input (iOS doesn't shrink 100dvh for it).
+  function syncViewport() {
+    const vv = window.visualViewport;
+    if (!shadow || !vv) return;
+    shadow.host.style.setProperty('--tbp-vv-h', vv.height + 'px');
+    shadow.host.style.setProperty('--tbp-vv-top', vv.offsetTop + 'px');
+  }
+
+  let savedHtmlOverflow = null;
+  function syncMobileLayout() {
+    syncViewport();
+    const lock = state.isOpen && isPhone();
+    const html = document.documentElement;
+    if (lock && savedHtmlOverflow === null) {
+      savedHtmlOverflow = html.style.overflow;
+      html.style.overflow = 'hidden';
+    } else if (!lock && savedHtmlOverflow !== null) {
+      html.style.overflow = savedHtmlOverflow;
+      savedHtmlOverflow = null;
+    }
+  }
+
+  function watchMobile() {
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', syncViewport);
+      window.visualViewport.addEventListener('scroll', syncViewport);
+    }
+    const onChange = () => {
+      state.isMobile = isPhone();
+      injectStyles();          // CSS only - no re-render, so typing isn't interrupted
+      syncMobileLayout();
+    };
+    if (PHONE_MQ.addEventListener) PHONE_MQ.addEventListener('change', onChange);
+    else if (PHONE_MQ.addListener) PHONE_MQ.addListener(onChange);
   }
 
   // ─── Start Chat ───────────────────────────────────────────────────────────
@@ -973,6 +1042,8 @@
     shadow = host.attachShadow({ mode: 'open' });
 
     loadFont();
+    watchMobile();
+    syncViewport();
 
     const s = await apiFetch('/settings').catch(() => null);
     if (s) Object.assign(settings, s);
@@ -996,7 +1067,7 @@
     const delay = (settings.auto_popup === 'true' && parseInt(settings.popup_delay) > 0)
       ? parseInt(settings.popup_delay) * 1000
       : 500;
-    setTimeout(() => { if (!state.isOpen) openWidget(true); }, delay);
+    setTimeout(() => { if (!state.isOpen && !isPhone()) openWidget(true); }, delay);
 
     render();
   }
