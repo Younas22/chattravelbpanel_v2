@@ -76,13 +76,13 @@ class PwaIcons
                 return false;                                                     // .ico / .svg etc.
             }
 
-            // centre-crop to a square
-            $w = imagesx($src);
-            $h = imagesy($src);
-            $side = min($w, $h);
-            $sx = intdiv($w - $side, 2);
-            $sy = intdiv($h - $side, 2);
-            $bg = self::backgroundColor($src);
+            // drop empty margins (white / transparent) around the logo, then centre-crop to a square
+            [$bx, $by, $bw, $bh] = self::contentBox($src);
+            $side = max($bw, $bh);
+            $sx = max(0, min(imagesx($src) - $side, $bx - intdiv($side - $bw, 2)));
+            $sy = max(0, min(imagesy($src) - $side, $by - intdiv($side - $bh, 2)));
+            $side = min($side, imagesx($src) - $sx, imagesy($src) - $sy);
+            $bg = self::backgroundColor($src, $bx, $by, $bw);
 
             foreach (self::TARGETS as $file => [$size, $pad, $opaque]) {
                 $dst = imagecreatetruecolor($size, $size);
@@ -110,13 +110,47 @@ class PwaIcons
         }
     }
 
-    /** Background for opaque icons: the favicon's own corner colour if solid, else white. */
-    private static function backgroundColor($img): array
+    /** Bounding box [x, y, w, h] of pixels that differ from the corner (margin) colour. */
+    private static function contentBox($img): array
     {
-        $rgba = imagecolorsforindex($img, imagecolorat($img, 0, 0));
-        if ($rgba['alpha'] > 20) {          // transparent corner
+        $w = imagesx($img);
+        $h = imagesy($img);
+        $corner = imagecolorsforindex($img, imagecolorat($img, 0, 0));
+        $isMargin = function (int $x, int $y) use ($img, $corner): bool {
+            $c = imagecolorsforindex($img, imagecolorat($img, $x, $y));
+            if ($c['alpha'] > 100 && $corner['alpha'] > 100) {
+                return true;                                   // both transparent
+            }
+            return abs($c['red'] - $corner['red']) + abs($c['green'] - $corner['green'])
+                 + abs($c['blue'] - $corner['blue']) + abs($c['alpha'] - $corner['alpha']) < 40;
+        };
+
+        $minX = $w; $minY = $h; $maxX = -1; $maxY = -1;
+        $step = max(1, intdiv(max($w, $h), 512));            // keep big images fast
+        for ($y = 0; $y < $h; $y += $step) {
+            for ($x = 0; $x < $w; $x += $step) {
+                if (! $isMargin($x, $y)) {
+                    $minX = min($minX, $x); $maxX = max($maxX, $x);
+                    $minY = min($minY, $y); $maxY = max($maxY, $y);
+                }
+            }
+        }
+        if ($maxX < 0) {
+            return [0, 0, $w, $h];                             // blank / single colour image
+        }
+        return [$minX, $minY, $maxX - $minX + 1, $maxY - $minY + 1];
+    }
+
+    /**
+     * Background for opaque icons (Android maskable / Apple): the logo's own
+     * edge colour (e.g. the blue of a blue tile) if solid, otherwise white.
+     */
+    private static function backgroundColor($img, int $x, int $y, int $w): array
+    {
+        $px = imagecolorsforindex($img, imagecolorat($img, $x + intdiv($w, 2), $y + 1));
+        if ($px['alpha'] > 20) {
             return [255, 255, 255];
         }
-        return [$rgba['red'], $rgba['green'], $rgba['blue']];
+        return [$px['red'], $px['green'], $px['blue']];
     }
 }
