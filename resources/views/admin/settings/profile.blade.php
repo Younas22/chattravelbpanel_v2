@@ -18,12 +18,12 @@
         <form method="POST" action="{{ route('admin.settings.profile.update') }}" enctype="multipart/form-data" class="space-y-5">
             @csrf
 
-            <div class="flex items-center gap-5">
-                <img src="{{ auth()->user()->avatar_url }}" class="w-20 h-20 rounded-full object-cover ring-4 ring-slate-100" id="profile-img-preview">
-                <div>
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5">
+                <img src="{{ auth()->user()->avatar_url }}" class="shrink-0 w-20 h-20 rounded-full object-cover ring-4 ring-slate-100" id="profile-img-preview">
+                <div class="min-w-0">
                     <label class="block text-xs font-medium text-slate-500 mb-1.5">JPG, PNG, GIF or WebP — max 2MB</label>
                     <input type="file" name="avatar" id="profile_avatar_input" accept=".jpg,.jpeg,.png,.gif,.webp"
-                        class="text-sm text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-brand-50 file:text-brand-700 file:font-medium file:cursor-pointer hover:file:bg-brand-100">
+                        class="block w-full max-w-full text-sm text-slate-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-brand-50 file:text-brand-700 file:font-medium file:cursor-pointer hover:file:bg-brand-100">
                     @error('avatar')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                 </div>
             </div>

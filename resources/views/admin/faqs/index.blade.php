@@ -21,15 +21,15 @@
         @else
             <div class="divide-y divide-slate-50" id="faq-sortable">
                 @foreach($faqs as $faq)
-                <div class="flex items-start gap-3 px-5 py-4 hover:bg-slate-50 transition-colors" data-id="{{ $faq->id }}">
+                <div class="flex flex-wrap sm:flex-nowrap items-start gap-3 px-4 sm:px-5 py-4 hover:bg-slate-50 transition-colors" data-id="{{ $faq->id }}">
                     {{-- Drag handle --}}
                     <div class="faq-drag-handle mt-0.5 shrink-0 cursor-grab active:cursor-grabbing text-slate-300 hover:text-slate-500 transition-colors" title="Drag to reorder">
                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M7 4a1 1 0 000 2h6a1 1 0 100-2H7zM7 9a1 1 0 000 2h6a1 1 0 100-2H7zM7 14a1 1 0 000 2h6a1 1 0 100-2H7z"/>
                         </svg>
                     </div>
-                    <div class="flex-1">
-                        <div class="flex items-center gap-2 mb-1">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex flex-wrap items-center gap-2 mb-1">
                             <p class="font-semibold text-slate-900 text-sm">{{ $faq->question }}</p>
                             @if(!$faq->is_active)
                                 <span class="badge bg-slate-100 text-slate-500">Inactive</span>
@@ -40,7 +40,7 @@
                         </div>
                         <p class="text-sm text-slate-500 line-clamp-2">{{ $faq->answer }}</p>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0">
+                    <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto justify-end">
                         <button @click="openEdit({{ $faq->toJson() }})" class="btn-secondary !py-1.5 !text-xs cursor-pointer">Edit</button>
                         <button @click="deleteFaq({{ $faq->id }})" class="btn-danger !py-1.5 !text-xs cursor-pointer">Delete</button>
                     </div>
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function () {
             var order = Array.from(el.querySelectorAll('[data-id]')).map(function (row) {
                 return parseInt(row.dataset.id, 10);
             });
-            fetch('/admin/faqs/order', {
+            fetch('{{ url('/') }}/admin/faqs/order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 body: JSON.stringify({ order: order })
@@ -139,7 +139,7 @@ function faqManager() {
         },
 
         save() {
-            const url = this.editId ? `/admin/faqs/${this.editId}` : '/admin/faqs';
+            const url = this.editId ? `{{ url('/') }}/admin/faqs/${this.editId}` : '{{ url('/') }}/admin/faqs';
             const method = this.editId ? 'PUT' : 'POST';
             fetch(url, {
                 method,
@@ -150,7 +150,7 @@ function faqManager() {
 
         deleteFaq(id) {
             if (!confirm('Delete this FAQ?')) return;
-            fetch(`/admin/faqs/${id}`, {
+            fetch(`{{ url('/') }}/admin/faqs/${id}`, {
                 method: 'DELETE',
                 headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
             }).then(() => location.reload());

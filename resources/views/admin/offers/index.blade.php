@@ -65,7 +65,7 @@
             </div>
 
             {{-- Prices --}}
-            <div class="grid grid-cols-2 gap-4 mb-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
                 {{-- Original Price --}}
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">Original Price</label>

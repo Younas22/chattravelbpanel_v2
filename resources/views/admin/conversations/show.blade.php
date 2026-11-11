@@ -105,7 +105,7 @@
                 <button onclick="adminSetReply({{ $msg->id }}, {{ json_encode($msg->body ?: ($msg->attachment_name ?? '')) }}, '{{ $msg->sender_type }}')" class="reply-btn" title="Reply">{!! $replyIcon !!}</button>
                 @endif
 
-                <div class="max-w-[85%] sm:max-w-[70%] flex flex-col {{ $out ? 'items-end' : 'items-start' }}">
+                <div class="min-w-0 max-w-[85%] sm:max-w-[70%] flex flex-col {{ $out ? 'items-end' : 'items-start' }}">
                     @if($msg->body || $msg->replyTo)
                     <div class="{{ $out ? 'bubble-out' : ($msg->sender_type === 'bot' ? 'bubble-bot' : 'bubble-in') }}">
                         @if($msg->replyTo)
@@ -150,7 +150,7 @@
                 <div class="group flex items-end gap-1.5" :class="msg.sender_type === 'admin' ? 'justify-end' : 'justify-start'">
                     <button x-show="msg.sender_type === 'admin'" @click="setReply(msg)" class="reply-btn" title="Reply">{!! $replyIcon !!}</button>
 
-                    <div class="max-w-[85%] sm:max-w-[70%] flex flex-col" :class="msg.sender_type === 'admin' ? 'items-end' : 'items-start'">
+                    <div class="min-w-0 max-w-[85%] sm:max-w-[70%] flex flex-col" :class="msg.sender_type === 'admin' ? 'items-end' : 'items-start'">
                         <div x-show="msg.body || msg.reply_to"
                              :class="msg.sender_type === 'admin' ? 'bubble-out' : (msg.sender_type === 'bot' ? 'bubble-bot' : 'bubble-in')"><span x-show="msg.reply_to" class="quote"><span class="font-semibold" x-text="msg.reply_to?.sender_type === 'admin' ? 'You' : 'Visitor'"></span> · <span x-text="msg.reply_to?.body ? msg.reply_to.body.slice(0,60) : (msg.reply_to?.attachment_name || '📎 Attachment')"></span></span><span class="msg-text" x-text="msg.body"></span></div>
                         <div x-show="msg.attachment_url && msg.attachment_type === 'image'" class="mt-1">
@@ -421,7 +421,7 @@ function adminChat(conversationId) {
         },
 
         pollMessages() {
-            fetch(`/admin/conversations/${conversationId}/messages?after_id=${this.lastMessageId}`, {
+            fetch(`{{ url('/') }}/admin/conversations/${conversationId}/messages?after_id=${this.lastMessageId}`, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest' }
             })
             .then(r => r.json())
@@ -455,7 +455,7 @@ function adminChat(conversationId) {
 
             const self = this;
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', `/admin/conversations/${conversationId}/message`);
+            xhr.open('POST', `{{ url('/') }}/admin/conversations/${conversationId}/message`);
 
             xhr.upload.addEventListener('progress', e => {
                 if (e.lengthComputable) self.uploadProgress = Math.round((e.loaded / e.total) * 100);
@@ -501,7 +501,7 @@ function adminChat(conversationId) {
         handleTyping() {
             if (!this.sendingTyping) {
                 this.sendingTyping = true;
-                fetch(`/admin/conversations/${conversationId}/typing`, {
+                fetch(`{{ url('/') }}/admin/conversations/${conversationId}/typing`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
                     body: JSON.stringify({ typing: true }),
@@ -509,7 +509,7 @@ function adminChat(conversationId) {
             }
             clearTimeout(this.typingTimer);
             this.typingTimer = setTimeout(() => {
-                fetch(`/admin/conversations/${conversationId}/typing`, {
+                fetch(`{{ url('/') }}/admin/conversations/${conversationId}/typing`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
                     body: JSON.stringify({ typing: false }),
@@ -519,27 +519,27 @@ function adminChat(conversationId) {
 
         closeChat() {
             if (!confirm('Close this conversation?')) return;
-            fetch(`/admin/conversations/${conversationId}/close`, {
+            fetch(`{{ url('/') }}/admin/conversations/${conversationId}/close`, {
                 method: 'PATCH',
                 headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
             }).then(() => location.reload());
         },
 
         reopenChat() {
-            fetch(`/admin/conversations/${conversationId}/reopen`, {
+            fetch(`{{ url('/') }}/admin/conversations/${conversationId}/reopen`, {
                 method: 'PATCH',
                 headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
             }).then(() => location.reload());
         },
 
         loadCannedReplies() {
-            fetch('/admin/canned-replies/search')
+            fetch('{{ url('/') }}/admin/canned-replies/search')
                 .then(r => r.json())
                 .then(data => { this.cannedResults = data; });
         },
 
         searchCanned() {
-            fetch(`/admin/canned-replies/search?q=${encodeURIComponent(this.cannedSearch)}`)
+            fetch(`{{ url('/') }}/admin/canned-replies/search?q=${encodeURIComponent(this.cannedSearch)}`)
                 .then(r => r.json())
                 .then(data => { this.cannedResults = data; });
         },
@@ -601,7 +601,7 @@ function adminChat(conversationId) {
         playSound() {
             if (!{{ \App\Models\WidgetSetting::get('sound_enabled', 'true') === 'true' ? 'true' : 'false' }}) return;
             try {
-                const audio = new Audio('/voice/chat.wav');
+                const audio = new Audio('{{ url('/') }}/voice/chat.wav');
                 audio.volume = 0.7;
                 audio.play().catch(() => {});
             } catch(e) {}
@@ -623,7 +623,7 @@ function convList(activeId) {
         },
 
         load() {
-            fetch('/admin/conversations/list', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            fetch('{{ url('/') }}/admin/conversations/list', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                 .then(r => r.json())
                 .then(data => {
                     const list = data.conversations || [];
@@ -634,7 +634,7 @@ function convList(activeId) {
                         if (hasNew) {
                             this.newChatAlert = true;
                             if ({{ \App\Models\WidgetSetting::get('sound_enabled', 'true') === 'true' ? 'true' : 'false' }}) {
-                                try { new Audio('/voice/newvisitor.mp3').play().catch(()=>{}); } catch(e) {}
+                                try { new Audio('{{ url('/') }}/voice/newvisitor.mp3').play().catch(()=>{}); } catch(e) {}
                             }
                             setTimeout(() => { this.newChatAlert = false; }, 6000);
                         }

@@ -2,7 +2,7 @@
 @section('title', 'Widget Settings')
 
 @section('content')
-<div class="grid lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {{-- Settings Form --}}
     <div class="lg:col-span-2 space-y-4">
@@ -14,7 +14,7 @@
             <div class="card">
                 <h2 class="font-semibold text-slate-900 mb-4">System Branding</h2>
                 <p class="text-xs text-slate-500 mb-4">These settings affect the sidebar logo/name and login page.</p>
-                <div class="grid sm:grid-cols-2 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">System Name</label>
                         <input type="text" name="system_name" id="system_name" value="{{ $settings['system_name'] }}"
@@ -88,14 +88,14 @@
             {{-- Appearance --}}
             <div class="card">
                 <h2 class="font-semibold text-slate-900 mb-4">Appearance</h2>
-                <div class="grid sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Primary Color</label>
                         <div class="flex items-center gap-2">
                             <input type="color" name="primary_color" id="primary_color" value="{{ $settings['primary_color'] }}"
                                 class="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer p-1">
                             <input type="text" id="primary_color_text" value="{{ $settings['primary_color'] }}"
-                                class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                                class="flex-1 min-w-0 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                         </div>
                     </div>
                     <div>
@@ -104,7 +104,7 @@
                             <input type="color" name="text_color" id="text_color" value="{{ $settings['text_color'] }}"
                                 class="w-10 h-10 rounded-lg border border-slate-200 cursor-pointer p-1">
                             <input type="text" id="text_color_text" value="{{ $settings['text_color'] }}"
-                                class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm">
+                                class="flex-1 min-w-0 px-3 py-2 rounded-xl border border-slate-200 text-sm">
                         </div>
                     </div>
                     <div>
@@ -180,7 +180,7 @@
                             <input type="text" name="whatsapp_contacts[{{ $i }}][number]"
                                 value="{{ $contact['number'] ?? '' }}"
                                 placeholder="923207560200"
-                                class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                                class="flex-1 min-w-0 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                             <button type="button" onclick="this.closest('.wa-contact-row').remove()"
                                 class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer">
                                 <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -210,7 +210,7 @@
             {{-- Behavior --}}
             <div class="card">
                 <h2 class="font-semibold text-slate-900 mb-4">Behavior</h2>
-                <div class="grid sm:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1.5">Auto Popup Delay (seconds)</label>
                         <input type="number" name="popup_delay" value="{{ $settings['popup_delay'] }}" min="0" max="60"
@@ -450,7 +450,7 @@
                 <span class="text-slate-400 text-sm flex-shrink-0">wa.me/</span>
                 <input type="text" name="whatsapp_contacts[${idx}][number]"
                     placeholder="923207560200"
-                    class="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
+                    class="flex-1 min-w-0 px-3 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
                 <button type="button" onclick="this.closest('.wa-contact-row').remove()"
                     class="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors flex-shrink-0 cursor-pointer">
                     <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>

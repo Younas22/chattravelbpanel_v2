@@ -66,7 +66,7 @@
         </div>
     </div>
 
-    <div class="grid lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {{-- Recent Conversations --}}
         <div class="lg:col-span-2 card">

@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css'])
-    <style>* { font-family: 'Inter', sans-serif; }</style>
+    @include('partials.theme-head')
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-900 via-brand-950 to-slate-900 flex items-center justify-center p-4">
     <div class="w-full max-w-sm">

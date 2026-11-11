@@ -86,7 +86,7 @@ function cannedManager() {
         openEdit(r) { this.editId = r.id; this.form = { title: r.title, body: r.body, shortcut: r.shortcut || '' }; this.showModal = true; },
 
         save() {
-            const url = this.editId ? `/admin/canned-replies/${this.editId}` : '/admin/canned-replies';
+            const url = this.editId ? `{{ url('/') }}/admin/canned-replies/${this.editId}` : '{{ url('/') }}/admin/canned-replies';
             const method = this.editId ? 'PUT' : 'POST';
             fetch(url, {
                 method,
@@ -97,7 +97,7 @@ function cannedManager() {
 
         deleteReply(id) {
             if (!confirm('Delete this reply?')) return;
-            fetch(`/admin/canned-replies/${id}`, {
+            fetch(`{{ url('/') }}/admin/canned-replies/${id}`, {
                 method: 'DELETE', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' }
             }).then(() => location.reload());
         }

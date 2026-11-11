@@ -21,7 +21,7 @@
 
         <form method="POST" action="{{ route('admin.settings.pusher.update') }}" class="space-y-4">
             @csrf
-            <div class="grid sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">App ID</label>
                     <input type="text" name="pusher_app_id" value="{{ env('PUSHER_APP_ID') }}"

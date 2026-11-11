@@ -289,7 +289,7 @@
     function playBell(file) {
         if (!soundEnabled) return;
         try {
-            const a = new Audio('/voice/' + file);
+            const a = new Audio('{{ url('/') }}/voice/' + file);
             a.volume = 0.7;
             a.play().catch(() => {});
         } catch (e) {}

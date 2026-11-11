@@ -15,7 +15,7 @@
         <h2 class="font-semibold text-slate-900 mb-4">Email / SMTP Settings</h2>
         <form method="POST" action="{{ route('admin.settings.general.update') }}" class="space-y-4">
             @csrf
-            <div class="grid sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-slate-700 mb-1.5">SMTP Host</label>
                     <input type="text" name="smtp_host" value="{{ env('MAIL_HOST') }}"

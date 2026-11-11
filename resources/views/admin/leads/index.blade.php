@@ -104,7 +104,7 @@ function leadStatusSelectClass(status) {
 
 function updateLeadStatus(visitorId, status) {
     const select = document.querySelector(`[data-status-select="${visitorId}"]`);
-    fetch(`/admin/leads/${visitorId}/status`, {
+    fetch(`{{ url('/') }}/admin/leads/${visitorId}/status`, {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',

@@ -12,7 +12,7 @@
     </div>
 
     {{-- Charts row --}}
-    <div class="grid lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         <div class="lg:col-span-2 card relative">
             <h2 class="font-semibold text-slate-900 mb-4">Conversations & Messages</h2>
@@ -36,7 +36,7 @@
         </div>
     </div>
 
-    <div class="grid lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {{-- Top Countries --}}
         <div class="card">
