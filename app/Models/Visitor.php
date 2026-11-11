@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Visitor extends Model
 {
+    /**
+     * A visitor only counts as online if the widget has pinged us recently.
+     * The widget heartbeats every 30s, so 2 minutes = several missed beats.
+     * (The is_online flag alone goes stale when a tab is closed without the
+     * offline beacon firing - e.g. mobile browsers, lost connection.)
+     */
+    public const ONLINE_WINDOW_MINUTES = 2;
+
     public const LEAD_STATUSES = [
         'pending'    => 'Pending',
         'contacted'  => 'Contacted',
@@ -59,6 +67,35 @@ class Visitor extends Model
     public function logs(): HasMany
     {
         return $this->hasMany(VisitorLog::class);
+    }
+
+    public static function onlineThreshold(): \Illuminate\Support\Carbon
+    {
+        return now()->subMinutes(self::ONLINE_WINDOW_MINUTES);
+    }
+
+    /** Visitors that are really online right now (flag set AND recent activity). */
+    public function scopeOnline($query)
+    {
+        return $query->where('is_online', true)
+            ->where('last_activity_at', '>=', self::onlineThreshold());
+    }
+
+    /** Flip stale "online" flags off so the stored value matches reality. */
+    public static function expireStale(): int
+    {
+        return static::where('is_online', true)
+            ->where(fn ($q) => $q->whereNull('last_activity_at')
+                ->orWhere('last_activity_at', '<', self::onlineThreshold()))
+            ->update(['is_online' => false]);
+    }
+
+    /** $visitor->is_online is always the effective status, never a stale flag. */
+    public function getIsOnlineAttribute($value): bool
+    {
+        return (bool) $value
+            && $this->last_activity_at
+            && $this->last_activity_at->gte(self::onlineThreshold());
     }
 
     public function getDisplayNameAttribute(): string

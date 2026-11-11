@@ -36,7 +36,7 @@
     {{-- Sidebar --}}
     <aside
         class="fixed inset-y-0 left-0 z-50 flex flex-col bg-white border-r border-slate-100 shadow-xl lg:shadow-sm transition-all duration-300"
-        :class="sidebarOpen ? 'w-64' : 'w-0 lg:w-16'"
+        :class="sidebarOpen ? 'w-64' : 'w-0 lg:w-16 is-collapsed'"
         :style="(!sidebarOpen && window.innerWidth >= 1024) ? 'overflow:visible' : 'overflow:hidden'"
         x-cloak
     >
@@ -203,11 +203,11 @@
                 </form>
             </div>
             {{-- Collapsed view --}}
-            <div x-show="!sidebarOpen" class="sidebar-link flex justify-center">
-                <div class="relative">
+            <div x-show="!sidebarOpen" class="sidebar-link">
+                <div class="relative shrink-0 w-8 h-8">
                     @if($widgetAvatar)
                         <img src="{{ url($widgetAvatar) }}" alt="{{ $authUser->name }}"
-                             class="w-8 h-8 rounded-full ring-2 ring-brand-100 object-cover cursor-pointer"
+                             class="block w-8 h-8 shrink-0 rounded-full ring-2 ring-brand-100 object-cover cursor-pointer"
                              onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                         <div class="w-8 h-8 bg-brand-600 rounded-full ring-2 ring-brand-100 items-center justify-center cursor-pointer" style="display:none">
                             <span class="text-white text-xs font-bold">{{ $userInitial }}</span>
@@ -281,6 +281,17 @@
 
 @stack('scripts')
 <script>
+// Collapsed-sidebar tooltips are position:fixed; place each one next to its link on hover.
+document.addEventListener('mouseover', function (e) {
+    const link = e.target.closest && e.target.closest('aside .sidebar-link');
+    if (!link) return;
+    const tip = link.querySelector('.sidebar-tooltip');
+    if (!tip) return;
+    const r = link.getBoundingClientRect();
+    tip.style.top = (r.top + r.height / 2) + 'px';
+    tip.style.left = (r.right + 10) + 'px';
+});
+
 (function () {
     let prevVisitors = null;
     let prevUnread = null;

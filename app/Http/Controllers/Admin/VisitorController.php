@@ -12,8 +12,10 @@ class VisitorController extends Controller
 {
     public function index(Request $request)
     {
+        Visitor::expireStale();
+
         $visitors  = Visitor::orderByDesc('last_activity_at')->paginate(30);
-        $liveCount = Visitor::where('is_online', true)->count();
+        $liveCount = Visitor::online()->count();
 
         // Collect unique country_codes from current page
         $codes = $visitors->pluck('country_code')->filter()->unique()->values();
@@ -55,7 +57,7 @@ class VisitorController extends Controller
         $perPage = 10;
         $page    = max(1, (int) $request->get('page', 1));
 
-        $query = Visitor::where('is_online', true)->orderByDesc('last_activity_at');
+        $query = Visitor::online()->orderByDesc('last_activity_at');
 
         $total   = $query->count();
         $lastPage = max(1, (int) ceil($total / $perPage));
@@ -83,11 +85,9 @@ class VisitorController extends Controller
 
     public function cleanup()
     {
-        // Mark visitors inactive if no activity for 5 minutes
-        Visitor::where('is_online', true)
-            ->where('last_activity_at', '<', now()->subMinutes(5))
-            ->update(['is_online' => false]);
+        // Mark visitors offline if the widget hasn't pinged recently
+        $cleaned = Visitor::expireStale();
 
-        return response()->json(['cleaned' => true]);
+        return response()->json(['cleaned' => true, 'count' => $cleaned]);
     }
 }

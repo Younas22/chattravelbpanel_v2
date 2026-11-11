@@ -14,7 +14,7 @@ class DashboardController extends Controller
     public function index()
     {
         $stats = [
-            'active_visitors'    => Visitor::where('is_online', true)->count(),
+            'active_visitors'    => Visitor::online()->count(),
             'active_chats'       => Conversation::whereIn('status', ['active', 'pending'])->count(),
             'unread_messages'    => Conversation::sum('unread_admin'),
             'open_tickets'       => Ticket::where('status', 'open')->count(),
@@ -36,7 +36,7 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        $liveVisitors = Visitor::where('is_online', true)
+        $liveVisitors = Visitor::online()
             ->orderByDesc('last_activity_at')
             ->limit(10)
             ->get();
@@ -53,8 +53,11 @@ class DashboardController extends Controller
 
     public function stats()
     {
+        // Polled every 10s by the admin layout - a cheap moment to clear stale "online" flags.
+        Visitor::expireStale();
+
         return response()->json([
-            'active_visitors' => Visitor::where('is_online', true)->count(),
+            'active_visitors' => Visitor::online()->count(),
             'active_chats'    => Conversation::whereIn('status', ['active', 'pending'])->count(),
             'unread_messages' => Conversation::sum('unread_admin'),
             'open_tickets'    => Ticket::where('status', 'open')->count(),
