@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\GlobalOfferController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\SettingsController;
+use App\Http\Controllers\Admin\SystemController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use App\Http\Controllers\Admin\VisitorController;
 use App\Http\Controllers\Chat\DirectMessageController;
@@ -122,6 +123,11 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     Route::get('/offers', [GlobalOfferController::class, 'index'])->name('offers.index');
     Route::post('/offers', [GlobalOfferController::class, 'save'])->name('offers.save');
     Route::post('/offers/toggle', [GlobalOfferController::class, 'toggle'])->name('offers.toggle');
+
+    // System Update (run server update steps without a terminal)
+    Route::get('/system', [SystemController::class, 'index'])->name('system.index');
+    Route::get('/system/status', [SystemController::class, 'status'])->name('system.status');
+    Route::post('/system/run/{step}', [SystemController::class, 'run'])->name('system.run');
 
     // Settings
     Route::get('/settings/widget', [SettingsController::class, 'widget'])->name('settings.widget');
