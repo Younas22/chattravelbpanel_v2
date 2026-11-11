@@ -19,6 +19,26 @@ class SystemController extends Controller
         return response()->json(SystemMaintenance::status());
     }
 
+    /** Save the PHP CLI path the hosting company gave us (only if it really is php-cli). */
+    public function savePhpPath(Request $request)
+    {
+        $request->validate(['path' => 'nullable|string|max:255']);
+        $path = trim((string) $request->input('path', ''));
+
+        if ($path === '') {
+            \App\Models\WidgetSetting::set('php_cli_path', '');
+            return response()->json(['ok' => true, 'message' => 'Cleared — using automatic detection.']);
+        }
+
+        $version = SystemMaintenance::verifyPhpCli($path);
+        if (! $version) {
+            return response()->json(['ok' => false, 'message' => 'That path is not a command-line PHP (php-cli) on this server.'], 422);
+        }
+
+        \App\Models\WidgetSetting::set('php_cli_path', $path);
+        return response()->json(['ok' => true, 'message' => "Saved — PHP {$version} (cli)."]);
+    }
+
     public function run(Request $request, string $step)
     {
         abort_unless(in_array($step, [...SystemMaintenance::STEPS, 'download-composer'], true), 404);

@@ -21,6 +21,7 @@ class SystemMaintenance
     public static function status(): array
     {
         $composer = self::findComposer();
+        $phpCli = self::phpCli();
 
         return [
             'web_push'   => class_exists(\Minishlink\WebPush\WebPush::class),
@@ -30,6 +31,7 @@ class SystemMaintenance
             'https'      => request()->isSecure() || str_starts_with((string) config('app.url'), 'https://'),
             'shell'      => self::canRunCommands(),
             'composer'   => $composer ? implode(' ', array_map('basename', $composer)) : null,
+            'php_cli'    => $phpCli,
             'php'        => PHP_VERSION,
             'env'        => app()->environment(),
         ];
@@ -110,6 +112,10 @@ class SystemMaintenance
         if (! self::canRunCommands()) {
             return ['ok' => false, 'output' => 'This server does not allow running commands (proc_open is disabled). Ask your host to run "composer install", or enable proc_open.'];
         }
+        if (! self::phpCli()) {
+            return ['ok' => false, 'output' => 'No command-line PHP (php-cli) was found on this server. Composer needs it. '
+                . 'Ask your hosting support for the "PHP CLI path" (e.g. /opt/cpanel/ea-php82/root/usr/bin/php) and enter it under Server health.'];
+        }
         $composer = self::findComposer();
         if (! $composer) {
             return ['ok' => false, 'output' => 'Composer was not found on this server. Click "Download Composer" first, then run this step again.'];
@@ -149,53 +155,122 @@ class SystemMaintenance
     public static function findComposer(): ?array
     {
         $php = self::phpCli();
+        if (! $php) {
+            return null;                    // composer is a PHP script: it needs a real PHP CLI
+        }
 
-        // A composer.phar we downloaded, one in the project, or one next to a
-        // system "composer" on the PATH (Windows installs composer.bat + composer.phar).
-        $phars = [storage_path('app/composer.phar'), base_path('composer.phar')];
+        // A composer.phar we downloaded, one in the project, or a composer found on the
+        // PATH / usual hosting locations. Always run it through the verified PHP CLI -
+        // its own "#!/usr/bin/env php" may point at a CGI/LiteSpeed PHP on shared hosts.
+        $files = [storage_path('app/composer.phar'), base_path('composer.phar')];
         foreach (explode(PATH_SEPARATOR, (string) getenv('PATH')) as $dir) {
             if ($dir !== '') {
-                $phars[] = rtrim($dir, '\\/') . DIRECTORY_SEPARATOR . 'composer.phar';
+                $dir = rtrim($dir, '\/') . DIRECTORY_SEPARATOR;
+                $files[] = $dir . 'composer.phar';
+                if (PHP_OS_FAMILY !== 'Windows') {
+                    $files[] = $dir . 'composer';
+                }
             }
         }
-        foreach ($phars as $phar) {
-            if ($php && @is_file($phar)) {
-                return [$php, $phar];
-            }
-        }
-        if (! self::canRunCommands()) {
-            return null;
-        }
-        foreach (['composer', '/usr/local/bin/composer', '/usr/bin/composer', '/opt/cpanel/composer/bin/composer'] as $bin) {
-            $probe = self::exec([$bin, '--version', '--no-ansi'], 20);
-            if ($probe['ok'] && stripos($probe['output'], 'composer') !== false) {
-                return [$bin];
+        array_push($files, '/usr/local/bin/composer', '/usr/bin/composer', '/opt/cpanel/composer/bin/composer');
+
+        foreach (array_unique($files) as $file) {
+            if (@is_file($file) && self::looksLikeComposer($file)) {
+                return [$php, $file];
             }
         }
         return null;
     }
 
-    /** Path to a PHP *CLI* binary (under PHP-FPM, PHP_BINARY is the FPM daemon). */
+    /** Check an admin-entered PHP path; returns the reported version if it is a CLI binary. */
+    public static function verifyPhpCli(string $path): ?string
+    {
+        if ($path === '' || ! @is_file($path) || ! self::canRunCommands()) {
+            return null;
+        }
+        $probe = self::exec([$path, '-r', 'echo PHP_SAPI, "|", PHP_VERSION;'], 15);
+        return preg_match('/(?:^|\n)cli\|([\d.]+)\s*$/', trim($probe['output']), $m) ? $m[1] : null;
+    }
+
+    /** composer.phar, or the composer PHP script (not a bash wrapper). */
+    private static function looksLikeComposer(string $file): bool
+    {
+        if (str_ends_with($file, '.phar')) {
+            return true;
+        }
+        $head = (string) @file_get_contents($file, false, null, 0, 300);
+        return str_contains($head, 'php') && ! str_starts_with($head, '#!/bin/bash') && ! str_starts_with($head, '#!/bin/sh');
+    }
+
+    private static ?string $phpCliCache = null;
+    private static bool $phpCliSearched = false;
+
+    /**
+     * Path to a PHP **CLI** binary matching the web PHP version. Under PHP-FPM,
+     * LiteSpeed (lsphp) or CGI, PHP_BINARY is not usable for composer, so every
+     * candidate is actually run and must report PHP_SAPI === 'cli'.
+     */
     public static function phpCli(): ?string
     {
-        $candidates = [];
-        if (PHP_BINARY && ! str_contains(basename(PHP_BINARY), 'fpm') && ! str_contains(basename(PHP_BINARY), 'httpd')) {
-            $candidates[] = PHP_BINARY;
+        if (self::$phpCliSearched) {
+            return self::$phpCliCache;
         }
-        $exe = PHP_OS_FAMILY === 'Windows' ? 'php.exe' : 'php';
-        $candidates[] = PHP_BINDIR . DIRECTORY_SEPARATOR . $exe;
-        if (PHP_OS_FAMILY === 'Windows' && ($ini = php_ini_loaded_file())) {
-            $candidates[] = dirname($ini) . DIRECTORY_SEPARATOR . 'php.exe';
-        }
-        $candidates[] = '/usr/local/bin/php';
-        $candidates[] = '/usr/bin/php';
+        self::$phpCliSearched = true;
 
-        foreach ($candidates as $c) {
-            if ($c && @is_file($c)) {
-                return $c;
+        if (! self::canRunCommands()) {
+            return null;
+        }
+
+        $mm = PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION;     // e.g. 8.2
+        $nd = PHP_MAJOR_VERSION . PHP_MINOR_VERSION;           // e.g. 82
+        $win = PHP_OS_FAMILY === 'Windows';
+
+        $candidates = array_filter([
+            trim((string) \App\Models\WidgetSetting::get('php_cli_path', '')),   // set by the admin on the System page
+            PHP_BINARY ?: null,
+            PHP_BINDIR . DIRECTORY_SEPARATOR . ($win ? 'php.exe' : 'php'),
+            $win && ($ini = php_ini_loaded_file()) ? dirname($ini) . DIRECTORY_SEPARATOR . 'php.exe' : null,
+        ]);
+        if (! $win) {
+            array_push($candidates,
+                "/opt/cpanel/ea-php{$nd}/root/usr/bin/php",     // cPanel EasyApache
+                "/usr/local/bin/ea-php{$nd}",
+                "/opt/alt/php{$nd}/usr/bin/php",               // CloudLinux alt-php
+                "/usr/local/lsws/lsphp{$nd}/bin/php",          // LiteSpeed
+                "/usr/local/php{$nd}/bin/php",
+                "/usr/local/bin/php{$nd}",
+                "/usr/bin/php{$mm}",                           // Debian/Ubuntu
+                "/usr/bin/php{$nd}",
+                "/usr/local/bin/php",
+                "/usr/bin/php",
+                '/bin/php'
+            );
+            foreach (explode(PATH_SEPARATOR, (string) getenv('PATH')) as $dir) {
+                if ($dir !== '') {
+                    $candidates[] = rtrim($dir, '/') . "/php{$mm}";
+                    $candidates[] = rtrim($dir, '/') . '/php';
+                }
             }
         }
-        return null;
+
+        $fallback = null;
+        foreach (array_unique($candidates) as $bin) {
+            if (! @is_file($bin)) {
+                continue;
+            }
+            $probe = self::exec([$bin, '-r', 'echo PHP_SAPI, "|", PHP_MAJOR_VERSION, ".", PHP_MINOR_VERSION;'], 15);
+            if (! preg_match('/(?:^|\n)cli\|(\d+\.\d+)\s*$/', trim($probe['output']), $m)) {
+                continue;                                       // CGI / LiteSpeed / FPM / broken
+            }
+            if ($m[1] === $mm) {
+                return self::$phpCliCache = $bin;               // same version as the website: best
+            }
+            if (! $fallback && version_compare($m[1], '8.2', '>=')) {
+                $fallback = $bin;                               // newer CLI still runs this app
+            }
+        }
+
+        return self::$phpCliCache = $fallback;
     }
 
     /** Run a command without a shell; returns combined output. */

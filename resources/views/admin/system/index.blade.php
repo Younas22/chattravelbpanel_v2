@@ -43,6 +43,18 @@
                 </li>
             </template>
         </ul>
+
+        {{-- php-cli path (only when auto-detection failed or a custom path is set) --}}
+        <div x-show="status.shell && (!status.php_cli || phpPath)" x-cloak class="mt-3 rounded-xl bg-slate-50 border border-slate-200 p-3">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">PHP CLI path</label>
+            <p class="text-xs text-slate-500 mb-2">Ask your hosting support: <i>"What is the full path of the PHP {{ PHP_MAJOR_VERSION }}.{{ PHP_MINOR_VERSION }} CLI binary?"</i> — e.g. <code class="text-[11px]">/opt/cpanel/ea-php{{ PHP_MAJOR_VERSION }}{{ PHP_MINOR_VERSION }}/root/usr/bin/php</code></p>
+            <div class="flex gap-2">
+                <input type="text" x-model="phpPath" placeholder="/usr/local/bin/php"
+                       class="flex-1 min-w-0 px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <button type="button" @click="savePhpPath()" :disabled="busy" class="btn-primary !px-3 !py-2 !text-xs">Save</button>
+            </div>
+            <p x-show="phpPathMsg" x-cloak class="mt-1.5 text-xs" :class="phpPathOk ? 'text-green-700' : 'text-red-600'" x-text="phpPathMsg"></p>
+        </div>
     </div>
 
     {{-- Steps --}}
@@ -97,6 +109,7 @@ function systemUpdate(initial) {
     return {
         status: initial,
         busy: false, finished: false, allOk: false,
+        phpPath: @js((string) \App\Models\WidgetSetting::get('php_cli_path', '')), phpPathMsg: '', phpPathOk: false,
         steps: [
             { key: 'composer', title: 'Install packages',        desc: 'Runs composer install (adds new libraries such as web-push)', state: 'idle', output: '', open: false },
             { key: 'migrate',  title: 'Update database',          desc: 'Runs new database migrations',                                 state: 'idle', output: '', open: false },
@@ -113,6 +126,8 @@ function systemUpdate(initial) {
                 { label: 'Push notification keys', ok: s.vapid, okText: 'Configured', badText: 'Missing — run "Set up push notifications"' },
                 { label: 'Encryption (OpenSSL)', ok: s.openssl_ec, okText: 'Working', badText: 'PHP can\'t create encryption keys — push will not work. Ask your host to fix the OpenSSL config.' },
                 { label: 'HTTPS', ok: s.https, warn: !s.https, okText: 'Secure — app install & push allowed', badText: 'Site is not on https:// — phones won\'t install the app or receive push' },
+                { label: 'PHP command line (php-cli)', ok: !!s.php_cli, warn: !s.shell,
+                  okText: s.php_cli || '', badText: s.shell ? 'Not found, so Composer cannot run. Enter the path from your hosting support below.' : 'Commands are blocked on this server.' },
                 { label: 'Composer', ok: !!s.composer, warn: !s.composer && s.shell, okText: 'Found (' + (s.composer || '') + ')',
                   badText: s.shell ? 'Not found — use "Download Composer" below' : 'This server blocks running commands (proc_open). Packages must be installed by your host.' },
             ];
@@ -161,6 +176,21 @@ function systemUpdate(initial) {
             const res = await this.post('download-composer');
             s.output = res.output || ''; s.open = true;
             s.state = res.ok ? 'idle' : 'fail';
+            this.busy = false;
+            this.refresh();
+        },
+
+        async savePhpPath() {
+            this.busy = true; this.phpPathMsg = '';
+            try {
+                const r = await fetch(@json(route('admin.system.php-path')), {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ path: this.phpPath }),
+                });
+                const d = await r.json();
+                this.phpPathOk = !!d.ok; this.phpPathMsg = d.message || (d.ok ? 'Saved.' : 'Not valid.');
+            } catch (e) { this.phpPathOk = false; this.phpPathMsg = 'Network error.'; }
             this.busy = false;
             this.refresh();
         },

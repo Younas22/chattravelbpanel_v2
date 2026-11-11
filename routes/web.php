@@ -30,9 +30,18 @@ Route::get('/offer-popup.js', function () {
     ]);
 })->name('offer-popup.js');
 
-// Installable admin app (PWA)
-Route::get('/manifest.webmanifest', [PwaController::class, 'manifest'])->name('pwa.manifest');
-Route::get('/sw.js', [PwaController::class, 'serviceWorker'])->name('pwa.sw');
+// Installable admin app (PWA). No session/cookies: the browser fetches these in
+// the background, and a session write from them could overwrite a fresh flash
+// message (e.g. "Invalid credentials") written by a form post at the same moment.
+$statelessMiddleware = [
+    \Illuminate\Cookie\Middleware\EncryptCookies::class,
+    \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
+    \Illuminate\Session\Middleware\StartSession::class,
+    \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+    \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class,
+];
+Route::get('/manifest.webmanifest', [PwaController::class, 'manifest'])->name('pwa.manifest')->withoutMiddleware($statelessMiddleware);
+Route::get('/sw.js', [PwaController::class, 'serviceWorker'])->name('pwa.sw')->withoutMiddleware($statelessMiddleware);
 
 // Redirect root to admin
 Route::get('/', fn() => redirect()->route('admin.dashboard'));
@@ -128,6 +137,7 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     Route::get('/system', [SystemController::class, 'index'])->name('system.index');
     Route::get('/system/status', [SystemController::class, 'status'])->name('system.status');
     Route::post('/system/run/{step}', [SystemController::class, 'run'])->name('system.run');
+    Route::post('/system/php-path', [SystemController::class, 'savePhpPath'])->name('system.php-path');
 
     // Settings
     Route::get('/settings/widget', [SettingsController::class, 'widget'])->name('settings.widget');
