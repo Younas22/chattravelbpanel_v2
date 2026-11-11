@@ -9,13 +9,11 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DirectMessageController as AdminDirectMessageController;
 use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Admin\GlobalOfferController;
-use App\Http\Controllers\Admin\GroupController as AdminGroupController;
 use App\Http\Controllers\Admin\LeadController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\TicketController as AdminTicketController;
 use App\Http\Controllers\Admin\VisitorController;
 use App\Http\Controllers\Chat\DirectMessageController;
-use App\Http\Controllers\Chat\GroupChatController;
 use App\Http\Controllers\Chat\TicketController;
 use App\Http\Controllers\WidgetScriptController;
 use Illuminate\Support\Facades\Route;
@@ -70,17 +68,6 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     Route::get('/ticket-users', [AdminTicketController::class, 'ticketUsers'])->name('ticket-users.index');
     Route::post('/ticket-users', [AdminTicketController::class, 'storeUser'])->name('ticket-users.store');
 
-    // Groups
-    Route::get('/groups', [AdminGroupController::class, 'index'])->name('groups.index');
-    Route::post('/groups', [AdminGroupController::class, 'store'])->name('groups.store');
-    Route::get('/groups/{group}', [AdminGroupController::class, 'show'])->name('groups.show');
-    Route::patch('/groups/{group}', [AdminGroupController::class, 'update'])->name('groups.update');
-    Route::post('/groups/{group}/image', [AdminGroupController::class, 'updateImage'])->name('groups.image');
-    Route::get('/groups/{group}/messages', [AdminGroupController::class, 'pollMessages'])->name('groups.poll');
-    Route::post('/groups/{group}/message', [AdminGroupController::class, 'sendMessage'])->name('groups.message');
-    Route::post('/groups/{group}/members', [AdminGroupController::class, 'addMember'])->name('groups.members.add');
-    Route::delete('/groups/{group}/members/{ticketUser}', [AdminGroupController::class, 'removeMember'])->name('groups.members.remove');
-    Route::delete('/groups/{group}', [AdminGroupController::class, 'destroy'])->name('groups.destroy');
 
     // Direct Messages (admin <-> ticket user individual chat)
     Route::get('/messages', [AdminDirectMessageController::class, 'index'])->name('messages.index');
@@ -157,15 +144,9 @@ Route::name('tickets.')->middleware('track.ticket_user')->group(function () {
     Route::get('/tickets/{ticket}',       [TicketController::class, 'show'])->name('show');
     Route::post('/tickets/{ticket}/reply',[TicketController::class, 'reply'])->name('reply');
 
-    // Group chat
-    Route::get('/chat',                  [GroupChatController::class, 'index'])->name('chat.index');
+    // Chat (customer <-> support team)
+    Route::redirect('/chat', '/chat/support')->name('chat.index');
     Route::get('/chat/support',          [DirectMessageController::class, 'showSupport'])->name('chat.support.show');
     Route::post('/chat/support/message', [DirectMessageController::class, 'sendSupportMessage'])->name('chat.support.message');
     Route::get('/chat/support/messages', [DirectMessageController::class, 'pollSupportMessages'])->name('chat.support.poll');
-    Route::get('/chat/dm/{contact}',          [DirectMessageController::class, 'show'])->name('chat.dm.show');
-    Route::post('/chat/dm/{contact}/message', [DirectMessageController::class, 'sendMessage'])->name('chat.dm.message');
-    Route::get('/chat/dm/{contact}/messages', [DirectMessageController::class, 'pollMessages'])->name('chat.dm.poll');
-    Route::get('/chat/{group}',          [GroupChatController::class, 'show'])->name('chat.show');
-    Route::post('/chat/{group}/message', [GroupChatController::class, 'sendMessage'])->name('chat.message');
-    Route::get('/chat/{group}/messages', [GroupChatController::class, 'pollMessages'])->name('chat.poll');
 });

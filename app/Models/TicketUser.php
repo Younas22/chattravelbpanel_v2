@@ -4,7 +4,6 @@ namespace App\Models;
 
 use App\Models\Concerns\HasPresence;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Notifications\Notifiable;
 
@@ -31,23 +30,9 @@ class TicketUser extends Authenticatable
         return $this->hasMany(Ticket::class);
     }
 
-    public function groups(): BelongsToMany
-    {
-        return $this->belongsToMany(Group::class, 'group_user')
-            ->withPivot('last_read_at')
-            ->withTimestamps();
-    }
-
     public function profileImageUrl(): ?string
     {
         if (!$this->profile_image) return null;
         return rtrim(config('app.url'), '/') . '/attachments/' . $this->profile_image;
-    }
-
-    public function sharesGroupWith(int $otherId): bool
-    {
-        return $this->groups()
-            ->whereHas('members', fn($q) => $q->where('ticket_users.id', $otherId))
-            ->exists();
     }
 }

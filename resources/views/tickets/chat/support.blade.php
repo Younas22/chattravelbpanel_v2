@@ -18,7 +18,6 @@
                     <p class="text-xs text-slate-500">Message our admin team directly</p>
                 </div>
             </div>
-            <a href="{{ route('tickets.chat.index') }}" class="btn-secondary !py-1.5 !text-xs">← Chat</a>
         </div>
 
         <div class="flex-1 overflow-y-auto p-5 space-y-3" id="messages-container">

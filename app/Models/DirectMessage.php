@@ -20,17 +20,6 @@ class DirectMessage extends Model
 
     protected $appends = ['attachment_url', 'formatted_size', 'sender_name'];
 
-    public function scopeBetweenTicketUsers(Builder $query, int $a, int $b): Builder
-    {
-        return $query->where(function ($q) use ($a, $b) {
-            $q->where('sender_type', 'ticket_user')->where('sender_id', $a)
-              ->where('recipient_type', 'ticket_user')->where('recipient_id', $b);
-        })->orWhere(function ($q) use ($a, $b) {
-            $q->where('sender_type', 'ticket_user')->where('sender_id', $b)
-              ->where('recipient_type', 'ticket_user')->where('recipient_id', $a);
-        });
-    }
-
     public function scopeBetweenAdminAndTicketUser(Builder $query, int $ticketUserId): Builder
     {
         return $query->where(function ($q) use ($ticketUserId) {
