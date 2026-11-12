@@ -2,14 +2,8 @@
 @section('title', 'Pusher Settings')
 
 @section('content')
+@include('admin.settings._tabs')
 <div class="max-w-2xl space-y-6">
-
-    <div class="flex gap-3">
-        <a href="{{ route('admin.settings.widget') }}" class="btn-secondary">Widget</a>
-        <a href="{{ route('admin.settings.general') }}" class="btn-secondary">SMTP</a>
-        <span class="btn-primary">Pusher</span>
-        <a href="{{ route('admin.settings.profile') }}" class="btn-secondary">Profile</a>
-    </div>
 
     <div class="card">
         <div class="flex items-start justify-between mb-4">

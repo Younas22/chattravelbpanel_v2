@@ -142,8 +142,6 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'admin.auth'])->group
     // Settings
     Route::get('/settings/widget', [SettingsController::class, 'widget'])->name('settings.widget');
     Route::post('/settings/widget', [SettingsController::class, 'updateWidget'])->name('settings.widget.update');
-    Route::get('/settings/general', [SettingsController::class, 'general'])->name('settings.general');
-    Route::post('/settings/general', [SettingsController::class, 'updateGeneral'])->name('settings.general.update');
     Route::get('/settings/pusher', [SettingsController::class, 'pusher'])->name('settings.pusher');
     Route::post('/settings/pusher', [SettingsController::class, 'updatePusher'])->name('settings.pusher.update');
     Route::get('/settings/profile', [SettingsController::class, 'profile'])->name('settings.profile');

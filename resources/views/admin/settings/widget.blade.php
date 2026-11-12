@@ -2,6 +2,7 @@
 @section('title', 'Widget Settings')
 
 @section('content')
+@include('admin.settings._tabs')
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
     {{-- Settings Form --}}
@@ -300,11 +301,6 @@
     </div>
 </div>
 
-<div class="flex items-center gap-4 mt-4">
-    <a href="{{ route('admin.settings.general') }}" class="btn-secondary cursor-pointer">SMTP Settings</a>
-    <a href="{{ route('admin.settings.pusher') }}" class="btn-secondary cursor-pointer">Pusher Settings</a>
-    <a href="{{ route('admin.settings.profile') }}" class="btn-secondary cursor-pointer">Profile</a>
-</div>
 @endsection
 
 @push('scripts')

@@ -118,40 +118,6 @@ class SettingsController extends Controller
         return back()->with('success', 'Widget settings updated successfully.');
     }
 
-    public function general()
-    {
-        return view('admin.settings.general');
-    }
-
-    public function updateGeneral(Request $request)
-    {
-        $request->validate([
-            'smtp_host'     => 'nullable|string|max:255',
-            'smtp_port'     => 'nullable|integer',
-            'smtp_username' => 'nullable|string|max:255',
-            'smtp_password' => 'nullable|string|max:255',
-            'smtp_from'     => 'nullable|email',
-            'smtp_name'     => 'nullable|string|max:100',
-        ]);
-
-        // Update .env values
-        $this->updateEnv([
-            'MAIL_HOST'              => $request->smtp_host,
-            'MAIL_PORT'              => $request->smtp_port,
-            'MAIL_USERNAME'          => $request->smtp_username,
-            'MAIL_FROM_ADDRESS'      => $request->smtp_from,
-            'MAIL_FROM_NAME'         => $request->smtp_name,
-        ]);
-
-        if ($request->smtp_password) {
-            $this->updateEnv(['MAIL_PASSWORD' => $request->smtp_password]);
-        }
-
-        Artisan::call('config:clear');
-
-        return back()->with('success', 'General settings updated.');
-    }
-
     public function pusher()
     {
         return view('admin.settings.pusher');
@@ -192,12 +158,23 @@ class SettingsController extends Controller
 
     public function updateProfile(Request $request)
     {
+        $user = auth()->user();
+
         $request->validate([
             'name'   => 'required|string|max:100',
+            'email'  => 'required|email|max:191|unique:users,email,' . $user->id,
             'avatar' => 'nullable|image|max:2048',
         ]);
 
-        $user = auth()->user();
+        // Changing the sign-in email must be confirmed with the current password
+        $newEmail = strtolower(trim($request->email));
+        if ($newEmail !== strtolower($user->email)) {
+            if (! $request->filled('email_password') || ! Hash::check($request->email_password, $user->password)) {
+                return back()->withInput()->withErrors(['email_password' => 'Enter your current password to change the email.']);
+            }
+            $user->email = $newEmail;
+        }
+
         $user->name = $request->name;
 
         if ($request->hasFile('avatar')) {

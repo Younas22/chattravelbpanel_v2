@@ -181,7 +181,7 @@
             @endphp
             {{-- Expanded view --}}
             <div x-show="sidebarOpen" class="flex items-center gap-3">
-                <div class="relative shrink-0">
+                <a href="{{ route('admin.settings.profile') }}" class="relative shrink-0" title="Your profile">
                     @if($widgetAvatar)
                         <img src="{{ url($widgetAvatar) }}" alt="{{ $authUser->name }}"
                              class="w-9 h-9 rounded-full ring-2 ring-brand-100 object-cover"
@@ -194,10 +194,13 @@
                             <span class="text-white text-sm font-bold">{{ $userInitial }}</span>
                         </div>
                     @endif
-                </div>
+                </a>
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-semibold text-slate-900 truncate">{{ $authUser->name }}</p>
-                    <p class="text-xs text-slate-500 truncate">Administrator</p>
+                    <a href="{{ route('admin.settings.profile') }}" class="block text-sm font-semibold text-slate-900 truncate hover:text-brand-700">{{ $authUser->name }}</a>
+                    <a href="{{ route('admin.settings.profile') }}#change-password" class="inline-flex items-center gap-1 whitespace-nowrap text-xs text-slate-500 hover:text-brand-600" title="Change password">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                        Password
+                    </a>
                 </div>
                 <form method="POST" action="{{ route('admin.logout') }}">
                     @csrf
@@ -210,7 +213,7 @@
                 </form>
             </div>
             {{-- Collapsed view --}}
-            <div x-show="!sidebarOpen" class="sidebar-link">
+            <a href="{{ route('admin.settings.profile') }}" x-show="!sidebarOpen" class="sidebar-link">
                 <div class="relative shrink-0 w-8 h-8">
                     @if($widgetAvatar)
                         <img src="{{ url($widgetAvatar) }}" alt="{{ $authUser->name }}"
@@ -225,8 +228,8 @@
                         </div>
                     @endif
                 </div>
-                <span class="sidebar-tooltip">{{ $authUser->name }}</span>
-            </div>
+                <span class="sidebar-tooltip">{{ $authUser->name }} · Profile &amp; password</span>
+            </a>
         </div>
     </aside>
 
