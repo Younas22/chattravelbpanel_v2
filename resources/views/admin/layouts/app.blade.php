@@ -310,8 +310,26 @@ document.addEventListener('mouseover', function (e) {
         try {
             const a = new Audio('{{ url('/') }}/voice/' + file);
             a.volume = 0.7;
-            a.play().catch(() => {});
+            a.play().catch((e) => { if (e && e.name === 'NotAllowedError') showSoundBlocked(); });
         } catch (e) {}
+    }
+
+    // Browsers block sound until the user has clicked the page once. If a bell
+    // was blocked, show a small button so the admin can switch sounds on.
+    function showSoundBlocked() {
+        if (document.getElementById('sound-blocked')) return;
+        const b = document.createElement('button');
+        b.id = 'sound-blocked';
+        b.type = 'button';
+        b.className = 'fixed bottom-4 left-4 z-[9999] flex items-center gap-2 rounded-full bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-xl hover:bg-slate-800 cursor-pointer';
+        b.innerHTML = '<span>🔇</span><span>Sounds are blocked — <u>click to enable</u></span>';
+        b.addEventListener('click', () => {
+            try { const a = new Audio('{{ url('/') }}/voice/newvisitor.mp3'); a.volume = 0.7; a.play().catch(() => {}); } catch (e) {}
+            b.remove();
+        });
+        document.body.appendChild(b);
+        const off = () => { b.remove(); window.removeEventListener('pointerdown', off); };
+        window.addEventListener('pointerdown', off);     // any click on the page also unlocks sound
     }
 
     function showToast(msg, icon) {
@@ -345,11 +363,17 @@ document.addEventListener('mouseover', function (e) {
                 const el = document.getElementById('live-visitors-count');
                 if (el) el.textContent = data.active_visitors;
 
-                if (prevVisitors !== null && data.active_visitors > prevVisitors) {
-                    playBell('newvisitor.mp3');
-                    showToast('New visitor on the site', '👋');
+                // New visitor = an online visitor id we haven't seen in the previous poll
+                // (a plain count misses arrivals when someone else leaves at the same time).
+                const ids = (data.online_ids || []).map(String);
+                if (prevVisitors !== null) {
+                    const fresh = ids.filter(id => !prevVisitors.has(id));
+                    if (fresh.length) {
+                        playBell('newvisitor.mp3');
+                        showToast(fresh.length > 1 ? fresh.length + ' new visitors on the site' : 'New visitor on the site', '👋');
+                    }
                 }
-                prevVisitors = data.active_visitors;
+                prevVisitors = new Set(ids);
 
                 // live chats + customer messages + ticket replies
                 const unread = (data.unread_messages || 0) + (data.dm_unread || 0) + (data.ticket_unread || 0);

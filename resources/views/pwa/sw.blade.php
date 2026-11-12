@@ -29,10 +29,16 @@ self.addEventListener('activate', (event) => {
 // show the offline screen. Everything else (assets, AJAX) is left to the browser.
 self.addEventListener('fetch', (event) => {
     if (event.request.mode !== 'navigate') return;
+    const req = event.request;
+    const offline = () => new Response(OFFLINE_HTML, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
     event.respondWith(
-        fetch(event.request).catch(() =>
-            new Response(OFFLINE_HTML, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
-        )
+        fetch(req).catch(async () => {
+            // One brief network blip shouldn't show "offline": retry page loads once.
+            // (Never retry a POST - that could submit a form twice.)
+            if (req.method !== 'GET') return offline();
+            await new Promise((r) => setTimeout(r, 800));
+            return fetch(req.url, { credentials: 'include', cache: 'no-store' }).catch(offline);
+        })
     );
 });
 

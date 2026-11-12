@@ -58,6 +58,8 @@ class DashboardController extends Controller
 
         return response()->json([
             'active_visitors' => Visitor::online()->count(),
+            // ids of visitors online now: the layout rings for every id it hasn't seen yet
+            'online_ids'      => Visitor::online()->orderByDesc('last_activity_at')->limit(300)->pluck('id'),
             'active_chats'    => Conversation::whereIn('status', ['active', 'pending'])->count(),
             'unread_messages' => Conversation::sum('unread_admin'),
             'open_tickets'    => Ticket::where('status', 'open')->count(),
